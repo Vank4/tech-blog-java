@@ -1,0 +1,60 @@
+# === JAVA / SPRING BOOT ===
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+
+# === MAVEN ===
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# === INTELLIJ IDEA ===
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# === ECLIPSE ===
+.classpath
+.project
+.settings/
+bin/
+
+# === VS CODE ===
+.vscode/
+
+# === NODE / FRONTEND ===
+node_modules/
+dist/
+build/
+.cache/
+*.tsbuildinfo
+
+# === ENVIRONMENT ===
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# === OS FILES ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === DOCKER ===
+docker-compose.override.yml
+
+# === LOGS ===
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === UPLOADS ===
+backend/src/main/resources/static/uploads/

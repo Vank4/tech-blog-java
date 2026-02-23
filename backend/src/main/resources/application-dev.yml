@@ -1,0 +1,30 @@
+# ============================================
+# Tech Blog - Development Profile
+# ============================================
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/techblog_dev
+      database: techblog_dev
+
+# Server
+server:
+  port: 8081
+
+# App Properties
+# app:
+#   jwt:
+#     secret: dev-secret-key-not-for-production-use-only
+#     expiration: 86400000
+#   cors:
+#     allowed-origins: http://localhost:3000,http://localhost:5173
+
+# Logging - verbose for development
+logging:
+  level:
+    root: INFO
+    com.techblog: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

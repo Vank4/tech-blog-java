@@ -1,6 +1,5 @@
 # === JAVA / SPRING BOOT ===
-target/
-!.mvn/wrapper/maven-wrapper.jar
+/target/
 *.class
 *.jar
 *.war
@@ -10,7 +9,7 @@ hs_err_pid*
 
 # === MAVEN ===
 .mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 
 # === INTELLIJ IDEA ===
 .idea/
@@ -40,6 +39,10 @@ build/
 .env.local
 .env.*.local
 !.env.example
+
+# === SPRING LOCAL CONFIG ===
+application-local.yml
+application-secret.yml
 
 # === OS FILES ===
 .DS_Store

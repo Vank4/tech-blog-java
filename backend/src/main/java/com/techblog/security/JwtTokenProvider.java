@@ -1,49 +1,78 @@
 package com.techblog.security;
 
-// TODO: Thêm dependency jjwt vào pom.xml
-// import io.jsonwebtoken.*;
-// import io.jsonwebtoken.security.Keys;
-// import org.springframework.beans.factory.annotation.Value;
-// import org.springframework.security.core.Authentication;
-// import org.springframework.stereotype.Component;
-// import java.security.Key;
-// import java.util.Date;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
-/**
- * JWT Token Provider
- * Tạo, validate, và parse JWT tokens.
- *
- * Yêu cầu dependency:
- * <dependency>
- * <groupId>io.jsonwebtoken</groupId>
- * <artifactId>jjwt-api</artifactId>
- * <version>0.12.6</version>
- * </dependency>
- * <dependency>
- * <groupId>io.jsonwebtoken</groupId>
- * <artifactId>jjwt-impl</artifactId>
- * <version>0.12.6</version>
- * <scope>runtime</scope>
- * </dependency>
- * <dependency>
- * <groupId>io.jsonwebtoken</groupId>
- * <artifactId>jjwt-jackson</artifactId>
- * <version>0.12.6</version>
- * <scope>runtime</scope>
- * </dependency>
- */
-// @Component
+import javax.crypto.SecretKey;
+import java.util.Date;
+
+@Component
+@Slf4j
 public class JwtTokenProvider {
 
-    // @Value("${app.jwt.secret}")
-    // private String jwtSecret;
+    @Value("${app.jwt.secret}")
+    private String jwtSecret;
 
-    // @Value("${app.jwt.expiration}")
-    // private long jwtExpiration;
+    @Value("${app.jwt.expiration-ms}")
+    private long jwtExpirationMs;
 
-    // TODO: Implement các method:
-    // public String generateToken(Authentication authentication) { ... }
-    // public String getUsernameFromToken(String token) { ... }
-    // public boolean validateToken(String token) { ... }
+    public String generateToken(Authentication authentication) {
+        String email = authentication.getName();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateTokenFromEmail(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception ex) {
+            log.error("JWT validation failed: {}", ex.getMessage(), ex);
+            return false;
+        }
+    }
+
+    private SecretKey getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
 }

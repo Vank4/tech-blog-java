@@ -37,3 +37,8 @@ logging:
     com.techblog: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+app:
+  jwt:
+    secret: c2VjcmV0a2V5c2VjcmV0a2V5c2VjcmV0a2V5c2VjcmV0a2V5
+    expiration-ms: 86400000

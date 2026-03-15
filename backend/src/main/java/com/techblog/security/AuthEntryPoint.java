@@ -1,41 +1,35 @@
 package com.techblog.security;
 
-// import com.fasterxml.jackson.databind.ObjectMapper;
-// import jakarta.servlet.ServletException;
-// import jakarta.servlet.http.HttpServletRequest;
-// import jakarta.servlet.http.HttpServletResponse;
-// import org.springframework.http.MediaType;
-// import org.springframework.security.core.AuthenticationException;
-// import org.springframework.security.web.AuthenticationEntryPoint;
-// import org.springframework.stereotype.Component;
-// import java.io.IOException;
-// import java.util.HashMap;
-// import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
-/**
- * Authentication Entry Point
- * Xử lý lỗi 401 Unauthorized khi user chưa xác thực truy cập endpoint bảo mật.
- */
-// @Component
-public class AuthEntryPoint /* implements AuthenticationEntryPoint */ {
+import java.io.IOException;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-    // @Override
-    // public void commence(HttpServletRequest request,
-    // HttpServletResponse response,
-    // AuthenticationException authException)
-    // throws IOException, ServletException {
-    //
-    // response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    // response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    //
-    // Map<String, Object> body = new HashMap<>();
-    // body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-    // body.put("error", "Unauthorized");
-    // body.put("message", authException.getMessage());
-    // body.put("path", request.getServletPath());
-    //
-    // ObjectMapper mapper = new ObjectMapper();
-    // mapper.writeValue(response.getOutputStream(), body);
-    // }
+@Component
+public class AuthEntryPoint implements AuthenticationEntryPoint {
 
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException, ServletException {
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("success", false);
+        body.put("message", "Unauthorized");
+        body.put("timestamp", Instant.now().toString());
+
+        new ObjectMapper().writeValue(response.getOutputStream(), body);
+    }
 }

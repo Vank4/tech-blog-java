@@ -24,11 +24,10 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.getName());
         product.setSlug(request.getSlug());
         product.setBrand(request.getBrand());
-        product.setModel(request.getModel());
-        product.setShortDesc(request.getShortDesc());
+        product.setModelCode(request.getModel());
+        product.setShortDescription(request.getShortDesc());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setThumbnailUrl(request.getThumbnailUrl());
 
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
@@ -61,11 +60,10 @@ public class ProductServiceImpl implements ProductService {
         response.setName(product.getName());
         response.setSlug(product.getSlug());
         response.setBrand(product.getBrand());
-        response.setModel(product.getModel());
-        response.setShortDesc(product.getShortDesc());
+        response.setModel(product.getModelCode());
+        response.setShortDesc(product.getShortDescription());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
-        response.setThumbnailUrl(product.getThumbnailUrl());
 
         if (product.getCategory() != null) {
             response.setCategoryId(product.getCategory().getId());

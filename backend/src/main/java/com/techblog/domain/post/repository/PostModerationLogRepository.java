@@ -1,4 +1,7 @@
 package com.techblog.domain.post.repository;
 
-public class PostModerationLogRepository {
+import com.techblog.domain.post.model.PostModerationLog;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PostModerationLogRepository extends JpaRepository<PostModerationLog, Long> {
 }

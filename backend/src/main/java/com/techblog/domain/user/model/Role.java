@@ -1,36 +1,35 @@
 package com.techblog.domain.user.model;
 
+import com.techblog.common.audit.Auditable;
 import com.techblog.common.enums.RoleName;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-@Table(
-        name = "roles",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_roles_name", columnNames = "name")
-        }
-)
-public class Role {
+@Table(name = "roles", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_roles_name", columnNames = "name")
+})
+public class Role extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(name = "name", nullable = false, length = 30)
     private RoleName name;
 
-    @Column(length = 255)
+    @Column(name = "description", length = 255)
     private String description;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false, nullable = false)
-    private LocalDateTime createdAt;
 }

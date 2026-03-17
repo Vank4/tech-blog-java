@@ -19,15 +19,20 @@ public final class AppConstants {
     // Roles
     public static final String ROLE_ADMIN = "ADMIN";
     public static final String ROLE_USER = "USER";
+    public static final String ROLE_AUTHOR = "AUTHOR";
+    public static final String ROLE_GUEST = "GUEST";
 
-    // Collections (MongoDB)
-    public static final String COLLECTION_USERS = "users";
-    public static final String COLLECTION_POSTS = "posts";
-    public static final String COLLECTION_CATEGORIES = "categories";
-    public static final String COLLECTION_PRODUCTS = "products";
-    public static final String COLLECTION_COMMENTS = "comments";
-    public static final String COLLECTION_REVIEWS = "reviews";
-    public static final String COLLECTION_RATINGS = "ratings";
+    // Database Tables (MySQL)
+    public static final String TABLE_USERS = "users";
+    public static final String TABLE_POSTS = "posts";
+    public static final String TABLE_CATEGORIES = "categories";
+    public static final String TABLE_PRODUCTS = "products";
+    public static final String TABLE_COMMENTS = "comments";
+    public static final String TABLE_REVIEWS = "reviews";
+    public static final String TABLE_RATINGS = "ratings";
+    public static final String TABLE_PRODUCT_SPECS = "product_specs";
+    public static final String TABLE_PRODUCT_IMAGES = "product_images";
+    public static final String TABLE_MODERATION_LOGS = "moderation_logs";
 
     // API Paths
     public static final String API_BASE = "/api/v1";
@@ -39,5 +44,28 @@ public final class AppConstants {
     public static final String API_COMMENTS = API_BASE + "/comments";
     public static final String API_REVIEWS = API_BASE + "/reviews";
     public static final String API_RATINGS = API_BASE + "/ratings";
+    public static final String API_ADMIN = API_BASE + "/admin";
+
+    // Post Status
+    public static final String POST_STATUS_DRAFT = "DRAFT";
+    public static final String POST_STATUS_PENDING = "PENDING";
+    public static final String POST_STATUS_PUBLISHED = "PUBLISHED";
+    public static final String POST_STATUS_REJECTED = "REJECTED";
+
+    // Comment Status
+    public static final String COMMENT_STATUS_PENDING = "PENDING";
+    public static final String COMMENT_STATUS_APPROVED = "APPROVED";
+    public static final String COMMENT_STATUS_HIDDEN = "HIDDEN";
+    public static final String COMMENT_STATUS_REPORTED = "REPORTED";
+
+    // Sentiment Labels (AI)
+    public static final String SENTIMENT_POSITIVE = "POSITIVE";
+    public static final String SENTIMENT_NEGATIVE = "NEGATIVE";
+    public static final String SENTIMENT_NEUTRAL = "NEUTRAL";
+
+    // File Upload
+    public static final long MAX_FILE_SIZE = 10_000_000; // 10MB
+    public static final String UPLOAD_PATH = "uploads/";
 
 }
+

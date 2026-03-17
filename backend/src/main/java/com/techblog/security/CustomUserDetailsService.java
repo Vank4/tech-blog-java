@@ -1,50 +1,45 @@
 package com.techblog.security;
 
+import com.techblog.common.enums.UserStatus;
 import com.techblog.domain.user.model.User;
 import com.techblog.domain.user.repository.UserRepository;
-import com.techblog.domain.user.repository.UserRoleRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserRoleRepository userRoleRepository;
 
     @Override
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+        User user = userRepository.findByEmailOrUsername(usernameOrEmail, usernameOrEmail)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "User not found with username/email: " + usernameOrEmail));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPasswordHash(),
-                true,
-                true,
-                true,
-                !isLocked(user),
-                mapAuthorities(user)
-        );
-    }
+        List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().name()))
+                .toList();
 
-    private boolean isLocked(User user) {
-        return user.getStatus() != null && "BANNED".equalsIgnoreCase(user.getStatus().name());
-    }
+        boolean accountLocked = user.getStatus() == UserStatus.BANNED;
+        boolean disabled = user.getStatus() != UserStatus.ACTIVE;
 
-    private Collection<? extends GrantedAuthority> mapAuthorities(User user) {
-        return userRoleRepository.findByUser(user)
-                .stream()
-                .map(userRole -> new SimpleGrantedAuthority("ROLE_" + userRole.getRole().getName().name()))
-                .collect(Collectors.toSet());
+        log.debug("Loaded user {} with {} roles", user.getEmail(), authorities.size());
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPasswordHash())
+                .authorities(authorities)
+                .accountLocked(accountLocked)
+                .disabled(disabled)
+                .build();
     }
 }

@@ -1,41 +1,42 @@
 package com.techblog.config;
 
-// import org.springframework.boot.context.properties.ConfigurationProperties;
-// import org.springframework.stereotype.Component;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * Application Properties
- * Đọc cấu hình custom từ application.yml (prefix: app)
- *
- * Ví dụ trong application.yml:
- * app:
- * jwt:
- * secret: your-secret-key
- * expiration: 86400000
- * upload:
- * max-size: 10MB
- * allowed-types: jpg,png,gif,webp
- * cors:
- * allowed-origins: http://localhost:3000
+ * Ánh xạ các properties từ application.yml (prefix: app)
  */
-// @Component
-// @ConfigurationProperties(prefix = "app")
+@Component
+@ConfigurationProperties(prefix = "app")
+@Getter
+@Setter
 public class AppProperties {
 
-    // TODO: Định nghĩa các thuộc tính cấu hình custom
-    // private JwtProperties jwt = new JwtProperties();
-    // private UploadProperties upload = new UploadProperties();
+    private Jwt jwt = new Jwt();
+    private Cors cors = new Cors();
+    private Upload upload = new Upload();
 
-    // public static class JwtProperties {
-    // private String secret;
-    // private long expiration = 86400000; // 24 hours
-    // // getters & setters
-    // }
+    @Getter
+    @Setter
+    public static class Jwt {
+        private String secret;
+        private long expiration;
+    }
 
-    // public static class UploadProperties {
-    // private String maxSize = "10MB";
-    // private String allowedTypes = "jpg,png,gif,webp";
-    // // getters & setters
-    // }
+    @Getter
+    @Setter
+    public static class Cors {
+        private String[] allowedOrigins;
+    }
+
+    @Getter
+    @Setter
+    public static class Upload {
+        private String path;
+    }
 
 }
+

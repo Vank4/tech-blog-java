@@ -1,42 +1,44 @@
 package com.techblog.domain.rating.model;
 
-import com.techblog.common.audit.BaseAuditEntity;
+import com.techblog.common.audit.Auditable;
 import com.techblog.domain.product.model.Product;
 import com.techblog.domain.user.model.User;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Table(
-        name = "product_ratings",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_product_ratings_user_product",
-                        columnNames = {"user_id", "product_id"}
-                )
-        }
-)
-public class ProductRating extends BaseAuditEntity {
+@Table(name = "product_ratings", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_product_ratings_user_product", columnNames = { "user_id", "product_id" })
+})
+public class ProductRating extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Min(1)
-    @Max(5)
-    @Column(nullable = false)
-    private Integer stars;
+    @Column(name = "rating", nullable = false)
+    private int rating;
+
+    @Column(name = "review_note", length = 500)
+    private String reviewNote;
 }

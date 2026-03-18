@@ -5,5 +5,6 @@ public enum ModerationAction {
     APPROVE,
     REJECT,
     HIDE,
-    DELETE
+    DELETE,
+    UNHIDE
 }

@@ -1,37 +1,45 @@
 package com.techblog.domain.review.model;
 
-import jakarta.persistence.*;
+import com.techblog.common.audit.Auditable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "review_scores")
-public class ReviewScore {
+public class ReviewScore extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "review_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id", nullable = false)
     private Review review;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "criterion", nullable = false, length = 120)
     private String criterion;
 
-    @Column(nullable = false, precision = 4, scale = 1)
+    @Column(name = "score", nullable = false, precision = 4, scale = 2)
     private BigDecimal score;
 
-    @Column(precision = 4, scale = 2)
-    private BigDecimal weight;
+    @Column(name = "max_score", nullable = false, precision = 4, scale = 2)
+    private BigDecimal maxScore;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "note", length = 500)
+    private String note;
+
+    @Column(name = "display_order", nullable = false)
+    private int displayOrder;
 }

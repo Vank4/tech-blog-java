@@ -12,6 +12,7 @@ import com.techblog.domain.user.repository.RoleRepository;
 import com.techblog.domain.user.repository.UserRepository;
 import com.techblog.domain.user.repository.UserRoleRepository;
 import com.techblog.security.JwtTokenProvider;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -59,6 +60,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(

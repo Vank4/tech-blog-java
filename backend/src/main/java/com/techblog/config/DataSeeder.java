@@ -53,7 +53,15 @@ public class DataSeeder implements CommandLineRunner {
         admin.setUsername("admin");
         admin.setEmail("admin@gmail.com");
         admin.setPasswordHash(passwordEncoder.encode("123456"));
+
+        // THÊM DÒNG NÀY ĐỂ SỬA LỖI
+        admin.setDisplayName("System Admin");
+
         admin.setStatus(UserStatus.ACTIVE);
+
+        // Cẩn thận hơn, bạn có thể set luôn emailVerified là true cho Admin
+        admin.setEmailVerified(true);
+
         admin = userRepository.save(admin);
 
         Role adminRole = roleRepository.findByName(RoleName.ADMIN)

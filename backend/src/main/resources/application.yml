@@ -3,14 +3,14 @@ spring:
     name: tech-blog-java
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/tech_blog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/tech_blog_java?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:123123}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     open-in-view: false
     properties:

@@ -1,6 +1,8 @@
 spring:
   application:
     name: tech-blog-java
+  profiles:
+    default: dev
 
   datasource:
     url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/tech_blog_java?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
@@ -17,6 +19,7 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
   flyway:
     enabled: true
@@ -39,6 +42,14 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
   upload:
     path: ${UPLOAD_PATH:uploads/}
+  email-verification:
+    base-url: ${EMAIL_VERIFICATION_BASE_URL:http://localhost:8081/api/v1/auth/verify-email}
+    expiration-minutes: ${EMAIL_VERIFICATION_EXPIRATION_MINUTES:60}
+  password-reset:
+    base-url: ${PASSWORD_RESET_BASE_URL:http://localhost:8081/reset-password}
+    expiration-minutes: ${PASSWORD_RESET_EXPIRATION_MINUTES:30}
+  mail:
+    from: ${MAIL_FROM:no-reply@techblog.local}
 
 logging:
   level:

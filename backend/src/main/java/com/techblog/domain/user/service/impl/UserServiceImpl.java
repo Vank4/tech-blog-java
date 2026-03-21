@@ -7,6 +7,7 @@ import com.techblog.domain.user.model.User;
 import com.techblog.domain.user.repository.UserRepository;
 import com.techblog.domain.user.repository.UserRoleRepository;
 import com.techblog.domain.user.service.UserService;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,17 +24,19 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional(readOnly = true)
     public UserProfileResponse getMyProfile(String email) {
         User user = findUserByEmail(email);
         return mapToProfileResponse(user);
     }
 
     @Override
+    @Transactional
     public UserProfileResponse updateMyProfile(String email, UpdateProfileRequest request) {
         User user = findUserByEmail(email);
 
         if (request.getFullName() != null && !request.getFullName().isBlank()) {
-            user.setUsername(request.getFullName()); // tạm map fullName -> username
+            user.setDisplayName(request.getFullName());
         }
         if (request.getAvatarUrl() != null) {
             user.setAvatarUrl(request.getAvatarUrl());
@@ -47,6 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void changePassword(String email, ChangePasswordRequest request) {
         User user = findUserByEmail(email);
 
@@ -72,11 +76,11 @@ public class UserServiceImpl implements UserService {
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .fullName(user.getUsername())
+                .fullName(user.getDisplayName())
                 .avatarUrl(user.getAvatarUrl())
                 .bio(user.getBio())
                 .status(user.getStatus() != null ? user.getStatus().name() : null)
-                .emailVerified(null) // entity hiện chưa có field này
+                .emailVerified(user.isEmailVerified())
                 .roles(roles)
                 .build();
     }

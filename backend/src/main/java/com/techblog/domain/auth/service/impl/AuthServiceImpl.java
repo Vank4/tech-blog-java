@@ -5,6 +5,8 @@ import com.techblog.domain.auth.dto.AuthResponse;
 import com.techblog.domain.auth.dto.LoginRequest;
 import com.techblog.domain.auth.dto.RegisterRequest;
 import com.techblog.domain.auth.service.AuthService;
+import com.techblog.domain.auth.service.EmailVerificationService;
+import com.techblog.domain.auth.service.PasswordResetService;
 import com.techblog.domain.user.model.Role;
 import com.techblog.domain.user.model.User;
 import com.techblog.domain.user.model.UserRole;
@@ -35,8 +37,11 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final EmailVerificationService emailVerificationService;
+    private final PasswordResetService passwordResetService;
 
     @Override
+    @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
@@ -46,10 +51,11 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalStateException("Default role USER not found"));
 
         User user = new User();
-        user.setUsername(request.getFullName()); // tạm map fullName -> username
+        user.setUsername(generateUniqueUsername(request.getFullName(), request.getEmail()));
+        user.setDisplayName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        // status mặc định đã là ACTIVE trong entity User
+        user.setEmailVerified(false);
 
         user = userRepository.save(user);
 
@@ -57,21 +63,27 @@ public class AuthServiceImpl implements AuthService {
         userRoleMapping.setUser(user);
         userRoleMapping.setRole(userRole);
         userRoleRepository.save(userRoleMapping);
+
+        emailVerificationService.createAndSendVerification(user);
     }
 
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
         try {
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+
+            if (!user.isEmailVerified()) {
+                throw new IllegalStateException("Email is not verified");
+            }
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
                             request.getPassword()));
 
             String token = jwtTokenProvider.generateToken(authentication);
-
-            User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
             Set<String> roles = userRoleRepository.findByUser(user)
                     .stream()
@@ -83,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
                     .tokenType("Bearer")
                     .userId(user.getId())
                     .email(user.getEmail())
-                    .fullName(user.getUsername())
+                    .fullName(user.getDisplayName())
                     .roles(roles)
                     .build();
 
@@ -92,5 +104,45 @@ public class AuthServiceImpl implements AuthService {
         } catch (BadCredentialsException ex) {
             throw new IllegalArgumentException("Invalid email or password");
         }
+    }
+
+    @Override
+    public void verifyEmail(String token) {
+        emailVerificationService.verifyEmail(token);
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        passwordResetService.createResetToken(email);
+    }
+
+    @Override
+    public void validateResetToken(String token) {
+        passwordResetService.validateResetToken(token);
+    }
+
+    @Override
+    public void resetPassword(String token, String newPassword) {
+        passwordResetService.resetPassword(token, newPassword);
+    }
+
+    private String generateUniqueUsername(String fullName, String email) {
+        String baseUsername = fullName == null ? "" : fullName.trim().toLowerCase()
+                .replaceAll("[^a-z0-9]+", ".");
+        baseUsername = baseUsername.replaceAll("(^\\.)|(\\.$)", "");
+
+        if (baseUsername.isBlank()) {
+            baseUsername = email.substring(0, email.indexOf('@')).toLowerCase().replaceAll("[^a-z0-9]+", ".");
+        }
+        if (baseUsername.isBlank()) {
+            baseUsername = "user";
+        }
+
+        String candidate = baseUsername;
+        int suffix = 1;
+        while (userRepository.existsByUsername(candidate)) {
+            candidate = baseUsername + suffix++;
+        }
+        return candidate;
     }
 }

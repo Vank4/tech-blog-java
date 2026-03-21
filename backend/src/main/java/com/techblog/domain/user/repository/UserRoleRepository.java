@@ -13,4 +13,6 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UserRoleId> 
 
     @EntityGraph(attributePaths = { "role" })
     List<UserRole> findByUser(User user);
+
+    void deleteByUser(User user);
 }

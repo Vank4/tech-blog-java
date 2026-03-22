@@ -11,4 +11,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findBySlug(String slug);
 
     List<Post> findByStatusOrderByPublishedAtDesc(ContentStatus status);
+    boolean existsBySlug(String slug);
 }

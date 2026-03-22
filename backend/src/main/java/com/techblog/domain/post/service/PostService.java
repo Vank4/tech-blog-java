@@ -1,10 +1,13 @@
 package com.techblog.domain.post.service;
 
 import com.techblog.common.enums.ContentStatus;
+import com.techblog.common.enums.ModerationAction; // Import Enum quan trọng này
 import com.techblog.domain.category.model.Category;
 import com.techblog.domain.category.repository.CategoryRepository;
 import com.techblog.domain.post.dto.CreatePostRequest;
 import com.techblog.domain.post.model.Post;
+import com.techblog.domain.post.model.PostModerationLog;
+import com.techblog.domain.post.repository.PostModerationLogRepository;
 import com.techblog.domain.post.repository.PostRepository;
 import com.techblog.domain.user.model.User;
 import com.techblog.domain.user.repository.UserRepository;
@@ -13,17 +16,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
-
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final PostModerationLogRepository moderationLogRepository;
 
+    // 1. Tác giả tạo bản nháp (DRAFT)
     @Transactional
     public Post createDraft(CreatePostRequest request, String email) {
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -35,13 +40,10 @@ public class PostService {
         String slug = generateUniqueSlug(request.getTitle());
 
         Post post = new Post();
-        // --- CÁC DÒNG QUAN TRỌNG CẦN KIỂM TRA ---
         post.setTitle(request.getTitle());
-        post.setContent(request.getContent()); // <-- THIẾU DÒNG NÀY SẼ GÂY LỖI 500
+        post.setContent(request.getContent());
         post.setSummary(request.getSummary());
         post.setThumbnailUrl(request.getThumbnailUrl());
-        // ---------------------------------------
-
         post.setCategory(category);
         post.setAuthor(author);
         post.setSlug(slug);
@@ -51,16 +53,80 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    // ================== CÁC HÀM PHỤ TRỢ (MAGIC Ở ĐÂY) ==================
+    // 2. Tác giả gửi bài duyệt (DRAFT -> PENDING)
+    @Transactional
+    public void submitPost(Long postId, String email) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết"));
 
-    // Hàm 1: Đảm bảo đường dẫn (Slug) là ĐỘC NHẤT
+        if (!post.getAuthor().getEmail().equals(email)) {
+            throw new RuntimeException("Bạn không có quyền gửi bài viết của người khác");
+        }
+
+        if (post.getStatus() != ContentStatus.DRAFT && post.getStatus() != ContentStatus.REJECTED) {
+            throw new RuntimeException("Trạng thái bài viết không hợp lệ để gửi duyệt");
+        }
+
+        post.setStatus(ContentStatus.PENDING);
+        post.setSubmittedAt(LocalDateTime.now());
+        postRepository.save(post);
+    }
+
+    // 3. Admin Phê duyệt bài viết (PENDING -> PUBLISHED)
+    @Transactional
+    public void approvePost(Long postId, String adminEmail) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết"));
+        User moderator = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Admin"));
+
+        if (post.getStatus() != ContentStatus.PENDING) {
+            throw new RuntimeException("Chỉ có thể duyệt bài đang ở trạng thái Chờ duyệt");
+        }
+
+        ContentStatus oldStatus = post.getStatus();
+        post.setStatus(ContentStatus.PUBLISHED);
+        post.setPublishedAt(LocalDateTime.now());
+        postRepository.save(post);
+
+        // Đã sửa thành ModerationAction.APPROVE (kiểu Enum)
+        saveModerationLog(post, moderator, oldStatus, ContentStatus.PUBLISHED, ModerationAction.APPROVE, "Bài viết hợp lệ");
+    }
+
+    // 4. Admin Từ chối bài viết (PENDING -> REJECTED)
+    @Transactional
+    public void rejectPost(Long postId, String adminEmail, String reason) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết"));
+        User moderator = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Admin"));
+
+        ContentStatus oldStatus = post.getStatus();
+        post.setStatus(ContentStatus.REJECTED);
+        postRepository.save(post);
+
+        // Đã sửa thành ModerationAction.REJECT (kiểu Enum)
+        saveModerationLog(post, moderator, oldStatus, ContentStatus.REJECTED, ModerationAction.REJECT, reason);
+    }
+
+    // Hàm lưu Log trung tâm - Tham số action đã đổi sang ModerationAction
+    private void saveModerationLog(Post post, User moderator, ContentStatus from, ContentStatus to, ModerationAction action, String reason) {
+        PostModerationLog log = new PostModerationLog();
+        log.setPost(post);
+        log.setModerator(moderator);
+        log.setFromStatus(from);
+        log.setToStatus(to);
+        log.setAction(action);
+        log.setReason(reason);
+        moderationLogRepository.save(log);
+    }
+
+    // --- CÁC HÀM UTILS (SLUG) ---
     private String generateUniqueSlug(String title) {
-        String baseSlug = toSlug(title); // Biến "Học Java" thành "hoc-java"
+        String baseSlug = toSlug(title);
         String uniqueSlug = baseSlug;
         int count = 1;
 
-        // Dùng hàm bạn vừa thêm ở Repository để check trùng lặp!
-        // Nếu "hoc-java" đã tồn tại, nó sẽ tự đổi thành "hoc-java-1", "hoc-java-2"...
         while (postRepository.existsBySlug(uniqueSlug)) {
             uniqueSlug = baseSlug + "-" + count;
             count++;
@@ -68,17 +134,15 @@ public class PostService {
         return uniqueSlug;
     }
 
-    // Hàm 2: Xóa dấu tiếng Việt và ký tự đặc biệt
     private String toSlug(String input) {
         if (input == null || input.trim().isEmpty()) return "";
-        // Chuyển tiếng Việt có dấu thành không dấu
         String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         String noDiacritics = pattern.matcher(normalized).replaceAll("");
 
         return noDiacritics.toLowerCase(Locale.ENGLISH)
-                .replaceAll("[^a-z0-9\\s-]", "") // Xóa mọi thứ không phải chữ cái, số, khoảng trắng hoặc gạch ngang
-                .replaceAll("\\s+", "-")         // Biến khoảng trắng thành gạch ngang
-                .replaceAll("-+", "-");          // Gộp nhiều gạch ngang liên tiếp thành 1 cái
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("\\s+", "-")
+                .replaceAll("-+", "-");
     }
 }

@@ -1,5 +1,6 @@
 package com.techblog.domain.post.controller;
 
+import com.techblog.common.enums.ContentStatus; // Thiếu dòng này
 import com.techblog.common.response.ApiResponse;
 import com.techblog.domain.post.dto.CreatePostRequest;
 import com.techblog.domain.post.dto.PostResponse;
@@ -7,6 +8,7 @@ import com.techblog.domain.post.model.Post;
 import com.techblog.domain.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page; // Thiếu dòng này
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +43,7 @@ public class PostController {
 
     // 3. API Admin phê duyệt (PENDING -> PUBLISHED)
     @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasRole('ADMIN')") // Chỉ ADMIN mới có quyền này
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> approvePost(@PathVariable Long id, Principal principal) {
         postService.approvePost(id, principal.getName());
         return ResponseEntity.ok(new ApiResponse<>(true, "Đã phê duyệt và xuất bản bài viết", null));
@@ -49,7 +51,7 @@ public class PostController {
 
     // 4. API Admin từ chối (PENDING -> REJECTED)
     @PatchMapping("/{id}/reject")
-    @PreAuthorize("hasRole('ADMIN')") // Chỉ ADMIN mới có quyền này
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> rejectPost(
             @PathVariable Long id,
             @RequestParam String reason,
@@ -58,7 +60,20 @@ public class PostController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Đã từ chối bài viết", null));
     }
 
-    // --- HÀM PHỤ TRỢ (Đã nạp tên đầy đủ) ---
+    // 5. API Lấy danh sách bài viết (CÓ PHÂN TRANG)
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<PostResponse>>> getPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) ContentStatus status) {
+
+        // Nhận thẳng kết quả đã được map tên Tác giả/Danh mục
+        Page<PostResponse> responsePage = postService.getPosts(status, page, size);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách bài viết thành công", responsePage));
+    }
+
+    // --- HÀM PHỤ TRỢ ---
     private PostResponse mapToResponse(Post post) {
         return PostResponse.builder()
                 .id(post.getId())

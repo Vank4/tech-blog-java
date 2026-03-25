@@ -1,0 +1,57 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/tech_blog_java?useSSL=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: ${DB_MIN_IDLE:5}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    locations: classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8080}
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:86400000}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://yourdomain.com}
+  upload:
+    path: ${UPLOAD_PATH:/var/uploads/}
+  email-verification:
+    base-url: ${EMAIL_VERIFICATION_BASE_URL:https://yourdomain.com/api/v1/auth/verify-email}
+    expiration-minutes: ${EMAIL_VERIFICATION_EXPIRATION_MINUTES:60}
+  password-reset:
+    base-url: ${PASSWORD_RESET_BASE_URL:https://yourdomain.com/reset-password}
+    expiration-minutes: ${PASSWORD_RESET_EXPIRATION_MINUTES:30}
+  mail:
+    from: ${MAIL_FROM:no-reply@yourdomain.com}
+
+logging:
+  level:
+    root: WARN
+    com.techblog: INFO
+    org.springframework.security: WARN
+  file:
+    name: ${LOG_FILE_PATH:/var/log/tech-blog.log}
+

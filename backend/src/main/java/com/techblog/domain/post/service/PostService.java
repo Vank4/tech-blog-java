@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.techblog.domain.post.dto.UpdatePostRequest;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;
@@ -140,6 +141,45 @@ public class PostService {
 
         // Map sang DTO để giấu bớt các trường không cần thiết trước khi trả về
         return mapToResponse(post);
+    }
+
+    @Transactional
+    public PostResponse updatePost(Long postId, UpdatePostRequest request, String email) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết"));
+
+        // 1. Kiểm tra chính chủ: Lấy email người đang gửi request so sánh với email tác giả bài viết
+        if (!post.getAuthor().getEmail().equals(email)) {
+            throw new RuntimeException("Bạn không có quyền sửa bài viết của người khác");
+        }
+
+        // 2. Kiểm tra trạng thái: Chỉ cho sửa DRAFT hoặc REJECTED
+        if (post.getStatus() != ContentStatus.DRAFT && post.getStatus() != ContentStatus.REJECTED) {
+            throw new RuntimeException("Chỉ có thể sửa bài viết ở trạng thái Nháp hoặc Bị từ chối");
+        }
+
+        // 3. Nếu đổi danh mục thì phải tìm danh mục mới
+        if (!post.getCategory().getId().equals(request.getCategoryId())) {
+            Category newCategory = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục mới"));
+            post.setCategory(newCategory);
+        }
+
+        // 4. Nếu đổi Tiêu đề thì phải tạo lại Slug mới cho khớp
+        if (!post.getTitle().equals(request.getTitle())) {
+            post.setTitle(request.getTitle());
+            post.setSlug(generateUniqueSlug(request.getTitle())); // Tái sử dụng hàm thuật toán Slug
+        }
+
+        // 5. Cập nhật các thông tin còn lại
+        post.setContent(request.getContent());
+        post.setSummary(request.getSummary());
+        post.setThumbnailUrl(request.getThumbnailUrl());
+        post.setAllowComments(request.isAllowComments());
+
+        // Lưu xuống DB và map ra Response trả về
+        Post updatedPost = postRepository.save(post);
+        return mapToResponse(updatedPost);
     }
 
     private void saveModerationLog(Post post, User moderator, ContentStatus from, ContentStatus to, ModerationAction action, String reason) {

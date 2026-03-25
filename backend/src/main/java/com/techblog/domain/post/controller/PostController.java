@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page; // Thiếu dòng này
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.techblog.domain.post.dto.UpdatePostRequest;
 
 import java.security.Principal;
 
@@ -81,6 +82,19 @@ public class PostController {
         PostResponse response = postService.getPostBySlug(slug);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy chi tiết bài viết thành công", response));
+    }
+
+    // 7. API Sửa bài viết (Dành cho Tác giả)
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('AUTHOR')") // Bắt buộc phải là Tác giả
+    public ResponseEntity<ApiResponse<PostResponse>> updatePost(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdatePostRequest request,
+            Principal principal) {
+
+        PostResponse response = postService.updatePost(id, request, principal.getName());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật bài viết thành công", response));
     }
 
     // --- HÀM PHỤ TRỢ ---

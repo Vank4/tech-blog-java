@@ -73,6 +73,16 @@ public class PostController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách bài viết thành công", responsePage));
     }
 
+    // 6. API Xem chi tiết bài viết (Dành cho mọi người)
+    @GetMapping("/{slug}")
+    // LƯU Ý: Không dùng @PreAuthorize ở đây vì ai cũng có quyền đọc bài viết
+    public ResponseEntity<ApiResponse<PostResponse>> getPostBySlug(@PathVariable String slug) {
+
+        PostResponse response = postService.getPostBySlug(slug);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy chi tiết bài viết thành công", response));
+    }
+
     // --- HÀM PHỤ TRỢ ---
     private PostResponse mapToResponse(Post post) {
         return PostResponse.builder()

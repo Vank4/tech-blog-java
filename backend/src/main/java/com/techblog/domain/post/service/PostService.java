@@ -121,6 +121,27 @@ public class PostService {
         saveModerationLog(post, moderator, oldStatus, ContentStatus.REJECTED, ModerationAction.REJECT, reason);
     }
 
+
+    @Transactional
+    public PostResponse getPostBySlug(String slug) {
+        Post post = postRepository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với đường dẫn này"));
+
+        // Bảo mật: Người đọc bên ngoài chỉ được xem bài đã PUBLISHED
+        if (post.getStatus() != ContentStatus.PUBLISHED) {
+            throw new RuntimeException("Bài viết này chưa được xuất bản hoặc đã bị ẩn");
+        }
+
+        // Tăng lượt xem lên 1 đơn vị
+        post.setViewCount(post.getViewCount() + 1);
+
+        // Lưu lại số view mới vào Database
+        postRepository.save(post);
+
+        // Map sang DTO để giấu bớt các trường không cần thiết trước khi trả về
+        return mapToResponse(post);
+    }
+
     private void saveModerationLog(Post post, User moderator, ContentStatus from, ContentStatus to, ModerationAction action, String reason) {
         PostModerationLog log = new PostModerationLog();
         log.setPost(post);

@@ -143,6 +143,7 @@ public class PostService {
         return mapToResponse(post);
     }
 
+    // 7. Tác giả cập nhật bài viết (UPDATE)
     @Transactional
     public PostResponse updatePost(Long postId, UpdatePostRequest request, String email) {
         Post post = postRepository.findById(postId)
@@ -153,25 +154,32 @@ public class PostService {
             throw new RuntimeException("Bạn không có quyền sửa bài viết của người khác");
         }
 
-        // 2. Kiểm tra trạng thái: Chỉ cho sửa DRAFT hoặc REJECTED
-        if (post.getStatus() != ContentStatus.DRAFT && post.getStatus() != ContentStatus.REJECTED) {
-            throw new RuntimeException("Chỉ có thể sửa bài viết ở trạng thái Nháp hoặc Bị từ chối");
+        // 2. MỞ KHÓA BẢO VỆ: Cho phép sửa bài Nháp (DRAFT), Bị từ chối (REJECTED), và Bị ẩn (HIDDEN)
+        if (post.getStatus() != ContentStatus.DRAFT
+                && post.getStatus() != ContentStatus.REJECTED
+                && post.getStatus() != ContentStatus.HIDDEN) {
+            throw new RuntimeException("Chỉ có thể sửa bài viết ở trạng thái Nháp, Bị từ chối hoặc Bị ẩn");
         }
 
-        // 3. Nếu đổi danh mục thì phải tìm danh mục mới
+        // 3. TỰ ĐỘNG HẠ CẤP: Nếu bài đang bị Ẩn hoặc Từ chối mà tác giả sửa, ép nó về lại DRAFT để chờ duyệt lại
+        if (post.getStatus() == ContentStatus.HIDDEN || post.getStatus() == ContentStatus.REJECTED) {
+            post.setStatus(ContentStatus.DRAFT);
+        }
+
+        // 4. Nếu đổi danh mục thì phải tìm danh mục mới
         if (!post.getCategory().getId().equals(request.getCategoryId())) {
             Category newCategory = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục mới"));
             post.setCategory(newCategory);
         }
 
-        // 4. Nếu đổi Tiêu đề thì phải tạo lại Slug mới cho khớp
+        // 5. Nếu đổi Tiêu đề thì phải tạo lại Slug mới cho khớp
         if (!post.getTitle().equals(request.getTitle())) {
             post.setTitle(request.getTitle());
             post.setSlug(generateUniqueSlug(request.getTitle())); // Tái sử dụng hàm thuật toán Slug
         }
 
-        // 5. Cập nhật các thông tin còn lại
+        // 6. Cập nhật các thông tin còn lại
         post.setContent(request.getContent());
         post.setSummary(request.getSummary());
         post.setThumbnailUrl(request.getThumbnailUrl());
@@ -180,6 +188,46 @@ public class PostService {
         // Lưu xuống DB và map ra Response trả về
         Post updatedPost = postRepository.save(post);
         return mapToResponse(updatedPost);
+    }
+
+    // 8. Tác giả XÓA bài viết (DELETE)
+    @Transactional
+    public void deletePost(Long postId, String email) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết"));
+
+        // Kiểm tra chính chủ
+        if (!post.getAuthor().getEmail().equals(email)) {
+            throw new RuntimeException("Bạn không có quyền xóa bài viết của người khác");
+        }
+
+        // Chỉ cho phép xóa khi bài đang là NHÁP hoặc BỊ TỪ CHỐI
+        if (post.getStatus() != ContentStatus.DRAFT && post.getStatus() != ContentStatus.REJECTED) {
+            throw new RuntimeException("Chỉ có thể xóa bài viết ở trạng thái Nháp hoặc Bị từ chối");
+        }
+
+        // Xóa hẳn khỏi Database
+        postRepository.delete(post);
+    }
+
+    // 9. Admin ẨN bài viết (HIDE) - Không xóa khỏi DB
+    @Transactional
+    public void hidePost(Long postId, String adminEmail, String reason) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết"));
+        User moderator = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Admin"));
+
+        if (post.getStatus() != ContentStatus.PUBLISHED) {
+            throw new RuntimeException("Chỉ có thể ẩn bài viết đang hiển thị (PUBLISHED)");
+        }
+
+        ContentStatus oldStatus = post.getStatus();
+        post.setStatus(ContentStatus.HIDDEN);
+        postRepository.save(post);
+
+        // Lưu vết vào Log để sau này có bằng chứng
+        saveModerationLog(post, moderator, oldStatus, ContentStatus.HIDDEN, ModerationAction.REJECT, reason);
     }
 
     private void saveModerationLog(Post post, User moderator, ContentStatus from, ContentStatus to, ModerationAction action, String reason) {

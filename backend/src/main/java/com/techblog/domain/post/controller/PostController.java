@@ -97,6 +97,25 @@ public class PostController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật bài viết thành công", response));
     }
 
+    // 8. API Xóa bài viết (Dành cho Tác giả)
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('AUTHOR')")
+    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long id, Principal principal) {
+        postService.deletePost(id, principal.getName());
+        return ResponseEntity.ok(new ApiResponse<>(true, "Đã xóa bài viết thành công", null));
+    }
+
+    // 9. API Ẩn bài viết (Dành cho Admin)
+    @PatchMapping("/{id}/hide")
+    @PreAuthorize("hasRole('ADMIN')") // Chỉ Admin quyền lực mới được dùng
+    public ResponseEntity<ApiResponse<Void>> hidePost(
+            @PathVariable Long id,
+            @RequestParam String reason,
+            Principal principal) {
+        postService.hidePost(id, principal.getName(), reason);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Đã ẩn bài viết thành công", null));
+    }
+
     // --- HÀM PHỤ TRỢ ---
     private PostResponse mapToResponse(Post post) {
         return PostResponse.builder()

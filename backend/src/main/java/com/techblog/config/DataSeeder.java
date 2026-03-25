@@ -45,11 +45,16 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedAdmin() {
-        if (userRepository.existsByEmail("admin@gmail.com")) {
+        User admin = userRepository.findByEmail("admin@gmail.com").orElse(null);
+        if (admin != null) {
+            if (!admin.isEmailVerified()) {
+                admin.setEmailVerified(true);
+                userRepository.save(admin);
+            }   
             return;
         }
 
-        User admin = new User();
+        admin = new User();
         admin.setUsername("admin");
         admin.setEmail("admin@gmail.com");
         admin.setPasswordHash(passwordEncoder.encode("123456"));

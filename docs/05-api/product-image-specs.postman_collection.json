@@ -1,0 +1,311 @@
+{
+  "info": {
+    "name": "Feature 2 - Product Image Specs (Aligned with Feat 1)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081" },
+    { "key": "adminToken", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "productSlug", "value": "" },
+    { "key": "imageId", "value": "" },
+    { "key": "secondaryImageId", "value": "" },
+    { "key": "specId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth - Admin Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.data && json.data.accessToken) {",
+              "    pm.collectionVariables.set('adminToken', json.data.accessToken);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"123456\"\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Create Product Draft",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.data && json.data.id) {",
+              "    pm.collectionVariables.set('productId', json.data.id);",
+              "}",
+              "if (json.data && json.data.slug) {",
+              "    pm.collectionVariables.set('productSlug', json.data.slug);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"iPhone 15 Pro Max\",\n  \"slug\": \"iphone-15-pro-max-image-specs-demo\",\n  \"brand\": \"Apple\",\n  \"model\": \"A3106\",\n  \"shortDescription\": \"May demo cho feat image va specs\",\n  \"description\": \"San pham duoc tao de kiem thu them anh va thong so ky thuat.\",\n  \"price\": 34990000,\n  \"currency\": \"VND\",\n  \"allowComments\": true\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Add Main Image",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.data && json.data.id) {",
+              "    pm.collectionVariables.set('imageId', json.data.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"imageUrl\": \"https://example.com/images/iphone-15-pro-max-front.jpg\",\n  \"altText\": \"iPhone 15 Pro Max front view\",\n  \"primary\": true,\n  \"displayOrder\": 0\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/images",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "images"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Add Secondary Image",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.data && json.data.id) {",
+              "    pm.collectionVariables.set('secondaryImageId', json.data.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"imageUrl\": \"https://example.com/images/iphone-15-pro-max-back.jpg\",\n  \"altText\": \"iPhone 15 Pro Max back view\",\n  \"primary\": false,\n  \"displayOrder\": 1\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/images",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "images"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Set Main Image",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/images/{{secondaryImageId}}/main",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "images", "{{secondaryImageId}}", "main"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Add Spec",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.data && json.data.id) {",
+              "    pm.collectionVariables.set('specId', json.data.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"specKey\": \"display_size\",\n  \"specValue\": \"6.7\",\n  \"unit\": \"inch\",\n  \"displayOrder\": 0\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/specs",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "specs"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Update Spec",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"specKey\": \"display_size\",\n  \"specValue\": \"6.8\",\n  \"unit\": \"inch\",\n  \"displayOrder\": 0\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/specs/{{specId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "specs", "{{specId}}"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Publish Product",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"PUBLISHED\"\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "Public - Get Product Detail By Slug",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/{{productSlug}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "products", "{{productSlug}}"]
+        }
+      }
+    },
+    {
+      "name": "Public - Get Product List",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products?brand=Apple&sort=rating-desc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "products"],
+          "query": [
+            { "key": "brand", "value": "Apple" },
+            { "key": "sort", "value": "rating-desc" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Delete Spec",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/specs/{{specId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "specs", "{{specId}}"]
+        }
+      }
+    },
+    {
+      "name": "Admin - Delete Original Image",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/images/{{imageId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "products", "{{productId}}", "images", "{{imageId}}"]
+        }
+      }
+    }
+  ]
+}

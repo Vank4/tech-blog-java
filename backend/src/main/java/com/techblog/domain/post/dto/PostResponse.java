@@ -3,6 +3,7 @@ package com.techblog.domain.post.dto;
 import com.techblog.common.enums.ContentStatus;
 import com.techblog.domain.tag.model.Tag;
 import java.util.Set;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,4 +33,6 @@ public class PostResponse {
     private LocalDateTime updatedAt;
 
     private Set<Tag> tags;
+    private boolean isFeatured;
+    private int priority;
 }

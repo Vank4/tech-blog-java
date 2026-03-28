@@ -53,6 +53,11 @@ public class PostService {
 
     // 2. Chuyển đổi Entity sang DTO (Mapper nội bộ)
     private PostResponse mapToResponse(Post post) {
+        // Ép Hibernate phải load dữ liệu tags từ DB ngay tại đây
+        var tagList = post.getTags() != null
+                ? new java.util.HashSet<>(post.getTags())
+                : new java.util.HashSet<com.techblog.domain.tag.model.Tag>();
+
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -66,7 +71,9 @@ public class PostService {
                 .categoryName(post.getCategory() != null ? post.getCategory().getName() : null)
                 .authorId(post.getAuthor() != null ? post.getAuthor().getId() : null)
                 .authorName(post.getAuthor() != null ? post.getAuthor().getDisplayName() : null)
-                .tags(post.getTags())
+                .tags(tagList)
+                .isFeatured(post.isFeatured())
+                .priority(post.getPriority())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();

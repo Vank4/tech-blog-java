@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeaturedRequest {
-    // Lưu ý: Đặt tên là 'featured' (bỏ chữ 'is' đi) để Lombok tạo hàm isFeatured() chuẩn nhất
+
     private boolean featured;
     private int priority;
 }

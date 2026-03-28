@@ -124,5 +124,15 @@ public class PostController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật trạng thái nổi bật thành công", response));
     }
 
-    // ĐÃ XÓA HÀM mapToResponse VÌ KHÔNG CẦN THIẾT NỮA
+    // API Tìm kiếm và lọc bài viết (Công khai cho khách đọc)
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<PostResponse>>> searchPosts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long tagId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<PostResponse> results = postService.searchPublicPosts(keyword, tagId, page, size);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Tìm kiếm thành công", results));
+    }
 }

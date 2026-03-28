@@ -272,6 +272,17 @@ public class PostService {
         Post updatedPost = postRepository.save(post);
         return mapToResponse(updatedPost);
     }
+    @Transactional(readOnly = true)
+    public Page<PostResponse> searchPublicPosts(String keyword, Long tagId, int page, int size) {
+        // Logic sắp xếp: Ghim lên đầu (priority giảm dần), sau đó mới đến ngày mới nhất
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by("priority").descending()
+                        .and(Sort.by("createdAt").descending()));
+
+        // Chỉ tìm kiếm những bài đã PUBLISHED để hiển thị cho người dùng
+        return postRepository.searchPosts(keyword, tagId, ContentStatus.PUBLISHED, pageable)
+                .map(this::mapToResponse);
+    }
 
     private void saveModerationLog(Post post, User moderator, ContentStatus from, ContentStatus to, ModerationAction action, String reason) {
         PostModerationLog log = new PostModerationLog();

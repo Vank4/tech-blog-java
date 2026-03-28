@@ -5,14 +5,23 @@ import com.techblog.common.exception.ResourceNotFoundException;
 import com.techblog.domain.category.model.Category;
 import com.techblog.domain.category.repository.CategoryRepository;
 import com.techblog.domain.product.dto.CreateProductRequest;
+import com.techblog.domain.product.dto.ProductImageRequest;
+import com.techblog.domain.product.dto.ProductImageResponse;
 import com.techblog.domain.product.dto.ProductResponse;
+import com.techblog.domain.product.dto.ProductSpecRequest;
+import com.techblog.domain.product.dto.ProductSpecResponse;
 import com.techblog.domain.product.dto.ProductStatusUpdateRequest;
 import com.techblog.domain.product.model.Product;
+import com.techblog.domain.product.model.ProductImage;
+import com.techblog.domain.product.model.ProductSpec;
+import com.techblog.domain.product.repository.ProductImageRepository;
 import com.techblog.domain.product.repository.ProductRepository;
+import com.techblog.domain.product.repository.ProductSpecRepository;
 import com.techblog.domain.user.model.User;
 import com.techblog.domain.user.repository.UserRepository;
 import jakarta.persistence.criteria.JoinType;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -29,6 +38,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final ProductImageRepository productImageRepository;
+    private final ProductSpecRepository productSpecRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findAll(specification, resolveSort(sort))
                 .stream()
-                .map(this::mapToResponse)
+                .map(product -> mapToResponse(product, false))
                 .toList();
     }
 
@@ -54,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getPublicProductBySlug(String slug) {
         Product product = productRepository.findBySlugAndStatus(slug, ProductStatus.PUBLISHED)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-        return mapToResponse(product);
+        return mapToResponse(product, true);
     }
 
     @Override
@@ -70,7 +81,7 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(ProductStatus.DRAFT);
         product.setPublishedAt(null);
 
-        return mapToResponse(productRepository.save(product));
+        return mapToResponse(productRepository.save(product), true);
     }
 
     @Override
@@ -83,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
 
         validateSlugForUpdate(product.getId(), request.getSlug());
         applyRequest(product, request);
-        return mapToResponse(productRepository.save(product));
+        return mapToResponse(productRepository.save(product), true);
     }
 
     @Override
@@ -102,9 +113,11 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(nextStatus);
         if (nextStatus == ProductStatus.PUBLISHED) {
             product.setPublishedAt(LocalDateTime.now());
+        } else {
+            product.setPublishedAt(null);
         }
 
-        return mapToResponse(productRepository.save(product));
+        return mapToResponse(productRepository.save(product), true);
     }
 
     @Override
@@ -125,7 +138,86 @@ public class ProductServiceImpl implements ProductService {
 
         product.setStatus(ProductStatus.DRAFT);
         product.setPublishedAt(null);
-        return mapToResponse(productRepository.save(product));
+        return mapToResponse(productRepository.save(product), true);
+    }
+
+    @Override
+    public ProductImageResponse addImage(Long productId, ProductImageRequest request) {
+        Product product = getProductById(productId);
+        List<ProductImage> existingImages = productImageRepository.findByProductIdOrderByDisplayOrderAsc(productId);
+
+        ProductImage image = new ProductImage();
+        image.setProduct(product);
+        image.setImageUrl(request.getImageUrl().trim());
+        image.setAltText(normalizeNullable(request.getAltText()));
+        image.setDisplayOrder(request.getDisplayOrder());
+
+        boolean shouldSetMain = request.isPrimary() || existingImages.isEmpty();
+        if (shouldSetMain) {
+            clearPrimaryFlag(existingImages);
+        }
+
+        image.setPrimary(shouldSetMain);
+        return mapImageResponse(productImageRepository.save(image));
+    }
+
+    @Override
+    public void removeImage(Long productId, Long imageId) {
+        getProductById(productId);
+        ProductImage image = productImageRepository.findByIdAndProductId(imageId, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product image not found"));
+        productImageRepository.delete(image);
+    }
+
+    @Override
+    public ProductImageResponse setMainImage(Long productId, Long imageId) {
+        getProductById(productId);
+
+        List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(productId);
+        ProductImage targetImage = images.stream()
+                .filter(image -> image.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Product image not found"));
+
+        clearPrimaryFlag(images);
+        targetImage.setPrimary(true);
+        return mapImageResponse(productImageRepository.save(targetImage));
+    }
+
+    @Override
+    public ProductSpecResponse addSpec(Long productId, ProductSpecRequest request) {
+        Product product = getProductById(productId);
+
+        ProductSpec spec = new ProductSpec();
+        spec.setProduct(product);
+        spec.setSpecKey(request.getSpecKey().trim());
+        spec.setSpecValue(request.getSpecValue().trim());
+        spec.setUnit(normalizeNullable(request.getUnit()));
+        spec.setDisplayOrder(request.getDisplayOrder());
+
+        return mapSpecResponse(productSpecRepository.save(spec));
+    }
+
+    @Override
+    public ProductSpecResponse updateSpec(Long productId, Long specId, ProductSpecRequest request) {
+        getProductById(productId);
+        ProductSpec spec = productSpecRepository.findByIdAndProductId(specId, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product spec not found"));
+
+        spec.setSpecKey(request.getSpecKey().trim());
+        spec.setSpecValue(request.getSpecValue().trim());
+        spec.setUnit(normalizeNullable(request.getUnit()));
+        spec.setDisplayOrder(request.getDisplayOrder());
+
+        return mapSpecResponse(productSpecRepository.save(spec));
+    }
+
+    @Override
+    public void removeSpec(Long productId, Long specId) {
+        getProductById(productId);
+        ProductSpec spec = productSpecRepository.findByIdAndProductId(specId, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product spec not found"));
+        productSpecRepository.delete(spec);
     }
 
     private void applyRequest(Product product, CreateProductRequest request) {
@@ -199,15 +291,7 @@ public class ProductServiceImpl implements ProductService {
         return Sort.by(Sort.Order.desc("ratingAverage"), Sort.Order.desc("ratingCount"), Sort.Order.desc("id"));
     }
 
-    private String normalizeNullable(String value) {
-        if (!StringUtils.hasText(value)) {
-            return null;
-        }
-
-        return value.trim();
-    }
-
-    private ProductResponse mapToResponse(Product product) {
+    private ProductResponse mapToResponse(Product product, boolean includeAssets) {
         ProductResponse response = new ProductResponse();
         response.setId(product.getId());
         response.setName(product.getName());
@@ -230,6 +314,68 @@ public class ProductServiceImpl implements ProductService {
             response.setCategorySlug(product.getCategory().getSlug());
         }
 
+        List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(product.getId());
+        response.setThumbnailUrl(resolveThumbnail(images));
+
+        if (includeAssets) {
+            response.setImages(images.stream()
+                    .map(this::mapImageResponse)
+                    .toList());
+            response.setSpecs(productSpecRepository.findByProductIdOrderByDisplayOrderAsc(product.getId())
+                    .stream()
+                    .map(this::mapSpecResponse)
+                    .toList());
+        }
+
         return response;
+    }
+
+    private String resolveThumbnail(List<ProductImage> images) {
+        return images.stream()
+                .sorted(Comparator.comparing(ProductImage::isPrimary).reversed()
+                        .thenComparing(ProductImage::getDisplayOrder)
+                        .thenComparing(ProductImage::getId))
+                .map(ProductImage::getImageUrl)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private ProductImageResponse mapImageResponse(ProductImage image) {
+        ProductImageResponse response = new ProductImageResponse();
+        response.setId(image.getId());
+        response.setImageUrl(image.getImageUrl());
+        response.setAltText(image.getAltText());
+        response.setPrimary(image.isPrimary());
+        response.setDisplayOrder(image.getDisplayOrder());
+        return response;
+    }
+
+    private ProductSpecResponse mapSpecResponse(ProductSpec spec) {
+        ProductSpecResponse response = new ProductSpecResponse();
+        response.setId(spec.getId());
+        response.setSpecKey(spec.getSpecKey());
+        response.setSpecValue(spec.getSpecValue());
+        response.setUnit(spec.getUnit());
+        response.setDisplayOrder(spec.getDisplayOrder());
+        return response;
+    }
+
+    private void clearPrimaryFlag(List<ProductImage> images) {
+        for (ProductImage image : images) {
+            if (image.isPrimary()) {
+                image.setPrimary(false);
+            }
+        }
+        if (!images.isEmpty()) {
+            productImageRepository.saveAll(images);
+        }
+    }
+
+    private String normalizeNullable(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+
+        return value.trim();
     }
 }

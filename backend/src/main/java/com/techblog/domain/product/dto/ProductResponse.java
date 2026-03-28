@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.techblog.common.enums.ProductStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,4 +29,7 @@ public class ProductResponse {
     private int ratingCount;
     private boolean allowComments;
     private LocalDateTime publishedAt;
+    private String thumbnailUrl;
+    private List<ProductImageResponse> images;
+    private List<ProductSpecResponse> specs;
 }

@@ -2,6 +2,7 @@ package com.techblog.domain.post.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,4 +24,6 @@ public class CreatePostRequest {
     private Long categoryId;
 
     private boolean allowComments = true;
+
+    private Set<Long> tagIds;
 }

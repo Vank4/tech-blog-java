@@ -27,10 +27,10 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
+//    @ExceptionHandler(ResourceNotFoundException.class)
+//    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
+//        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {

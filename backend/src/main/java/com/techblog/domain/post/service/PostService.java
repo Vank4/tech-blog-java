@@ -33,6 +33,7 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final PostModerationLogRepository moderationLogRepository;
+    private final com.techblog.domain.tag.repository.TagRepository tagRepository;
 
     // 1. Lấy danh sách bài viết (Đã fix lỗi LazyInitialization)
     @Transactional(readOnly = true) // Giữ session mở để lấy được Category/Author name
@@ -65,6 +66,7 @@ public class PostService {
                 .categoryName(post.getCategory() != null ? post.getCategory().getName() : null)
                 .authorId(post.getAuthor() != null ? post.getAuthor().getId() : null)
                 .authorName(post.getAuthor() != null ? post.getAuthor().getDisplayName() : null)
+                .tags(post.getTags())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
@@ -73,11 +75,12 @@ public class PostService {
 
 
     @Transactional
-    public Post createDraft(CreatePostRequest request, String email) {
+    public PostResponse createDraft(CreatePostRequest request, String email) { // Đổi kiểu trả về thành PostResponse
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
         User author = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
         String slug = generateUniqueSlug(request.getTitle());
         Post post = new Post();
         post.setTitle(request.getTitle());
@@ -89,7 +92,17 @@ public class PostService {
         post.setSlug(slug);
         post.setStatus(ContentStatus.DRAFT);
         post.setAllowComments(request.isAllowComments());
-        return postRepository.save(post);
+
+        // Gắn Tags
+        if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
+            var tags = tagRepository.findAllById(request.getTagIds());
+            post.setTags(new java.util.HashSet<>(tags));
+        }
+
+        Post savedPost = postRepository.save(post);
+
+        // Trả về DTO ngay trong Transaction để tránh lỗi null Tags
+        return mapToResponse(savedPost);
     }
 
     @Transactional
@@ -185,6 +198,11 @@ public class PostService {
         post.setThumbnailUrl(request.getThumbnailUrl());
         post.setAllowComments(request.isAllowComments());
 
+        if (request.getTagIds() != null) {
+            var tags = tagRepository.findAllById(request.getTagIds());
+            post.setTags(new java.util.HashSet<>(tags));
+        }
+
         // Lưu xuống DB và map ra Response trả về
         Post updatedPost = postRepository.save(post);
         return mapToResponse(updatedPost);
@@ -230,6 +248,24 @@ public class PostService {
         saveModerationLog(post, moderator, oldStatus, ContentStatus.HIDDEN, ModerationAction.REJECT, reason);
     }
 
+    // 10. Admin ghim bài viết nổi bật (FEATURED)
+    @Transactional
+    public PostResponse setFeatured(Long postId, boolean isFeatured, int priority) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết để ghim"));
+
+        // Chỉ cho phép ghim những bài đã được xuất bản
+        if (isFeatured && post.getStatus() != ContentStatus.PUBLISHED) {
+            throw new RuntimeException("Chỉ có thể ghim bài viết đang ở trạng thái PUBLISHED");
+        }
+
+        post.setFeatured(isFeatured);
+        post.setPriority(priority);
+
+        Post updatedPost = postRepository.save(post);
+        return mapToResponse(updatedPost);
+    }
+
     private void saveModerationLog(Post post, User moderator, ContentStatus from, ContentStatus to, ModerationAction action, String reason) {
         PostModerationLog log = new PostModerationLog();
         log.setPost(post);
@@ -259,4 +295,6 @@ public class PostService {
         String noDiacritics = pattern.matcher(normalized).replaceAll("");
         return noDiacritics.toLowerCase(Locale.ENGLISH).replaceAll("[^a-z0-9\\s-]", "").replaceAll("\\s+", "-").replaceAll("-+", "-");
     }
+
+
 }

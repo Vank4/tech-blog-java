@@ -17,6 +17,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import com.techblog.domain.tag.model.Tag;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -70,4 +75,18 @@ public class Post extends Auditable {
 
     @Column(name = "allow_comments", nullable = false)
     private boolean allowComments = true;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "post_tags",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
+    @Column(name = "is_featured", nullable = false)
+    private boolean isFeatured = false;
+
+    @Column(name = "priority", nullable = false)
+    private int priority = 0;
 }

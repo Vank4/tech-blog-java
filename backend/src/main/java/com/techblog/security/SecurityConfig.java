@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/signup", "/forgot-password", "/reset-password", "/profile", "/post/**").permitAll()
                         .requestMatchers("/author/**", "/admin/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
 

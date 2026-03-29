@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${product.name} + ' | TechNexus', 'product-detail.css')}"></head>
+<body data-page="detail">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="detail-layout">
+    <aside class="detail-toc">
+        <div class="detail-toc-inner">
+            <p class="detail-toc-title">On this page</p>
+            <nav class="detail-toc-nav">
+                <a href="#overview" class="active">Overview</a>
+                <a href="#gallery">Gallery</a>
+                <a href="#scorecard">Review Score</a>
+                <a href="#sentiment">AI Sentiment</a>
+                <a href="#specs">Specifications</a>
+                <a href="#comments">Discussions</a>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="detail-content">
+        <section class="detail-overview" id="overview">
+            <div class="detail-product-info">
+                <div class="detail-release-info">
+                    <span class="badge badge-release" th:text="${product.status}">PUBLISHED</span>
+                    <span class="detail-release-date"
+                          th:if="${product.publishedAt != null}"
+                          th:text="|Published ${#temporals.format(product.publishedAt, 'MMM dd, yyyy')}|">Published Mar 29, 2026</span>
+                </div>
+                <h1 class="detail-product-title" th:text="${product.name}">iPhone 15 Pro Max</h1>
+                <p class="detail-product-subtitle">
+                    <span th:text="${product.brand}">Apple</span>
+                    <span th:if="${product.model != null}" th:text="${' ' + product.model}"> A3106</span>
+                </p>
+                <div class="detail-rating-row">
+                    <div class="detail-rating-stars">
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="detail-rating-text" th:text="|${product.ratingAverage} (${product.ratingCount} reviews)|">4.8 (24 reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-pricing">
+                <div>
+                    <span class="pricing-label">Price</span>
+                    <div class="pricing-values">
+                        <span class="pricing-current"
+                              th:text="${product.price != null ? #numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT') + ' ' + product.currency : 'Contact'}">34,990,000 VND</span>
+                    </div>
+                </div>
+                <div class="pricing-buy-buttons">
+                    <button type="button"
+                            class="btn btn-secondary btn-md btn-compare detail-compare-btn"
+                            th:attr="data-product-id=${product.id},data-product-slug=${product.slug},data-product-name=${product.name},data-product-thumbnail=${product.thumbnailUrl ?: ''}">
+                        <span class="material-symbols-outlined" style="font-size:1rem;">compare_arrows</span>
+                        Add to Compare
+                    </button>
+                </div>
+                <div class="pricing-footer">
+                    <span th:text="${product.categoryName ?: 'Uncategorized'}">Laptops</span>
+                    <span th:text="${product.brand}">Brand</span>
+                    <span th:text="${product.model ?: 'N/A'}">Model</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="detail-gallery" id="gallery" th:if="${product.thumbnailUrl != null}">
+            <div class="gallery-hero">
+                <img id="gallery-hero-image" th:src="${product.thumbnailUrl}" th:alt="${product.name}"/>
+                <div class="gallery-hero-overlay"></div>
+                <div class="gallery-hero-actions">
+                    <button type="button" id="gallery-fullscreen-btn"><span class="material-symbols-outlined">fullscreen</span></button>
+                </div>
+            </div>
+            <div class="gallery-thumbs" th:if="${product.images != null and !product.images.isEmpty()}">
+                <button type="button"
+                        th:each="img, iterStat : ${product.images}"
+                        class="gallery-thumb"
+                        th:classappend="${iterStat.index == 0} ? 'active'"
+                        th:attr="data-gallery-image=${img.imageUrl},data-gallery-alt=${img.altText ?: product.name}">
+                    <img th:src="${img.imageUrl}" th:alt="${img.altText ?: ('Image ' + iterStat.count)}"/>
+                </button>
+            </div>
+        </section>
+
+        <section class="detail-score-grid" id="scorecard" th:if="${product.reviewScore != null or product.sentiment != null}">
+            <div class="scorecard" th:if="${product.reviewScore != null}">
+                <div class="scorecard-header">
+                    <div>
+                        <h3 class="scorecard-title">Expert Rating</h3>
+                        <p class="scorecard-subtitle">Calculated from published reviews</p>
+                    </div>
+                    <div class="gauge">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="gauge-bg" cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="3"></circle>
+                            <circle class="gauge-fill gauge-fill-primary"
+                                    cx="18"
+                                    cy="18"
+                                    r="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="3"
+                                    stroke-linecap="round"
+                                    th:attr="stroke-dasharray=${product.reviewScore.multiply(T(java.math.BigDecimal).TEN)} + ', 100'"></circle>
+                        </svg>
+                        <span class="gauge-value" th:text="${product.reviewScore}">8.5</span>
+                    </div>
+                </div>
+                <div class="scorecard-list">
+                    <div class="scorecard-list-item">
+                        <span class="scorecard-list-label">Average review score</span>
+                        <span class="scorecard-list-value" th:text="${product.reviewScore}">8.5</span>
+                    </div>
+                    <div class="scorecard-list-item">
+                        <span class="scorecard-list-label">Community ratings</span>
+                        <span class="scorecard-list-value" th:text="${product.ratingCount}">24</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sentiment-card" id="sentiment" th:if="${product.sentiment != null}">
+                <div>
+                    <div class="sentiment-header">
+                        <div class="sentiment-title-row">
+                            <h3 class="scorecard-title">Community Verdict</h3>
+                            <span class="material-symbols-outlined" style="color:var(--color-primary);">auto_awesome</span>
+                        </div>
+                        <span class="badge badge-ai" th:text="${product.sentiment.conclusion}">POSITIVE</span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                        <div>
+                            <div class="sentiment-bar">
+                                <div class="sentiment-bar-positive" th:style="|width:${product.sentiment.positiveRatio}%|"></div>
+                                <div class="sentiment-bar-neutral" th:style="|width:${product.sentiment.neutralRatio}%|"></div>
+                                <div class="sentiment-bar-negative" th:style="|width:${product.sentiment.negativeRatio}%|"></div>
+                            </div>
+                            <div class="sentiment-labels">
+                                <span style="color:var(--color-primary);" th:text="${product.sentiment.positiveRatio} + '% Positive'">75% Positive</span>
+                                <span th:text="${product.sentiment.neutralRatio} + '% Neutral'">15% Neutral</span>
+                                <span style="color:var(--color-error);" th:text="${product.sentiment.negativeRatio} + '% Negative'">10% Negative</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-conclusion">
+                            <div class="sentiment-conclusion-header">
+                                <span class="sentiment-conclusion-label">Consensus Conclusion</span>
+                                <span class="badge badge-recommended" th:text="${product.sentiment.conclusion}">POSITIVE</span>
+                            </div>
+                            <p class="sentiment-conclusion-copy"
+                               th:text="|${product.sentiment.conclusion} based on ${product.sentiment.totalComments} analyzed comments.|">
+                                Based on community feedback.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="specs-section" id="specs" th:if="${specGroups != null and !specGroups.isEmpty()}">
+            <div class="specs-header">
+                <h2 class="specs-title">Technical Specifications</h2>
+                <a href="#overview" class="specs-link">Jump to overview</a>
+            </div>
+            <div class="specs-groups">
+                <details class="specs-group" th:each="group, iterStat : ${specGroups}" th:open="${iterStat.index == 0}">
+                    <summary class="specs-group-summary">
+                        <span th:text="${group.title}">Core Performance</span>
+                        <span class="material-symbols-outlined">expand_more</span>
+                    </summary>
+                    <div>
+                        <table class="specs-table">
+                            <tbody>
+                            <tr th:each="spec : ${group.specs}">
+                                <td th:text="${spec.specKey}">Processor</td>
+                                <td th:text="${spec.unit != null ? spec.specValue + ' ' + spec.unit : spec.specValue}">Quantum X-1 Octa-core</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="comments-section" id="comments" th:if="${product.allowComments or (discussionCards != null and !discussionCards.isEmpty())}">
+            <div class="comments-header">
+                <h2 class="specs-title">Owner Discussions</h2>
+                <span class="comments-count" th:text="|${discussionCount} entries|">0 entries</span>
+            </div>
+
+            <div class="comments-list" th:if="${discussionCards != null and !discussionCards.isEmpty()}">
+                <article class="comment-card" th:each="discussion : ${discussionCards}">
+                    <div class="comment-header">
+                        <div class="comment-user">
+                            <div class="comment-avatar" th:classappend="${discussion.verified} ? 'comment-avatar-primary' : 'comment-avatar-neutral'">
+                                <img th:if="${discussion.authorAvatarUrl != null}" th:src="${discussion.authorAvatarUrl}" th:alt="${discussion.authorName}"/>
+                                <span th:if="${discussion.authorAvatarUrl == null}" th:text="${discussion.authorInitials}">TN</span>
+                            </div>
+                            <div>
+                                <div class="comment-user-heading">
+                                    <span class="comment-user-name" th:text="${discussion.authorName}">Marcus Jensen</span>
+                                    <span class="badge badge-verified" th:if="${discussion.badgeLabel != null}" th:text="${discussion.badgeLabel}">Verified member</span>
+                                </div>
+                                <p class="comment-user-meta">
+                                    <span th:text="${discussion.createdAt != null} ? ${#temporals.format(discussion.createdAt, 'MMM dd, yyyy')} : 'Recently'">Mar 29, 2026</span>
+                                    <span th:if="${discussion.authorMeta != null}" th:text="${' • ' + discussion.authorMeta}"> • Tech Enthusiast</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="comment-rating" th:if="${discussion.starCount != null}">
+                            <span th:each="star : ${#numbers.sequence(1, discussion.starCount)}" class="material-symbols-outlined filled">star</span>
+                        </div>
+                    </div>
+                    <h3 class="comment-headline" th:if="${discussion.headline != null}" th:text="${discussion.headline}">Fantastic thermals</h3>
+                    <p class="comment-body" th:text="${discussion.content}">The screen is absolutely breathtaking...</p>
+                    <div class="comment-actions">
+                        <span class="comment-action">
+                            <span class="material-symbols-outlined">thumb_up</span>
+                            <span th:text="|${discussion.helpfulCount} helpful|">142 helpful</span>
+                        </span>
+                        <span class="comment-action">
+                            <span class="material-symbols-outlined">chat_bubble</span>
+                            <span th:text="|${discussion.replyCount} replies|">14 replies</span>
+                        </span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="comments-empty-state" th:if="${discussionCards == null or discussionCards.isEmpty()}">
+                <span class="material-symbols-outlined">forum</span>
+                <p>No visible discussions yet for this product.</p>
+            </div>
+        </section>
+
+        <section th:if="${product.description != null and !product.description.isEmpty()}" class="detail-description-section">
+            <h2 class="specs-title">Detailed Description</h2>
+            <div class="detail-description-copy" th:utext="${product.description}">
+                Full product description goes here.
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
+

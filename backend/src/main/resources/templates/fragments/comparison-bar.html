@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Comparison Basket Bar (Fixed Bottom) -->
+<div th:fragment="comparisonBar" class="comparison-bar" th:if="${comparisonItems != null and !comparisonItems.isEmpty()}">
+    <div class="comparison-bar-items">
+        <div class="comparison-bar-thumbnails">
+            <div th:each="item : ${comparisonItems}" class="comparison-bar-thumb">
+                <img th:src="${item.thumbnailUrl}" th:alt="${item.name}"/>
+            </div>
+            <div th:if="${comparisonItems.size() < 3}" class="comparison-bar-thumb-placeholder">+</div>
+        </div>
+        <div class="comparison-bar-info">
+            <span class="text-label-sm">Comparison Lab</span>
+            <span class="text-body-sm" th:text="${comparisonItems.size()} + ' item(s) selected'">1 item selected</span>
+        </div>
+    </div>
+    <a th:href="@{/products/compare}" class="comparison-bar-btn">
+        <span class="material-symbols-outlined" style="font-size:1.25rem;">compare_arrows</span>
+        Compare
+    </a>
+</div>
+</body>
+</html>

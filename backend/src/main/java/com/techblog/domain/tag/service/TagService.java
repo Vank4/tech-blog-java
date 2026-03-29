@@ -65,7 +65,8 @@ public class TagService {
     public void deleteTag(Long id) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ (Tag)"));
-        // TODO: Nếu sau này cần kiểm tra Tag đang có bài viết không thì thêm logic vào đây
+        // TODO: Nếu sau này cần kiểm tra Tag đang có bài viết không thì thêm logic vào
+        // đây
         tagRepository.delete(tag);
     }
 }

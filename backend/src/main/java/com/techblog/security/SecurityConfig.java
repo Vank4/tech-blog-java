@@ -36,7 +36,9 @@ public class SecurityConfig {
                         // ==========================================
                         // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
                         // ==========================================
-                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**",
+                                "/images/**")
+                        .permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll() // Xem ảnh đại diện bài viết
@@ -81,8 +83,7 @@ public class SecurityConfig {
                         // ==========================================
                         // 4. CHỐT CHẶN CUỐI CÙNG
                         // ==========================================
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

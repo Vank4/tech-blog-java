@@ -10,4 +10,8 @@ public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long
     List<UserFavorite> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     boolean existsByUserIdAndTargetTypeAndTargetId(Long userId, TargetType targetType, Long targetId);
+    
+    java.util.Optional<UserFavorite> findByUserIdAndTargetTypeAndTargetId(Long userId, TargetType targetType, Long targetId);
+    
+    long countByTargetTypeAndTargetId(TargetType targetType, Long targetId);
 }

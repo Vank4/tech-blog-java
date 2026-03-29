@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>TechNexus Review | Chi tiết đánh giá</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b6ffee",
+                        "primary-container": "#00fede",
+                        "on-primary-fixed": "#00443a",
+                        "surface": "#001110",
+                        "surface-container": "#001e1c",
+                        "surface-container-high": "#002422",
+                        "on-surface": "#bdf9f4",
+                        "on-surface-variant": "#7cb6b1",
+                        "outline-variant": "#0f504d",
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-panel { backdrop-filter: blur(24px); background: rgba(0, 30, 28, 0.7); border: 1px solid rgba(15, 80, 77, 0.3); }
+        .score-glow { text-shadow: 0 0 20px rgba(182, 255, 238, 0.5); }
+        .prose img { border-radius: 1rem; margin: 2rem auto; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-primary-container selection:text-on-primary-fixed">
+
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/10">
+    <nav class="flex justify-between items-center px-8 h-20 max-w-[1440px] mx-auto">
+        <a href="/" class="text-2xl font-black tracking-tighter text-primary">TechNexus</a>
+        <div class="hidden md:flex items-center gap-8">
+            <a class="text-on-surface-variant hover:text-white transition-colors text-sm font-medium" href="/">Home</a>
+            <a class="text-on-surface-variant hover:text-white transition-colors text-sm font-medium hidden" href="/profile" data-nav-profile>Profile</a>
+            <a class="text-on-surface-variant hover:text-white transition-colors text-sm font-medium hidden" href="/author/posts" data-nav-author>Author Hub</a>
+            <a class="text-on-surface-variant hover:text-white transition-colors text-sm font-medium hidden" href="/admin/posts" data-nav-admin>Admin</a>
+            <a class="text-primary border-b-2 border-primary pb-1 text-sm font-medium" href="javascript:void(0)">Product Review</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="hidden items-center gap-3" data-auth-panel>
+                <a href="/profile" class="w-10 h-10 rounded-full overflow-hidden border border-primary/20 bg-surface-container-high block" data-avatar-link>
+                    <img alt="User Avatar" class="w-full h-full object-cover" data-user-avatar src=""/>
+                </a>
+            </div>
+            <div class="flex items-center gap-3" data-guest-panel>
+                <a href="/login" class="px-4 py-2 rounded-full border border-outline-variant/50 text-sm text-on-surface-variant hover:text-white hover:border-primary/50 transition-colors">Đăng nhập</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="pt-20">
+    <!-- Hero / Banner Section -->
+    <section class="relative w-full h-[500px] flex items-center overflow-hidden border-b border-outline-variant/10">
+        <div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/80 to-transparent z-10"></div>
+        <img id="review-product-bg" class="absolute inset-0 w-full h-full object-cover opacity-40 grayscale" src="https://images.unsplash.com/photo-1523275335684-37898b6baf30"/>
+        
+        <div class="relative max-w-[1440px] mx-auto px-8 w-full z-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <span id="review-product-name" class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded border border-primary/20">Product Name</span>
+                    <span class="text-on-surface-variant text-xs">•</span>
+                    <span id="review-date" class="text-on-surface-variant text-xs font-medium tracking-wide">--/--/----</span>
+                </div>
+                <h1 id="review-title" class="text-4xl md:text-6xl font-black tracking-tighter leading-tight mb-8">
+                    Đang tải bài đánh giá...
+                </h1>
+                <p id="review-summary" class="text-xl text-on-surface-variant leading-relaxed max-w-2xl italic font-medium"></p>
+            </div>
+            
+            <div class="lg:col-span-4 flex flex-col items-center justify-center">
+                <div class="relative w-64 h-64 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90 scale-110">
+                        <circle cx="128" cy="128" r="110" stroke="currentColor" stroke-width="4" fill="transparent" class="text-surface-container-high"/>
+                        <circle id="score-circle" cx="128" cy="128" r="110" stroke="currentColor" stroke-width="12" fill="transparent" stroke-dasharray="691" stroke-dashoffset="691" class="text-primary transition-all duration-[1.5s] ease-out"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="review-overall-score" class="text-7xl font-black text-primary score-glow tracking-tighter">0.0</span>
+                        <span class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.3em] mt-2">TOTAL SCORE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="max-w-[1440px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-16 mt-20 mb-32">
+        
+        <!-- Left: Details & Content -->
+        <div class="lg:col-span-8 space-y-20">
+            
+            <!-- Section: Pros & Cons -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-green-500/5 border border-green-500/10 rounded-[2rem] p-10 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-bl-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-green-500 text-3xl" data-icon="add_circle">add_circle</span>
+                        <h3 class="text-sm font-black text-green-500 uppercase tracking-[0.25em]">Ưu điểm vượt trội</h3>
+                    </div>
+                    <ul id="review-pros" class="space-y-5 text-on-surface-variant text-base leading-relaxed font-medium">
+                        <!-- Pros will be injected here -->
+                    </ul>
+                </div>
+                
+                <div class="bg-red-500/5 border border-red-500/10 rounded-[2rem] p-10 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-bl-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-red-500 text-3xl" data-icon="remove_circle">remove_circle</span>
+                        <h3 class="text-sm font-black text-red-500 uppercase tracking-[0.25em]">Điểm cần lưu ý</h3>
+                    </div>
+                    <ul id="review-cons" class="space-y-5 text-on-surface-variant text-base leading-relaxed font-medium">
+                        <!-- Cons will be injected here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section: Detailed Content -->
+            <article class="relative">
+                <div class="absolute -left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/50 via-outline-variant/20 to-transparent rounded-full hidden lg:block"></div>
+                <h3 class="text-xs font-black text-primary uppercase tracking-[0.4em] mb-12 pb-6 border-b border-outline-variant/10 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-xl" data-icon="terminal">terminal</span>
+                    Báo cáo phân tích chi tiết
+                </h3>
+                <div id="review-content" class="prose prose-invert prose-emerald max-w-none text-on-surface-variant leading-relaxed text-lg font-normal">
+                    <div class="animate-pulse space-y-4 py-10">
+                        <div class="h-4 bg-surface-container-high rounded w-3/4"></div>
+                        <div class="h-4 bg-surface-container-high rounded w-full"></div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- COMMENT SECTION -->
+            <section class="mt-24 pt-12 border-t border-outline-variant/15">
+                <div class="flex items-center justify-between mb-10">
+                    <h3 class="text-2xl font-bold text-white tracking-tight">Intelligence Exchange</h3>
+                    <div class="px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">
+                         <span class="text-[10px] font-black text-primary uppercase tracking-widest" id="comment-count">0 COMMENTS</span>
+                    </div>
+                </div>
+
+                <!-- Comment Input -->
+                <div class="mb-12 p-8 bg-surface-container rounded-3xl border border-outline-variant/10 glass-panel shadow-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+                    <div class="flex items-center gap-4 mb-6 relative">
+                        <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shadow-lg">
+                            <span class="material-symbols-outlined text-on-primary-fixed" data-icon="terminal">terminal</span>
+                        </div>
+                        <span class="text-sm font-bold text-white tracking-wide">Initialize new node in the exchange...</span>
+                    </div>
+                    <textarea id="main-comment-input" class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline/30 focus:border-primary focus:ring-0 text-on-surface p-4 rounded-t-xl transition-all placeholder:text-on-surface-variant/40 text-sm leading-relaxed" placeholder="Share your insights with the monolith..." rows="3"></textarea>
+                    <div class="flex justify-end mt-6">
+                        <button onclick="submitComment()" class="bg-gradient-to-br from-primary to-primary-dim px-8 py-3 rounded-xl text-on-primary-fixed font-black text-[10px] uppercase tracking-[0.2em] hover:brightness-110 active:scale-95 transition-all shadow-lg">
+                            Post Insight
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Comment List -->
+                <div id="comment-list" class="space-y-8"></div>
+            </section>
+
+            <!-- Section: Author -->
+            <div class="flex flex-col md:flex-row items-center justify-between py-12 border-t border-outline-variant/15 gap-8">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary-fixed font-black text-2xl shadow-[0_0_20px_rgba(182,255,238,0.2)]">
+                        <span id="review-author-avatar">A</span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Evaluated by Specialist</p>
+                        <p id="review-author-name" class="text-xl font-bold text-white tracking-tight">Author Name</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <button class="px-6 py-3 rounded-full border border-outline-variant/30 flex items-center gap-2 hover:bg-primary/10 hover:border-primary/50 transition-all text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary">
+                        <span class="material-symbols-outlined text-sm" data-icon="share">share</span> Chia sẻ
+                    </button>
+                    <button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary/10 hover:border-primary/50 transition-all group">
+                        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="bookmark">bookmark</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Criteria Sidebar -->
+        <aside class="lg:col-span-4 space-y-10">
+            <div class="sticky top-32 glass-panel rounded-[2.5rem] p-10 space-y-10 overflow-hidden relative group">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-transparent opacity-30 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-xs font-black text-on-surface-variant uppercase tracking-[0.25em]">Criteria Matrix</h3>
+                        <span class="material-symbols-outlined text-primary text-sm animate-pulse" data-icon="analytics">analytics</span>
+                    </div>
+                    <div id="review-criteria-list" class="space-y-8">
+                        <!-- Criteria will be injected here -->
+                    </div>
+                </div>
+
+                <div class="pt-10 border-t border-outline-variant/10">
+                    <div class="bg-surface-container-high/50 rounded-2xl p-8 text-center border border-outline-variant/10">
+                        <p class="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Core Judgment</p>
+                        <p id="verdict-text" class="text-base text-on-surface-variant font-medium italic leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-8 bg-surface-container/30 border border-outline-variant/10 rounded-3xl text-center">
+                <p class="text-xs text-on-surface-variant/60 font-medium">Bài đánh giá này phản ánh quan điểm chuyên môn của TechNexus Specialist tại thời điểm công bố.</p>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<footer class="w-full py-20 px-8 border-t border-outline-variant/10 bg-surface font-headline text-[10px] uppercase font-bold tracking-[0.3em] text-on-surface-variant/30">
+    <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-10 text-center md:text-left">
+        <div class="text-2xl font-black text-primary tracking-[calc(-0.05em)] selection:bg-transparent">TechNexus</div>
+        <div class="flex gap-8">
+            <a href="#" class="hover:text-primary transition-colors">Privacy</a>
+            <a href="#" class="hover:text-primary transition-colors">Security</a>
+            <a href="#" class="hover:text-primary transition-colors">Monolith Status</a>
+        </div>
+        <div class="text-[9px]">© 2026 TechNexus Evaluation Monolith. Node 081.</div>
+    </div>
+</footer>
+
+<script>
+    const API_BASE = "http://localhost:8081/api/v1";
+    let currentReviewId = null;
+    const DEFAULT_AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc";
+
+    const getToken = () => localStorage.getItem("techblog.accessToken");
+
+    const resolveAvatarUrl = (avatarUrl) => {
+        if (!avatarUrl) return DEFAULT_AVATAR;
+        if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) return avatarUrl;
+        if (avatarUrl.startsWith("/")) return avatarUrl;
+        return `/${avatarUrl}`;
+    };
+
+    const toggleElement = (selector, shouldShow, displayValue = "inline-flex") => {
+        const element = document.querySelector(selector);
+        if (!element) return;
+        element.style.display = shouldShow ? displayValue : "none";
+    };
+
+    const applyAuthState = (profile) => {
+        const roles = profile?.roles || [];
+        const isAuthenticated = !!profile;
+        const guestPanel = document.querySelector("[data-guest-panel]");
+        const authPanel = document.querySelector("[data-auth-panel]");
+        const avatar = document.querySelector("[data-user-avatar]");
+        const avatarLink = document.querySelector("[data-avatar-link]");
+
+        if (guestPanel) guestPanel.style.display = isAuthenticated ? "none" : "flex";
+        if (authPanel) authPanel.style.display = isAuthenticated ? "flex" : "none";
+
+        toggleElement("[data-nav-profile]", isAuthenticated);
+        toggleElement("[data-nav-author]", roles.includes("AUTHOR") || roles.includes("ADMIN"));
+        toggleElement("[data-nav-admin]", roles.includes("ADMIN"));
+
+        if (avatar) {
+            avatar.src = resolveAvatarUrl(profile?.avatarUrl);
+            avatar.alt = profile?.fullName ? `Ảnh đại diện của ${profile.fullName}` : "Ảnh đại diện người dùng";
+        }
+        if (avatarLink) avatarLink.href = isAuthenticated ? "/profile" : "/login";
+    };
+
+    async function loadCurrentUserState() {
+        const token = getToken();
+        if (!token) {
+            applyAuthState(null);
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/v1/users/me", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success === false) {
+                localStorage.removeItem("techblog.accessToken");
+                applyAuthState(null);
+                return;
+            }
+
+            applyAuthState(result.data || null);
+        } catch (error) {
+            applyAuthState(null);
+        }
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return "Processing...";
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    async function loadReviewDetail() {
+        const pathArray = window.location.pathname.split('/');
+        const slug = pathArray[pathArray.length - 1];
+
+        if (!slug || slug === 'review-detail.html') return;
+
+        try {
+            const response = await fetch(`${API_BASE}/reviews/slug/${slug}`);
+            if (!response.ok) throw new Error("Terminal access denied: Review not found");
+
+            const result = await response.json();
+            const r = result.data;
+            currentReviewId = r.id;
+
+            // Page Title
+            document.title = `${r.title} | TechNexus Review`;
+
+            // Metadata
+            document.getElementById('review-product-name').textContent = r.productName;
+            document.getElementById('review-date').textContent = formatDate(r.publishedAt || r.createdAt);
+            document.getElementById('review-title').textContent = r.title;
+            document.getElementById('review-summary').textContent = r.summary;
+            
+            if (r.productImageUrl) {
+                document.getElementById('review-product-bg').src = r.productImageUrl;
+                document.getElementById('review-product-bg').classList.remove('grayscale');
+                document.getElementById('review-product-bg').classList.add('opacity-40');
+            }
+            
+            // Score Animation
+            document.getElementById('review-overall-score').textContent = r.overallScore.toFixed(1);
+            const circle = document.getElementById('score-circle');
+            const circumference = 691; // 2 * pi * 110
+            const offset = circumference - (r.overallScore / 10) * circumference;
+            setTimeout(() => { circle.style.strokeDashoffset = offset; }, 200);
+
+            // Pros & Cons lists
+            const formatList = (str, isPro) => {
+                if (!str) return '<li class="text-on-surface-variant/40 italic">Không có dữ liệu</li>';
+                return str.split('\n').filter(line => line.trim()).map(line => `
+                    <li class="flex gap-4 group/item">
+                        <span class="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0 ${isPro ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'} transition-transform group-hover/item:scale-125"></span>
+                        <span class="group-hover/item:text-on-surface transition-colors">${line.trim()}</span>
+                    </li>
+                `).join('');
+            };
+            document.getElementById('review-pros').innerHTML = formatList(r.pros, true);
+            document.getElementById('review-cons').innerHTML = formatList(r.cons, false);
+
+            // Content (HTML)
+            document.getElementById('review-content').innerHTML = r.content;
+
+            // Author metadata
+            document.getElementById('review-author-name').textContent = r.authorName;
+            document.getElementById('review-author-avatar').textContent = r.authorName.charAt(0).toUpperCase();
+
+            // Criteria sidebar
+            const criteriaList = document.getElementById('review-criteria-list');
+            criteriaList.innerHTML = r.scores.map(s => `
+                <div class="space-y-3 group/crit">
+                    <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
+                        <span class="text-on-surface-variant group-hover/crit:text-primary transition-colors">${s.criterion}</span>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-lg text-primary font-black">${s.score}</span>
+                            <span class="text-[9px] text-on-surface-variant/40">/ ${s.maxScore}</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden border border-outline-variant/5">
+                        <div class="h-full bg-gradient-to-r from-primary/60 to-primary transition-all duration-[1.5s] ease-in-out" style="width: 0%" data-width="${(s.score/s.maxScore)*100}%"></div>
+                    </div>
+                    ${s.note ? `<p class="text-[10px] text-on-surface-variant/60 font-medium italic pl-1 leading-relaxed">${s.note}</p>` : ''}
+                </div>
+            `).join('');
+
+            // Trigger criteria bars animation
+            setTimeout(() => {
+                document.querySelectorAll('[data-width]').forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-width');
+                });
+            }, 500);
+
+            // Analysis Verdict
+            const score = r.overallScore;
+            let verdict = "A balanced device that performs well in most categories.";
+            if (score >= 9) verdict = "A direct benchmark of excellence. We found almost no significant flaws.";
+            else if (score >= 8.5) verdict = "Professional grade equipment. Exceptional build quality and performance.";
+            else if (score >= 7.5) verdict = "Strong contender in its price class. Highly reliable for daily tasks.";
+            else if (score <= 5) verdict = "Technically unstable or poorly constructed. Integration not recommended.";
+            document.getElementById('verdict-text').textContent = verdict;
+
+            loadComments();
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('review-title').textContent = "Unauthorized Access or Terminal Offline";
+            document.getElementById('review-content').innerHTML = `<div class="bg-red-500/10 border border-red-500/20 p-8 rounded-3xl text-sm font-medium text-red-400">Error: ${error.message}</div>`;
+        }
+    }
+
+    // COMMENT LOGIC
+    async function loadComments() {
+        if (!currentReviewId) return;
+        try {
+            const res = await fetch(`${API_BASE}/comments/REVIEW/${currentReviewId}`);
+            const result = await res.json();
+            const comments = result.data || [];
+            renderComments(comments);
+            document.getElementById('comment-count').textContent = `${comments.length} COMMENTS`;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderComments(comments, containerId = 'comment-list', isReply = false) {
+        const container = document.getElementById(containerId);
+        if (!isReply) container.innerHTML = '';
+        if (comments.length === 0 && !isReply) {
+            container.innerHTML = '<p class="text-sm text-on-surface-variant/50 italic py-10 text-center">No nodes in the exchange yet. Be the first.</p>';
+            return;
+        }
+
+        comments.forEach(c => {
+            const commentEl = document.createElement('div');
+            commentEl.className = `${isReply ? 'ml-12 mt-6 border-l-2 border-outline-variant/10 pl-6' : 'mb-10 last:mb-0'}`;
+            commentEl.innerHTML = `
+                <div class="group/node relative">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-surface-container-high border border-primary/20 flex items-center justify-center text-primary font-black shadow-lg">
+                            ${c.authorName ? c.authorName.charAt(0).toUpperCase() : '?'}
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white tracking-tight">${c.authorName}</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">${formatDate(c.createdAt)}</p>
+                        </div>
+                    </div>
+                    <div class="bg-surface-container/50 p-6 rounded-2xl border border-outline-variant/10 leading-relaxed text-on-surface-variant text-sm">
+                        ${c.content}
+                    </div>
+                    <div class="flex items-center gap-4 mt-3 opacity-0 group-hover/node:opacity-100 transition-opacity">
+                        <button onclick="showReplyForm(${c.id})" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs" data-icon="reply">reply</span> Reply
+                        </button>
+                        <button onclick="showReportForm(${c.id})" class="text-[10px] font-black text-on-surface-variant/40 hover:text-red-400 uppercase tracking-widest flex items-center gap-1">Report</button>
+                    </div>
+                    <div id="reply-form-container-${c.id}" class="mt-4 hidden"></div>
+                    <div id="replies-container-${c.id}"></div>
+                </div>
+            `;
+            container.appendChild(commentEl);
+            if (c.replies && c.replies.length > 0) renderComments(c.replies, `replies-container-${c.id}`, true);
+        });
+    }
+
+    async function submitComment(parentId = null) {
+        const token = getToken();
+        if (!token) { alert("Vui lòng đăng nhập!"); window.location.href = "/login"; return; }
+
+        const inputId = parentId ? `reply-input-${parentId}` : 'main-comment-input';
+        const input = document.getElementById(inputId);
+        const content = input.value.trim();
+        if (!content) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ content, targetType: 'REVIEW', targetId: currentReviewId, parentId })
+            });
+            if (response.ok) {
+                input.value = '';
+                if (parentId) document.getElementById(`reply-form-container-${parentId}`).classList.add('hidden');
+                loadComments();
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    function showReplyForm(commentId) {
+        const container = document.getElementById(`reply-form-container-${commentId}`);
+        container.innerHTML = `
+            <div class="p-6 bg-surface-container-high rounded-2xl border border-primary/20 shadow-xl">
+                <textarea id="reply-input-${commentId}" class="w-full bg-surface-container-lowest border-0 border-b-2 border-primary/30 focus:border-primary focus:ring-0 text-on-surface p-3 text-sm rounded-t-lg" placeholder="Type your reply..." rows="2"></textarea>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button onclick="this.closest('.hidden').classList.add('hidden')" class="px-4 py-2 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Cancel</button>
+                    <button onclick="submitComment(${commentId})" class="bg-primary px-6 py-2 rounded-xl text-on-primary-fixed font-black text-[10px] uppercase tracking-widest">Reply</button>
+                </div>
+            </div>
+        `;
+        container.classList.remove('hidden');
+    }
+
+    function showReportForm(commentId) {
+        const reason = prompt("Lý do báo cáo vi phạm:");
+        if (reason) reportComment(commentId, reason);
+    }
+
+    async function reportComment(commentId, reason) {
+        const token = getToken();
+        if (!token) return;
+        try {
+            const response = await fetch(`${API_BASE}/comments/${commentId}/report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ reason })
+            });
+            if (response.ok) alert("Báo cáo thành công.");
+        } catch (e) { console.error(e); }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCurrentUserState();
+        loadReviewDetail();
+    });
+</script>
+</body>
+</html>

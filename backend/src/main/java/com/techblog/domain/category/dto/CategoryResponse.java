@@ -16,4 +16,5 @@ public class CategoryResponse {
     private Boolean isActive;
 
     private Long parentId;
+    private String parentName;
 }

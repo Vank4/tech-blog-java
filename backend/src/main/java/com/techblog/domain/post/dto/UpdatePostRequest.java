@@ -2,6 +2,7 @@ package com.techblog.domain.post.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Set;
 import lombok.Data;
 
 @Data
@@ -19,4 +20,6 @@ public class UpdatePostRequest {
     private Long categoryId;
 
     private boolean allowComments;
+
+    private Set<Long> tagIds;
 }

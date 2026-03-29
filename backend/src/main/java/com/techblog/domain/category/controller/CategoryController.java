@@ -25,19 +25,35 @@ public class CategoryController {
     }
 
     @PostMapping
+    // TODO: Bỏ comment dòng dưới khi có Login
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryResponse>> create(@Valid @RequestBody CreateCategoryRequest request) {
         CategoryResponse data = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(true, "Tạo danh mục thành công", data));
     }
 
+    @PutMapping("/{id}")
+    // TODO: Bỏ comment dòng dưới khi có Login
+    // @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<CategoryResponse>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateCategoryRequest request) {
+        CategoryResponse data = categoryService.updateCategory(id, request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật danh mục thành công", data));
+    }
+
     @PatchMapping("/{id}/disable")
+    // TODO: Bỏ comment dòng dưới khi có Login
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> disable(@PathVariable Long id) {
         categoryService.disableCategory(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Đã tắt danh mục", null));
     }
 
     @PatchMapping("/{id}/enable")
+    // TODO: Bỏ comment dòng dưới khi có Login
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> enable(@PathVariable Long id) {
         categoryService.enableCategory(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Đã bật lại danh mục", null));
@@ -49,11 +65,13 @@ public class CategoryController {
                 true, "Lấy chi tiết danh mục thành công", categoryService.getCategoryById(id)));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> update(
-            @PathVariable Long id,
-            @Valid @RequestBody CreateCategoryRequest request) {
-        CategoryResponse data = categoryService.updateCategory(id, request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật danh mục thành công", data));
+    // THÊM API XÓA DANH MỤC VÀO ĐÂY
+    @DeleteMapping("/{id}")
+    // TODO: Bỏ comment dòng dưới khi có Login
+    // @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
+        // Đảm bảo trong CategoryService của bạn đã có hàm deleteCategory()
+        categoryService.deleteCategory(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Đã xóa danh mục thành công", null));
     }
 }

@@ -33,13 +33,54 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ==========================================
+                        // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
+                        // ==========================================
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll() // Xem ảnh đại diện bài viết
+
+                        // Cho phép xem nội dung nhưng không được sửa
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
-                        .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/create", "/api/v1/posts/*/edit").hasRole("AUTHOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+
+                        // ==========================================
+                        // 2. AUTHOR (TÁC GIẢ - WORKFLOW VIẾT BÀI)
+                        // ==========================================
+                        // Giao diện soạn thảo & danh sách bài cá nhân
+                        .requestMatchers("/author/**").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // API nghiệp vụ của Tác giả
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasRole("AUTHOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").hasRole("AUTHOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasRole("AUTHOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasRole("AUTHOR")
+
+                        // API Upload ảnh cho bài viết
+                        .requestMatchers("/api/v1/files/upload").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // ==========================================
+                        // 3. ADMIN (QUẢN TRỊ VIÊN - KIỂM DUYỆT & HỆ THỐNG)
+                        // ==========================================
+                        // Giao diện quản trị tổng thể
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // Quản lý Danh mục & Thẻ (Chỉ Admin mới có quyền CRUD)
+                        .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
+
+                        // Nghiệp vụ kiểm duyệt (Approve/Reject/Hide/Featured/Logs)
+                        .requestMatchers("/api/v1/posts/*/approve").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/posts/*/reject").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/posts/*/hide").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/posts/*/featured").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/posts/moderation-logs").hasRole("ADMIN")
+
+                        // ==========================================
+                        // 4. CHỐT CHẶN CUỐI CÙNG
+                        // ==========================================
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

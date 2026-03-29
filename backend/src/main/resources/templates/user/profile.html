@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân | TechNexus</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="site-shell" data-page="profile">
+    <header class="topbar">
+        <a class="brand" href="/">
+            <span class="brand-mark"></span>
+            <span class="brand-name">Tech<span>Nexus</span></span>
+        </a>
+
+        <nav class="topbar-links">
+            <a href="/">Trang chủ</a>
+            <a href="/profile" class="is-active">Hồ sơ</a>
+            <a href="/admin/users">Admin users</a>
+        </nav>
+
+        <div class="topbar-actions">
+            <a class="outline-button" href="/admin/users">Bảng quản trị</a>
+            <button class="outline-button logout-button" type="button" data-logout>Đăng xuất</button>
+        </div>
+    </header>
+
+    <main class="app-page">
+        <div class="dashboard-shell">
+            <aside class="side-panel">
+                <p class="section-label">Personal Console</p>
+                <div class="profile-summary">
+                    <div class="avatar-ring" data-profile-avatar>U</div>
+                    <div>
+                        <h2 data-profile-name>Đang tải hồ sơ...</h2>
+                    </div>
+                    <div class="meta-stack">
+                        <span data-profile-email>Đang tải email...</span>
+                    </div>
+                    <div class="badge-row" data-profile-status-badge></div>
+                    <div class="badge-row" data-profile-verified></div>
+                    <div class="badge-row" data-profile-roles></div>
+                    <p class="helper-copy" data-profile-bio>
+                        Hồ sơ cá nhân sẽ hiển thị bio, vai trò hiện tại và trạng thái xác thực email của bạn.
+                    </p>
+                </div>
+
+                <div class="nav-list">
+                    <a class="nav-chip is-active" href="#profile-form">Thông tin cá nhân</a>
+                    <a class="nav-chip" href="#password-form">Đổi mật khẩu</a>
+                    <a class="nav-chip" href="#activity-panel">Khu vực mở rộng</a>
+                </div>
+            </aside>
+
+            <section class="content-panel">
+                <div class="page-heading">
+                    <div>
+                        <p class="section-label">User Profile</p>
+                        <h1>Hồ sơ cá nhân</h1>
+                        <p>
+                            Cập nhật thông tin hiển thị, ảnh đại diện, mô tả cá nhân và quản lý mật khẩu trong cùng
+                            một giao diện tối ưu cho trải nghiệm dark-tech của TechNexus.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="status-message" data-profile-status></div>
+
+                <div class="stat-grid">
+                    <article class="mini-panel">
+                        <strong data-stat-roles>0</strong>
+                        <span>Số role hiện có</span>
+                    </article>
+                    <article class="mini-panel">
+                        <strong data-stat-verified>No</strong>
+                        <span>Trạng thái xác thực email</span>
+                    </article>
+                    <article class="mini-panel">
+                        <strong data-stat-status>UNKNOWN</strong>
+                        <span>Trạng thái tài khoản</span>
+                    </article>
+                </div>
+
+                <div class="content-grid">
+                    <article class="data-card" id="profile-form">
+                        <p class="section-label">Profile Info</p>
+                        <h3>Thông tin cá nhân</h3>
+                        <form class="stack-form" data-profile-form>
+                            <div class="status-message" data-form-message></div>
+
+                            <div class="field">
+                                <label for="profile-full-name">Họ và tên</label>
+                                <input id="profile-full-name" name="fullName" type="text" placeholder="Tên hiển thị của bạn">
+                            </div>
+
+                            <div class="field">
+                                <label for="profile-avatar-url">URL ảnh đại diện</label>
+                                <input id="profile-avatar-url" name="avatarUrl" type="url" placeholder="https://...">
+                            </div>
+
+                            <div class="field">
+                                <label for="profile-bio">Bio</label>
+                                <textarea id="profile-bio" name="bio" placeholder="Viết vài dòng giới thiệu ngắn về bạn..."></textarea>
+                            </div>
+
+                            <button class="pill-button" type="submit" data-default-label="Lưu thay đổi" data-loading-label="Đang lưu...">
+                                Lưu thay đổi
+                            </button>
+                        </form>
+                    </article>
+
+                    <article class="data-card" id="password-form">
+                        <p class="section-label">Security</p>
+                        <h3>Đổi mật khẩu</h3>
+                        <form class="stack-form" data-password-form>
+                            <div class="status-message" data-form-message></div>
+
+                            <div class="field">
+                                <label for="current-password">Mật khẩu hiện tại</label>
+                                <input id="current-password" name="currentPassword" type="password" placeholder="Nhập mật khẩu hiện tại">
+                            </div>
+
+                            <div class="field">
+                                <label for="new-password">Mật khẩu mới</label>
+                                <input id="new-password" name="newPassword" type="password" placeholder="Ít nhất 6 ký tự">
+                            </div>
+
+                            <div class="field">
+                                <label for="confirm-password">Xác nhận mật khẩu mới</label>
+                                <input id="confirm-password" name="confirmPassword" type="password" placeholder="Nhập lại mật khẩu mới">
+                            </div>
+
+                            <button class="pill-button" type="submit" data-default-label="Cập nhật mật khẩu" data-loading-label="Đang cập nhật...">
+                                Cập nhật mật khẩu
+                            </button>
+                        </form>
+                    </article>
+
+                    <article class="data-card" id="activity-panel">
+                        <p class="section-label">Favorites</p>
+                        <h3>Danh sách yêu thích</h3>
+                        <div class="empty-box">
+                            <p class="empty-copy">
+                                API yêu thích chưa được nối vào trang này, nhưng bố cục đã sẵn sàng để hiển thị thẻ sản phẩm
+                                hoặc bài viết mà người dùng đã lưu.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="data-card">
+                        <p class="section-label">Compare</p>
+                        <h3>Danh sách so sánh</h3>
+                        <div class="empty-box">
+                            <p class="empty-copy">
+                                Khu vực này dành cho compare list, trạng thái đồng bộ và các gợi ý tiếp tục so sánh khi
+                                module interaction được nối đầy đủ.
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="page-footer">
+        © 2026 TechNexus. Personal workspace for community-driven hardware review.
+    </footer>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý người dùng | TechNexus</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="site-shell" data-page="admin-users">
+    <header class="topbar">
+        <a class="brand" href="/">
+            <span class="brand-mark"></span>
+            <span class="brand-name">Tech<span>Nexus</span></span>
+        </a>
+
+        <nav class="topbar-links">
+            <a href="/">Trang chủ</a>
+            <a href="/profile">Hồ sơ</a>
+            <a href="/admin/users" class="is-active">Admin users</a>
+        </nav>
+
+        <div class="topbar-actions">
+            <a class="outline-button" href="/profile">Về hồ sơ</a>
+            <button class="outline-button logout-button" type="button" data-logout>Đăng xuất</button>
+        </div>
+    </header>
+
+    <main class="app-page">
+        <div class="page-heading">
+            <div>
+                <p class="section-label">Admin Console</p>
+                <h1>Quản lý người dùng</h1>
+                <p>
+                    Theo dõi danh sách tài khoản, tìm kiếm nhanh, gán role, khóa hoặc mở khóa người dùng trong giao diện
+                    đậm chất control-panel, đồng bộ với ngôn ngữ TechNexus.
+                </p>
+            </div>
+        </div>
+
+        <div class="status-message" data-admin-status></div>
+
+        <div class="split-layout">
+            <section class="table-shell">
+                <div class="toolbar-row">
+                    <div>
+                        <p class="section-label">User Directory</p>
+                        <h2>Danh sách người dùng</h2>
+                    </div>
+                    <div class="toolbar-actions">
+                        <span class="badge is-accent">Tổng user: <span data-total-count>0</span></span>
+                        <span class="badge" data-page-count>Trang 1 / 1</span>
+                    </div>
+                </div>
+
+                <form class="filter-row" data-filter-form>
+                    <input class="filter-input" name="keyword" type="text" placeholder="Tìm theo email hoặc họ tên">
+                    <select class="filter-input" name="status">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="BANNED">BANNED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                    <button class="pill-button" type="submit">Lọc dữ liệu</button>
+                </form>
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Người dùng</th>
+                        <th>Trạng thái</th>
+                        <th>Xác thực</th>
+                        <th>Role</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody data-user-table>
+                    <tr>
+                        <td colspan="6">Đang tải dữ liệu người dùng...</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="table-meta">
+                    <span>Dùng bộ lọc để thu hẹp kết quả và chọn từng user ở cột cuối để thao tác.</span>
+                    <div class="toolbar-actions">
+                        <button class="outline-button page-button" type="button" data-prev-page>Trang trước</button>
+                        <button class="outline-button page-button" type="button" data-next-page>Trang sau</button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="detail-shell">
+                <p class="section-label">Selected User</p>
+                <h2 data-detail-name>Chưa chọn người dùng</h2>
+                <p class="helper-copy" data-detail-meta>Chọn một người dùng trong bảng để xem chi tiết và thao tác.</p>
+
+                <div class="badge-row" data-detail-status></div>
+
+                <div class="data-card" style="padding:16px; margin-top:18px;">
+                    <p class="section-label">Role Snapshot</p>
+                    <div class="badge-row" data-detail-roles>
+                        <span class="badge">Chưa có dữ liệu</span>
+                    </div>
+                    <p class="helper-copy" style="margin-top:14px;">Ngày tạo: <span data-detail-created>Chưa có dữ liệu</span></p>
+                </div>
+
+                <div class="composer-panel" style="margin-top:18px;">
+                    <p class="section-label">Assign Roles</p>
+                    <h3>Gán role</h3>
+                    <form class="stack-form" data-roles-form>
+                        <div class="status-message" data-form-message></div>
+
+                        <div class="checkbox-grid">
+                            <label class="checkbox-card">
+                                <input type="checkbox" name="roles" value="USER">
+                                <span>USER</span>
+                            </label>
+                            <label class="checkbox-card">
+                                <input type="checkbox" name="roles" value="AUTHOR">
+                                <span>AUTHOR</span>
+                            </label>
+                            <label class="checkbox-card">
+                                <input type="checkbox" name="roles" value="ADMIN">
+                                <span>ADMIN</span>
+                            </label>
+                        </div>
+
+                        <button class="pill-button" type="submit" data-default-label="Cập nhật role" data-loading-label="Đang cập nhật...">
+                            Cập nhật role
+                        </button>
+                    </form>
+                </div>
+
+                <div class="composer-panel" style="margin-top:18px;">
+                    <p class="section-label">Moderation</p>
+                    <h3>Khóa hoặc mở khóa tài khoản</h3>
+                    <form class="stack-form" data-ban-form>
+                        <div class="status-message" data-form-message></div>
+
+                        <div class="field">
+                            <label for="ban-reason">Lý do khóa</label>
+                            <textarea id="ban-reason" name="reason" class="action-textarea" placeholder="Nhập lý do khóa tài khoản..."></textarea>
+                        </div>
+
+                        <div class="inline-actions">
+                            <button class="pill-button" type="submit" data-default-label="Khóa tài khoản" data-loading-label="Đang xử lý...">
+                                Khóa tài khoản
+                            </button>
+                            <button class="outline-button" type="button" data-unban disabled>Mở khóa tài khoản</button>
+                        </div>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="page-footer">
+        © 2026 TechNexus. Admin console for role governance and user moderation.
+    </footer>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

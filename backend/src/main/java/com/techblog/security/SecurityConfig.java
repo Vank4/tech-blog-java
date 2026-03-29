@@ -36,6 +36,13 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
                         .requestMatchers("/author/**", "/admin/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
+
+                        // ==========================================
+                        // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
+                        // ==========================================
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**",
+                                "/images/**")
+                        .permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
@@ -76,8 +83,7 @@ public class SecurityConfig {
                         // ==========================================
                         // 4. CHỐT CHẶN CUỐI CÙNG
                         // ==========================================
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

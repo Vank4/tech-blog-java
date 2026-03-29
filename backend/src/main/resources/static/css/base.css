@@ -1,0 +1,300 @@
+/* ============================================
+   TechNexus Design System - Base
+   ============================================ */
+
+/* --- Design Tokens (CSS Custom Properties) --- */
+:root {
+    /* Primary Palette */
+    --color-primary: #8ff5ff;
+    --color-primary-dim: #00deec;
+    --color-primary-fixed: #00eefc;
+    --color-primary-container: #00eefc;
+    --color-on-primary: #005d63;
+    --color-on-primary-container: #005359;
+
+    /* Secondary Palette */
+    --color-secondary: #ac89ff;
+    --color-secondary-dim: #874cff;
+    --color-secondary-container: #7000ff;
+    --color-on-secondary: #290067;
+    --color-on-secondary-container: #f8f1ff;
+
+    /* Tertiary Palette */
+    --color-tertiary: #65afff;
+    --color-tertiary-dim: #4aa2f9;
+    --color-tertiary-container: #4aa2f9;
+
+    /* Error Palette */
+    --color-error: #ff716c;
+    --color-error-dim: #d7383b;
+    --color-error-container: #9f0519;
+    --color-on-error: #490006;
+
+    /* Surface / Background */
+    --color-surface: #0e0e0e;
+    --color-surface-dim: #0e0e0e;
+    --color-surface-bright: #2c2c2c;
+    --color-surface-container-lowest: #000000;
+    --color-surface-container-low: #131313;
+    --color-surface-container: #1a1a1a;
+    --color-surface-container-high: #20201f;
+    --color-surface-container-highest: #262626;
+    --color-surface-variant: #262626;
+    --color-background: #0e0e0e;
+
+    /* On Surface */
+    --color-on-surface: #ffffff;
+    --color-on-surface-variant: #adaaaa;
+    --color-on-background: #ffffff;
+
+    /* Outline */
+    --color-outline: #767575;
+    --color-outline-variant: #484847;
+
+    /* Inverse */
+    --color-inverse-surface: #fcf9f8;
+    --color-inverse-on-surface: #565555;
+    --color-inverse-primary: #006a71;
+
+    /* Vendor-specific */
+    --color-shopee: #EE4D2D;
+    --color-lazada: #0F146D;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    /* Spacing Scale (8px base) */
+    --space-0: 0;
+    --space-0-5: 0.125rem;  /* 2px */
+    --space-1: 0.25rem;     /* 4px */
+    --space-1-5: 0.375rem;  /* 6px */
+    --space-2: 0.5rem;      /* 8px */
+    --space-3: 0.75rem;     /* 12px */
+    --space-4: 1rem;        /* 16px */
+    --space-5: 1.25rem;     /* 20px */
+    --space-6: 1.5rem;      /* 24px */
+    --space-8: 2rem;        /* 32px */
+    --space-10: 2.5rem;     /* 40px */
+    --space-12: 3rem;       /* 48px */
+    --space-16: 4rem;       /* 64px */
+
+    /* Border Radius */
+    --radius-sm: 0.25rem;
+    --radius-default: 0.5rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-3xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+    --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.6);
+    --shadow-neon: 0 0 10px rgba(143, 245, 255, 0.2);
+    --shadow-neon-strong: 0 0 20px rgba(143, 245, 255, 0.4);
+    --shadow-primary: 0 4px 14px rgba(143, 245, 255, 0.2);
+    --shadow-diffused: 0 0 64px rgba(143, 245, 255, 0.04);
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 200ms ease;
+    --transition-slow: 300ms ease;
+    --transition-zoom: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Layout */
+    --header-height: 4rem;
+    --sidebar-width: 18rem;    /* 288px */
+    --admin-sidebar-width: 16rem; /* 256px */
+    --max-width: 80rem;        /* 1280px */
+}
+
+/* --- CSS Reset --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: var(--font-family);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+img, svg, video {
+    display: block;
+    max-width: 100%;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: inherit;
+}
+
+input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+/* Remove default details marker */
+details > summary {
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* --- Selection --- */
+::selection {
+    background-color: rgba(143, 245, 255, 0.3);
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-surface);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-surface-variant);
+    border-radius: 10px;
+}
+
+/* Custom scrollbar variant */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
+/* --- Typography --- */
+.text-display-lg { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; }
+.text-display-md { font-size: 2.75rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; }
+.text-display-sm { font-size: 2.25rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; }
+
+.text-headline-lg { font-size: 2rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.2; }
+.text-headline-md { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.3; }
+.text-headline-sm { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.3; }
+
+.text-body-lg { font-size: 1.125rem; line-height: 1.6; }
+.text-body-md { font-size: 0.875rem; line-height: 1.6; }
+.text-body-sm { font-size: 0.75rem; line-height: 1.5; }
+
+.text-label-lg { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; }
+.text-label-md { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; }
+.text-label-sm { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; }
+
+/* --- Neon Effects --- */
+.neon-text {
+    text-shadow: 0 0 8px rgba(143, 245, 255, 0.5);
+}
+
+.neon-border {
+    box-shadow: var(--shadow-neon);
+}
+
+/* --- Gradients --- */
+.gradient-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+}
+
+.gradient-primary-br {
+    background: linear-gradient(to bottom right, #67e8f9, #06b6d4);
+}
+
+.gradient-admin-primary {
+    background: linear-gradient(to bottom right, var(--color-secondary), var(--color-secondary-container));
+}
+
+.gradient-text-primary {
+    background: linear-gradient(to bottom right, #67e8f9, #06b6d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Glass Panel --- */
+.glass-panel {
+    background: rgba(44, 44, 44, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-panel-light {
+    background: rgba(44, 44, 44, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* --- Material Symbols --- */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* --- Utility: Truncate --- */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- Utility: Visually Hidden --- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border-width: 0;
+}

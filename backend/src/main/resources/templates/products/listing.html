@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('TechNexus | Premium Hardware', 'product-listing.css')}"></head>
+<body data-page="listing">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="listing-wrapper">
+    <aside class="filter-sidebar custom-scrollbar">
+        <form id="listing-filter-form" class="listing-filter-form" method="get" th:action="@{/products}">
+            <input type="hidden" name="sort" id="sort-input" th:value="${sort}"/>
+            <input type="hidden" name="minRating" id="min-rating-input" th:value="${selectedMinRating}"/>
+
+            <div class="filter-group">
+                <h3 class="filter-group-title">Filter by Category</h3>
+                <div class="filter-options">
+                    <label class="filter-option" th:each="cat : ${categories}">
+                        <input type="checkbox"
+                               class="checkbox listing-filter-checkbox"
+                               name="category"
+                               th:value="${cat.slug}"
+                               th:checked="${selectedCategorySlugs != null and #lists.contains(selectedCategorySlugs, cat.slug)}"/>
+                        <span th:text="${cat.name}">Smartphone</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-group-title">Brand</h3>
+                <div class="filter-options">
+                    <label class="filter-option" th:each="brandName : ${brands}">
+                        <input type="checkbox"
+                               class="checkbox listing-filter-checkbox"
+                               name="brand"
+                               th:value="${brandName}"
+                               th:checked="${selectedBrands != null and #lists.contains(selectedBrands, brandName)}"/>
+                        <span th:text="${brandName}">Apple</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-group-title">Price Range</h3>
+                <input id="max-price-range"
+                       class="range-slider"
+                       type="range"
+                       name="maxPrice"
+                       min="0"
+                       step="100000"
+                       th:max="${priceCeiling}"
+                       th:value="${selectedMaxPrice}"
+                       th:attr="data-max=${priceCeiling},data-current=${selectedMaxPrice}"/>
+                <div class="filter-price-range">
+                    <span>0 VND</span>
+                    <span id="max-price-label" class="price-max">0 VND</span>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-group-title">Minimum Rating</h3>
+                <div class="filter-rating" th:attr="data-selected-rating=${selectedMinRating}">
+                    <button type="button"
+                            class="rating-filter-btn"
+                            th:each="star : ${#numbers.sequence(1, 5)}"
+                            th:attr="data-rating=${star},aria-label=${'Filter from ' + star + ' stars'}"
+                            th:classappend="${star <= selectedMinRating} ? 'active'">
+                        <span class="material-symbols-outlined" th:classappend="${star <= selectedMinRating} ? 'filled'">star</span>
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" class="filter-clear-btn" data-clear-filters>Clear All Filters</button>
+        </form>
+    </aside>
+
+    <main class="listing-main">
+        <div class="sort-bar">
+            <div>
+                <h1>Premium Hardware</h1>
+                <p th:text="|Showing ${totalProducts} high-performance components|">Showing 24 high-performance components</p>
+            </div>
+            <div class="sort-tabs">
+                <button type="button" class="sort-tab" th:classappend="${sort == 'rating'} ? 'active'" data-sort="rating">Highest Rating</button>
+                <button type="button" class="sort-tab" th:classappend="${sort == 'price_asc'} ? 'active'" data-sort="price_asc">Lowest Price</button>
+                <button type="button" class="sort-tab" th:classappend="${sort == 'newest'} ? 'active'" data-sort="newest">Newest</button>
+                <button type="button" class="sort-tab" th:classappend="${sort == 'reviews'} ? 'active'" data-sort="reviews">Most Reviewed</button>
+            </div>
+        </div>
+
+        <div class="product-grid" th:if="${products != null and !products.isEmpty()}">
+            <article th:each="product : ${products}" class="product-card" th:attr="data-product-id=${product.id},data-product-slug=${product.slug}">
+                <a th:href="@{/products/{slug}(slug=${product.slug})}">
+                    <div class="product-card-image">
+                        <img th:if="${product.thumbnailUrl != null}"
+                             th:src="${product.thumbnailUrl}"
+                             th:alt="${product.name}"
+                             loading="lazy"/>
+                        <div th:if="${product.thumbnailUrl == null}" class="product-card-image-placeholder">
+                            <span class="material-symbols-outlined">image</span>
+                        </div>
+                        <div class="product-card-badge">
+                            <span class="badge badge-brand" th:text="${product.brand}">AMD</span>
+                        </div>
+                        <div class="product-card-rating">
+                            <div class="rating-inline">
+                                <span class="material-symbols-outlined" style="font-size:0.75rem; font-variation-settings:'FILL' 1;">star</span>
+                                <span th:text="${product.ratingAverage}">4.90</span>
+                                <span style="font-size:0.625rem; color:var(--color-on-surface-variant); margin-left:0.125rem;" th:text="|(${product.ratingCount})|">(12)</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <div class="product-card-body">
+                    <a th:href="@{/products/{slug}(slug=${product.slug})}">
+                        <h3 class="product-card-title" th:text="${product.name}">Ryzen 9 7950X3D</h3>
+                    </a>
+                    <p class="product-card-desc" th:text="${product.shortDescription}">16-core flagship processor with AMD 3D V-Cache technology.</p>
+                    <div class="product-card-footer">
+                        <span class="product-card-price"
+                              th:text="${product.price != null ? #numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT') + ' ' + product.currency : 'N/A'}">699.00 USD</span>
+                        <button type="button"
+                                class="btn-compare"
+                                th:attr="data-product-id=${product.id},data-product-slug=${product.slug},data-product-name=${product.name},data-product-thumbnail=${product.thumbnailUrl ?: ''}">
+                            <span class="material-symbols-outlined" style="font-size:0.875rem;">compare_arrows</span>
+                            Add to Compare
+                        </button>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div th:if="${products == null or products.isEmpty()}" class="listing-empty-state">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <p>No products found matching your criteria.</p>
+        </div>
+    </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
+
+

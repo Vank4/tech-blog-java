@@ -1,19 +1,31 @@
 package com.techblog.domain.product.service;
 
 import com.techblog.domain.product.dto.CreateProductRequest;
+import com.techblog.domain.product.dto.ProductDiscussionResponse;
 import com.techblog.domain.product.dto.ProductImageRequest;
 import com.techblog.domain.product.dto.ProductImageResponse;
 import com.techblog.domain.product.dto.ProductResponse;
 import com.techblog.domain.product.dto.ProductSpecRequest;
 import com.techblog.domain.product.dto.ProductSpecResponse;
 import com.techblog.domain.product.dto.ProductStatusUpdateRequest;
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductService {
 
     List<ProductResponse> getPublicProducts(String categorySlug, String brand, String sort);
 
+    List<ProductResponse> getPublicProducts(List<String> categorySlugs, List<String> brands, BigDecimal maxPrice, Integer minRating, String sort);
+
     ProductResponse getPublicProductBySlug(String slug);
+
+    BigDecimal getPublicMaxPrice();
+
+    List<String> getDistinctBrands();
+
+    List<ProductDiscussionResponse> getPublicProductDiscussions(Long productId);
+
+    List<ProductResponse> getAllProductsForAdmin(String q, Long categoryId, String status);
 
     ProductResponse createProduct(CreateProductRequest request, String actorEmail);
 

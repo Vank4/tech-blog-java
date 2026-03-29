@@ -20,6 +20,10 @@ import java.time.LocalDateTime;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import com.techblog.domain.tag.model.Tag;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -83,6 +87,13 @@ public class Post extends Auditable {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
+
+    @OneToMany(
+            mappedBy = "post",
+            cascade = CascadeType.ALL, // "Chìa khóa" ở đây: Hành động xóa sẽ lan truyền sang các Log
+            orphanRemoval = true       // Nếu Log không còn thuộc về Post nào thì cũng xóa luôn
+    )
+    private List<PostModerationLog> moderationLogs = new ArrayList<>();
 
     @Column(name = "is_featured", nullable = false)
     private boolean isFeatured = false;

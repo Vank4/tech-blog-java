@@ -36,4 +36,28 @@ public class TagController {
         Tag createdTag = tagService.createTag(tagName.trim());
         return ResponseEntity.ok(createdTag);
     }
+
+    /**
+     * Cập nhật Tag
+     * PUT http://localhost:8081/api/v1/tags/{id}
+     */
+    @PutMapping("/{id}")
+    // TODO: Bỏ comment dòng dưới khi có Login
+    // @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Tag> updateTag(@PathVariable Long id, @RequestBody String tagName) {
+        Tag updatedTag = tagService.updateTag(id, tagName);
+        return ResponseEntity.ok(updatedTag);
+    }
+
+    /**
+     * Xóa Tag
+     * DELETE http://localhost:8081/api/v1/tags/{id}
+     */
+    @DeleteMapping("/{id}")
+    // TODO: Bỏ comment dòng dưới khi có Login
+    // @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteTag(@PathVariable Long id) {
+        tagService.deleteTag(id);
+        return ResponseEntity.ok().build();
+    }
 }

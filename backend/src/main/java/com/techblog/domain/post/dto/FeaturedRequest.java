@@ -12,5 +12,5 @@ import lombok.AllArgsConstructor;
 public class FeaturedRequest {
 
     private boolean featured;
-    private int priority;
+    private Integer priority;
 }

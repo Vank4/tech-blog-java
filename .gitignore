@@ -1,5 +1,5 @@
 # === JAVA / SPRING BOOT ===
-/target/
+target/
 *.class
 *.jar
 *.war
@@ -40,9 +40,14 @@ build/
 .env.*.local
 !.env.example
 
-# === SPRING LOCAL CONFIG ===
+# === SPRING CONFIG ===
 application-local.yml
+application-dev.yml
+application-prod.yml
 application-secret.yml
+# Chặn mọi file cấu hình cá nhân khác
+application-*.yml
+application-*.properties
 
 # === OS FILES ===
 .DS_Store
@@ -60,4 +65,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # === UPLOADS ===
+# Đây là đường dẫn folder ảnh thực tế đang sinh ra trên máy bạn
+uploads/
 backend/src/main/resources/static/uploads/

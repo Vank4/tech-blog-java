@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Admin CMS | Quản lý Danh mục - TechNexus</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e8f9",
+                        "accent-purple": "#a855f7",
+                        "background-dark": "#0f2123",
+                        "surface-dark": "#162a2d",
+                        "surface-hover": "#1d373b",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .toggle-checkbox:checked { right: 0; border-color: #06e8f9; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #06e8f9; }
+        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
+        .toggle-label { width: 40px; height: 20px; background-color: #475569; border-radius: 9999px; position: relative; cursor: pointer; transition: background-color 0.3s; }
+        .toggle-label:after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background-color: white; border-radius: 50%; transition: transform 0.3s; }
+        .modal { transition: opacity 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-200 font-display flex h-screen overflow-hidden">
+
+<aside class="w-64 bg-surface-dark border-r border-slate-800 flex flex-col z-20">
+    <div class="h-20 flex items-center px-6 border-b border-slate-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-background-dark font-bold text-lg mr-2">T</div>
+        <span class="text-xl font-bold text-white tracking-tight">Tech<span class="text-primary">Admin</span></span>
+    </div>
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">dashboard</span> Dashboard
+        </a>
+        <a href="/admin/posts" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">admin_panel_settings</span> Kiểm duyệt bài viết
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 text-background-dark bg-primary font-bold rounded-xl shadow-[0_0_15px_rgba(6,232,249,0.3)]">
+            <span class="material-icons">category</span> Danh mục
+        </a>
+        <a href="/admin/tags" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">tag</span> Quản lý Thẻ (Tags)
+        </a>
+    </nav>
+</aside>
+
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+    <header class="h-20 bg-surface-dark border-b border-slate-800 flex items-center justify-between px-8 z-10">
+        <div class="flex items-center gap-6">
+            <h1 class="text-2xl font-bold text-white">Quản lý Danh mục</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <input type="text" id="category-search" placeholder="Tìm kiếm danh mục..." class="bg-background-dark border border-slate-700 text-sm rounded-full pl-4 pr-10 py-2 focus:border-primary text-white w-64 outline-none">
+                <span class="material-icons absolute right-3 top-2.5 text-slate-500">search</span>
+            </div>
+            <button onclick="openCategoryModal()" class="bg-accent-purple hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors shadow-lg shadow-purple-500/20">
+                <span class="material-icons text-sm">add</span> Tạo danh mục
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 overflow-auto p-8">
+        <div class="bg-surface-dark rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
+            <table class="w-full text-sm text-left text-slate-400">
+                <thead class="text-xs text-slate-400 uppercase bg-slate-800/80 border-b border-slate-800">
+                <tr>
+                    <th class="px-6 py-5 font-semibold">Tên danh mục</th>
+                    <th class="px-6 py-5 font-semibold">Đường dẫn (Slug)</th>
+                    <th class="px-6 py-5 font-semibold">Danh mục Cha</th>
+                    <th class="px-6 py-5 text-center font-semibold">Trạng thái (Bật/Tắt)</th>
+                    <th class="px-6 py-5 text-right font-semibold">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody id="category-table" class="divide-y divide-slate-800/50">
+                <tr><td colspan="5" class="px-6 py-10 text-center animate-pulse text-slate-500">Đang tải dữ liệu danh mục...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="categoryModal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[60]">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeCategoryModal()"></div>
+    <div class="bg-surface-dark w-full max-w-md mx-auto rounded-2xl p-8 z-[70] border border-slate-700 shadow-2xl transform transition-transform scale-95" id="categoryModalContent">
+        <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-white" id="modalTitle">Tạo danh mục mới</h3>
+            <span class="material-icons text-slate-500 hover:text-white cursor-pointer" onclick="closeCategoryModal()">close</span>
+        </div>
+
+        <form id="categoryForm" class="space-y-5">
+            <input type="hidden" id="categoryId">
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tên danh mục <span class="text-red-500">*</span></label>
+                <input type="text" id="catName" required class="w-full bg-background-dark border-slate-700 rounded-xl text-white focus:ring-primary focus:border-primary outline-none p-2.5">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Danh mục Cha (Tùy chọn)</label>
+                <select id="parentId" class="w-full bg-background-dark border-slate-700 rounded-xl text-white focus:ring-primary focus:border-primary outline-none p-2.5">
+                    <option value="">-- Không có (Danh mục gốc) --</option>
+                </select>
+                <p class="text-[10px] text-slate-500 mt-1">Dùng để phân cấp (VD: Điện thoại -> iPhone)</p>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <input type="checkbox" id="isActive" checked class="w-4 h-4 text-primary bg-background-dark border-slate-700 rounded focus:ring-primary">
+                <label class="text-sm font-medium text-white">Hiển thị danh mục này (Active)</label>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-6 border-t border-slate-800">
+                <button type="button" onclick="closeCategoryModal()" class="px-5 py-2 text-slate-400 hover:text-white font-medium transition-colors">Hủy</button>
+                <button type="submit" class="bg-primary hover:bg-primary-dark text-background-dark px-6 py-2 rounded-xl font-bold transition-colors shadow-lg shadow-primary/20">Lưu danh mục</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "http://localhost:8081/api/v1";
+
+    // --- 1. LẤY DỮ LIỆU DANH MỤC ---
+    async function fetchCategories() {
+        const tbody = document.getElementById('category-table');
+        const parentSelect = document.getElementById('parentId');
+
+        try {
+            // Giả định bạn có API: GET /api/v1/categories
+            const res = await fetch(`${API_BASE}/categories`);
+            // Tuỳ vào cách backend của bạn trả về data, nếu bọc trong ApiResponse thì là json.data, nếu List thẳng thì là json
+            const data = await res.json();
+            const categories = data.data || data; // Hỗ trợ cả 2 chuẩn trả về
+
+            if (!categories || categories.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-500">Chưa có danh mục nào.</td></tr>`;
+                return;
+            }
+
+            // Đổ vào Table
+            tbody.innerHTML = categories.map(cat => `
+                <tr class="hover:bg-slate-800/40 transition-colors group border-b border-slate-800/50">
+                    <td class="px-6 py-4 font-bold text-white">
+                        ${cat.name}
+                    </td>
+                    <td class="px-6 py-4 text-slate-400 text-xs font-mono">
+                        /${cat.slug}
+                    </td>
+                    <td class="px-6 py-4 text-primary text-xs">
+                        ${cat.parentName ? `<span class="bg-primary/10 px-2 py-1 rounded-md border border-primary/20">${cat.parentName}</span>` : '<span class="text-slate-600 italic">Gốc</span>'}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex justify-center items-center">
+                            <input type="checkbox" id="status-${cat.id}" class="hidden toggle-checkbox" ${cat.active ? 'checked' : ''}
+                                   onchange="toggleCategoryStatus(${cat.id}, this.checked)">
+                            <label for="status-${cat.id}" class="toggle-label"></label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick='openCategoryModal(${JSON.stringify(cat).replace(/'/g, "&apos;")})' class="p-1.5 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Chỉnh sửa"><span class="material-icons text-sm">edit</span></button>
+                        <button onclick="deleteCategory(${cat.id})" class="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ml-2" title="Xóa"><span class="material-icons text-sm">delete</span></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Đổ vào Select box cha/con
+            parentSelect.innerHTML = `<option value="">-- Không có (Danh mục gốc) --</option>` +
+                categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+        } catch (e) {
+            console.error(e);
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-red-400">Lỗi kết nối Server!</td></tr>`;
+        }
+    }
+
+
+    // --- 2. THÊM HOẶC CẬP NHẬT DANH MỤC ---
+    document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('categoryId').value;
+        const catName = document.getElementById('catName').value;
+        const parentVal = document.getElementById('parentId').value;
+
+        // Hàm tự động tạo slug từ tên (Ví dụ: "Công Nghệ" -> "cong-nghe")
+        const generateSlug = (str) => {
+            return str.toLowerCase().normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9 ]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+        };
+
+        const payload = {
+            name: catName,
+            slug: generateSlug(catName), // Gửi kèm slug để Backend không báo lỗi @NotBlank
+            type: "POST", // LƯU Ý: Nếu Enum CategoryType của bạn là chữ khác (VD: ARTICLE, NORMAL) thì sửa lại chữ "POST" này nhé!
+            parentId: parentVal ? parseInt(parentVal) : null,
+            active: document.getElementById('isActive').checked
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API_BASE}/categories/${id}` : `${API_BASE}/categories`;
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                closeCategoryModal();
+                fetchCategories(); // Refresh bảng
+            } else {
+                const err = await res.json();
+                alert(`Lỗi: ${err.message || 'Không thể lưu danh mục'}`);
+            }
+        } catch (e) { console.error(e); }
+    });
+
+    // --- 3. ĐỔI TRẠNG THÁI (DISABLE / ENABLE) ---
+    async function toggleCategoryStatus(id, isActive) {
+        try {
+            // Xác định gọi API enable hay disable dựa vào nút gạt
+            const endpoint = isActive ? 'enable' : 'disable';
+            const res = await fetch(`${API_BASE}/categories/${id}/${endpoint}`, { method: 'PATCH' });
+
+            if (!res.ok) {
+                alert("Lỗi khi cập nhật trạng thái!");
+                fetchCategories(); // Reload lại nếu lỗi để reset nút gạt
+            }
+        } catch (e) {
+            console.error(e);
+            fetchCategories();
+        }
+    }
+
+    // --- 4. XÓA DANH MỤC ---
+    async function deleteCategory(id) {
+        if(confirm("Bạn có chắc muốn xóa danh mục này? Các bài viết thuộc danh mục này có thể bị ảnh hưởng!")) {
+            const res = await fetch(`${API_BASE}/categories/${id}`, { method: 'DELETE' });
+            if(res.ok) fetchCategories();
+            else alert("Không thể xóa danh mục đang có bài viết bên trong!");
+        }
+    }
+
+    // --- QUẢN LÝ MODAL ---
+    function openCategoryModal(data = null) {
+        document.getElementById('categoryForm').reset();
+        const modalContent = document.getElementById('categoryModalContent');
+
+        if (data) {
+            document.getElementById('modalTitle').innerText = "Chỉnh sửa danh mục";
+            document.getElementById('categoryId').value = data.id;
+            document.getElementById('catName').value = data.name;
+            document.getElementById('parentId').value = data.parentId || "";
+            document.getElementById('isActive').checked = data.active !== false; // Nếu undefined thì mặc định là true
+        } else {
+            document.getElementById('modalTitle').innerText = "Tạo danh mục mới";
+            document.getElementById('categoryId').value = "";
+            document.getElementById('isActive').checked = true;
+        }
+
+        document.getElementById('categoryModal').classList.remove('opacity-0', 'pointer-events-none');
+        modalContent.classList.replace('scale-95', 'scale-100');
+    }
+
+    function closeCategoryModal() {
+        document.getElementById('categoryModal').classList.add('opacity-0', 'pointer-events-none');
+        document.getElementById('categoryModalContent').classList.replace('scale-100', 'scale-95');
+    }
+
+    // Khởi chạy khi trang Load
+    document.addEventListener('DOMContentLoaded', fetchCategories);
+</script>
+</body>
+</html>

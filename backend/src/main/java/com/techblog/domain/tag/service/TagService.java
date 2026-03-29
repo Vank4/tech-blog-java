@@ -44,4 +44,28 @@ public class TagService {
                 .replaceAll("\\s+", "-")
                 .replaceAll("^-+|-+$", "");
     }
+
+    @Transactional
+    public Tag updateTag(Long id, String newName) {
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ (Tag)"));
+
+        // Kiểm tra trùng tên (nếu tên mới khác tên cũ)
+        if (!tag.getName().equalsIgnoreCase(newName.trim())) {
+            tagRepository.findByName(newName.trim()).ifPresent(t -> {
+                throw new RuntimeException("Tag '" + newName + "' đã tồn tại!");
+            });
+            tag.setName(newName.trim());
+            tag.setSlug(generateSlug(newName.trim())); // Tạo lại slug mới
+        }
+        return tagRepository.save(tag);
+    }
+
+    @Transactional
+    public void deleteTag(Long id) {
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ (Tag)"));
+        // TODO: Nếu sau này cần kiểm tra Tag đang có bài viết không thì thêm logic vào đây
+        tagRepository.delete(tag);
+    }
 }

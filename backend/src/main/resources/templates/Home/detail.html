@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>TechNexus | Chi tiết bài viết</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#00443a",
+                        "on-tertiary-fixed-variant": "#004359",
+                        "on-tertiary-fixed": "#00212e",
+                        "surface-container-lowest": "#000000",
+                        "surface-container-low": "#001715",
+                        "inverse-on-surface": "#215e5a",
+                        "outline": "#457f7b",
+                        "on-primary": "#006658",
+                        "on-surface-variant": "#7cb6b1",
+                        "surface-tint": "#b6ffee",
+                        "error": "#ff716c",
+                        "secondary-fixed": "#36f8ee",
+                        "background": "#001110",
+                        "on-secondary": "#005a56",
+                        "inverse-surface": "#e3fffc",
+                        "on-error": "#490006",
+                        "on-primary-fixed-variant": "#006456",
+                        "primary-dim": "#00e8cb",
+                        "tertiary-fixed-dim": "#00b6ed",
+                        "error-container": "#9f0519",
+                        "surface": "#001110",
+                        "primary": "#b6ffee",
+                        "tertiary-container": "#12c4fe",
+                        "tertiary": "#67cfff",
+                        "surface-variant": "#002b29",
+                        "surface-container": "#001e1c",
+                        "inverse-primary": "#006b5d",
+                        "primary-fixed-dim": "#00e8cb",
+                        "on-secondary-fixed-variant": "#006560",
+                        "surface-dim": "#001110",
+                        "primary-fixed": "#00f8d9",
+                        "tertiary-dim": "#00b6ed",
+                        "secondary": "#36f8ee",
+                        "on-background": "#bdf9f4",
+                        "on-surface": "#bdf9f4",
+                        "on-secondary-fixed": "#004642",
+                        "on-primary-container": "#005d50",
+                        "surface-container-high": "#002422",
+                        "error-dim": "#d7383b",
+                        "secondary-container": "#006a65",
+                        "primary-container": "#00fede",
+                        "on-secondary-container": "#dbfffb",
+                        "secondary-fixed-dim": "#0ceae0",
+                        "surface-container-highest": "#002b29",
+                        "on-tertiary-container": "#00394d",
+                        "surface-bright": "#003230",
+                        "outline-variant": "#0f504d",
+                        "on-error-container": "#ffa8a3",
+                        "secondary-dim": "#0ceae0",
+                        "tertiary-fixed": "#12c4fe",
+                        "on-tertiary": "#00445b"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { backdrop-filter: blur(24px); }
+        .neo-border-left { border-left: 4px solid #00fede; }
+
+        /* Chỉnh lại style cho ảnh trong bài viết để nó không bị tràn */
+        #post-content img { border-radius: 0.75rem; max-width: 100%; height: auto; margin: 2rem auto; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+
+<header class="fixed top-0 w-full z-50 bg-surface/60 dark:bg-[#0e0e0e]/60 backdrop-blur-xl shadow-[0px_40px_0px_0%_rgba(255,255,255,0.06)] font-['Inter'] antialiased">
+    <nav class="flex justify-between items-center px-8 h-20 max-w-[1440px] mx-auto">
+        <a href="/" class="text-2xl font-black tracking-tighter text-[#14ffdf]">TechNexus</a>
+        <div class="hidden md:flex items-center gap-8">
+            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors" href="/">Home</a>
+            <a class="text-[#14ffdf] border-b-2 border-[#14ffdf] pb-1" href="#">Read Article</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="p-2 hover:bg-[#262626]/50 rounded-full transition-all duration-300 scale-95 active:scale-90">
+                <span class="material-symbols-outlined text-[#14ffdf]" data-icon="search">search</span>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<main class="pt-20">
+    <section class="relative w-full h-[600px] flex items-end overflow-hidden">
+        <img id="post-thumbnail" alt="Post cover" class="absolute inset-0 w-full h-full object-cover" src=""/>
+        <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-transparent"></div>
+        <div class="relative max-w-[1440px] mx-auto px-8 pb-16 w-full">
+            <div class="max-w-4xl">
+                <span id="post-category" class="inline-block py-1 px-3 mb-6 bg-primary-container text-on-primary-fixed text-xs font-bold rounded uppercase tracking-widest">
+                    Đang tải...
+                </span>
+                <h1 id="post-title" class="text-5xl md:text-6xl font-black tracking-tighter leading-tight mb-8">
+                    Đang tải tiêu đề bài viết...
+                </h1>
+                <div class="flex items-center gap-6 text-on-surface-variant font-medium">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-primary/30 text-white font-bold">
+                            <span id="post-author-avatar">A</span>
+                        </div>
+                        <span id="post-author">Đang tải...</span>
+                    </div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-outline-variant"></div>
+                    <span id="post-date">--/--/----</span>
+                    <div class="w-1.5 h-1.5 rounded-full bg-outline-variant"></div>
+                    <span id="post-views" class="flex items-center gap-1 text-primary">
+                        <span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+                        0 views
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-[1440px] mx-auto px-8 flex flex-col lg:flex-row gap-16 mt-12 mb-20">
+
+        <aside class="hidden xl:block sticky top-32 h-fit">
+            <div class="flex flex-col gap-4 bg-surface-container p-3 rounded-2xl border border-outline-variant/15 glass-panel">
+                <button class="flex flex-col items-center p-3 hover:bg-surface-variant rounded-xl transition-all group">
+                    <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" data-icon="thumb_up">thumb_up</span>
+                </button>
+                <div class="h-px bg-outline-variant/20 mx-2"></div>
+                <button class="flex flex-col items-center p-3 hover:bg-surface-variant rounded-xl transition-all group">
+                    <span class="material-symbols-outlined text-[#adaaaa] group-hover:text-primary transition-colors" data-icon="share">share</span>
+                </button>
+            </div>
+        </aside>
+
+        <article class="flex-1 max-w-3xl">
+            <div id="post-content" class="prose prose-invert prose-emerald max-w-none text-on-surface-variant leading-8">
+                <div class="animate-pulse space-y-4 py-10">
+                    <div class="h-4 bg-surface-variant rounded w-3/4"></div>
+                    <div class="h-4 bg-surface-variant rounded w-full"></div>
+                    <div class="h-4 bg-surface-variant rounded w-5/6"></div>
+                </div>
+            </div>
+
+            <section class="mt-24 pt-12 border-t border-outline-variant/15">
+                <h3 class="text-2xl font-bold mb-10">Intelligence Exchange</h3>
+                <div class="mb-12 p-6 bg-surface-container rounded-2xl border border-outline-variant/15 glass-panel">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-primary-fixed" data-icon="person">person</span>
+                        </div>
+                        <span class="font-bold">Add to the exchange...</span>
+                    </div>
+                    <textarea class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline focus:border-primary focus:ring-0 text-on-surface p-4 rounded-t-lg transition-colors placeholder:text-on-surface-variant/40" placeholder="Share your insights..." rows="3"></textarea>
+                    <div class="flex justify-end mt-4">
+                        <button class="bg-gradient-to-br from-primary to-secondary px-8 py-3 rounded-lg text-on-primary-fixed font-black text-xs uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">
+                            Post Insight
+                        </button>
+                    </div>
+                </div>
+                <div class="text-center text-on-surface-variant text-sm italic">Comments are currently in read-only mode.</div>
+            </section>
+        </article>
+
+        <aside class="w-full lg:w-80 space-y-8">
+            <div class="sticky top-32 h-fit w-full lg:w-80 flex flex-col border border-[#484847]/15 rounded-2xl bg-[#0e0e0e] dark:bg-[#0e0e0e] overflow-hidden">
+                <div class="p-6 border-b border-[#484847]/15">
+                    <div class="text-lg font-bold text-[#14ffdf]">Intelligence Terminal</div>
+                    <div class="text-sm tracking-wide uppercase text-on-surface-variant mt-1">Post Metadata</div>
+                </div>
+
+                <div class="flex flex-col flex-1">
+                    <div class="text-[#14ffdf] font-bold bg-[#1a1a1a] border-l-4 border-[#14ffdf] py-4 px-6 flex items-center gap-4">
+                        <span class="material-symbols-outlined" data-icon="label">label</span>
+                        <span class="font-['Inter'] text-sm tracking-wide uppercase">Related Tags</span>
+                    </div>
+
+                    <div id="post-tags" class="px-6 py-6 space-y-3">
+                        <span class="text-xs text-on-surface-variant">Đang tải...</span>
+                    </div>
+
+                    <div class="p-6 mt-4 border-t border-[#484847]/15">
+                        <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="w-full bg-[#1a1a1a] border border-[#484847]/50 text-[#14ffdf] font-bold py-3 rounded-lg text-xs uppercase tracking-widest hover:bg-primary/10 transition-all active:scale-95">
+                            Back to Top
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<footer class="w-full py-16 px-8 mt-10 border-t border-[#484847]/15 bg-[#0e0e0e] font-['Inter'] text-xs uppercase tracking-[0.1em]">
+    <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="text-xl font-black text-[#14ffdf]">TechNexus</div>
+        <p class="text-[#adaaaa] text-center md:text-right">© 2026 TechNexus Monolith. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+    const API_BASE = "http://localhost:8081/api/v1";
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "Vừa xong";
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    async function loadPostDetail() {
+        // Lấy slug từ thanh URL. Ví dụ: http://localhost:8081/post/ai-la-gi -> Lấy ra chữ 'ai-la-gi'
+        const pathArray = window.location.pathname.split('/');
+        const slug = pathArray[pathArray.length - 1];
+
+        if (!slug || slug === 'detail.html' || slug === '') {
+            document.getElementById('post-title').textContent = "Không tìm thấy URL hợp lệ.";
+            return;
+        }
+
+        try {
+            // Gọi API lấy chi tiết bài viết (Khi API này được gọi ở backend, Backend nên tự động cộng View luôn)
+            const response = await fetch(`${API_BASE}/posts/${slug}`);
+            if (!response.ok) throw new Error("Không tìm thấy bài viết");
+
+            const result = await response.json();
+            const post = result.data;
+
+            if (post) {
+                // Đổ dữ liệu vào Header bài viết
+                document.getElementById('post-thumbnail').src = post.thumbnailUrl || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb';
+                document.getElementById('post-category').textContent = post.categoryName || 'Tech';
+                document.getElementById('post-title').textContent = post.title;
+                document.getElementById('post-author').textContent = post.authorName || 'Admin';
+                document.getElementById('post-author-avatar').textContent = post.authorName ? post.authorName.charAt(0).toUpperCase() : 'A';
+                document.getElementById('post-date').textContent = formatDate(post.createdAt);
+                document.getElementById('post-views').innerHTML = `<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span> ${post.viewCount || 0} views`;
+
+                // Đổ nội dung chính của bài viết (HTML)
+                document.getElementById('post-content').innerHTML = post.content || `<p class="text-xl">${post.summary}</p>`;
+
+                // Đổ danh sách Tags sang Sidebar
+                const tagsContainer = document.getElementById('post-tags');
+                if (tagsContainer) {
+                    if (post.tags && post.tags.length > 0) {
+                        tagsContainer.innerHTML = post.tags.map(tag => `
+                            <div class="p-3 bg-surface-container-high rounded-xl border-l-2 border-primary hover:bg-surface-variant transition-colors cursor-pointer" onclick="window.location.href='/?tagId=${tag.id}'">
+                                <p class="text-xs font-bold tracking-wide text-on-surface">#${tag.name}</p>
+                            </div>
+                        `).join('');
+                    } else {
+                        tagsContainer.innerHTML = `<span class="text-xs text-on-surface-variant">Không có tag nào.</span>`;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Lỗi:", error);
+            document.getElementById('post-title').textContent = "Bài viết không tồn tại hoặc đã bị xóa.";
+            document.getElementById('post-content').innerHTML = "";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadPostDetail();
+    });
+</script>
+</body>
+</html>

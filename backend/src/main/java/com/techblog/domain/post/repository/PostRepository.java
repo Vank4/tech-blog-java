@@ -17,11 +17,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findBySlug(String slug);
 
     boolean existsBySlug(String slug);
+    boolean existsByCategoryId(Long categoryId);
 
     // Tìm theo trạng thái và có phân trang
     Page<Post> findByStatus(ContentStatus status, Pageable pageable);
 
     Page<Post> findByAuthorId(Long authorId, Pageable pageable);
+
+    Page<Post> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+    Page<Post> findByStatusAndTitleContainingIgnoreCase(ContentStatus status, String title, Pageable pageable);
 
     @Query("SELECT DISTINCT p FROM Post p " +
             "LEFT JOIN p.tags t " +

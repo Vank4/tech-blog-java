@@ -59,16 +59,7 @@
         if (next) {
             return next;
         }
-
-        if (roles.includes("ADMIN")) {
-            return "/admin/posts";
-        }
-
-        if (roles.includes("AUTHOR")) {
-            return "/author/posts";
-        }
-
-        return "/profile";
+        return "/";
     };
 
     const authFetch = async (input, init = {}) => {
@@ -216,9 +207,9 @@
 
                     if (formType === "register") {
                         form.reset();
-                        setFormMessage(form, "success", "Đăng ký thành công. Đang chuyển về trang chủ...");
+                        setFormMessage(form, "success", "Đăng ký thành công. Đang chuyển đến trang đăng nhập...");
                         setTimeout(() => {
-                            window.location.href = "/?registered=1";
+                            window.location.href = "/login?registered=1";
                         }, 1200);
                         return;
                     }
@@ -235,6 +226,13 @@
 
         const loginForm = document.querySelector('[data-auth-form="login"]');
         if (loginForm) {
+            if (url.searchParams.get("registered") === "1") {
+                setFormMessage(
+                    loginForm,
+                    "success",
+                    "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập."
+                );
+            }
             if (url.searchParams.get("unauthorized") === "1") {
                 setFormMessage(
                     loginForm,
@@ -243,7 +241,7 @@
                 );
             }
 
-            ["unauthorized", "next"].forEach((key) => url.searchParams.delete(key));
+            ["registered", "unauthorized", "next"].forEach((key) => url.searchParams.delete(key));
             window.history.replaceState({}, "", `${url.pathname}${url.search}`);
         }
     };
@@ -422,6 +420,136 @@
         await loadProfile();
     };
 
+    const setupForgotPasswordPage = () => {
+        const root = document.querySelector("[data-page='forgot-password']");
+        if (!root) {
+            return;
+        }
+
+        const form = root.querySelector("[data-forgot-password-form]");
+        if (!form) {
+            return;
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearFormMessage(form);
+            setLoading(form, true);
+
+            const email = form.querySelector('[name="email"]').value.trim();
+
+            try {
+                const response = await fetch("/api/v1/auth/forgot-password", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || data.success === false) {
+                    setFormMessage(form, "error", data.message || "Không thể gửi email đặt lại mật khẩu.");
+                    return;
+                }
+
+                form.reset();
+                setFormMessage(form, "success", data.message || "Đã gửi liên kết đặt lại mật khẩu.");
+            } catch (error) {
+                setFormMessage(form, "error", "Không thể kết nối đến máy chủ. Hãy thử lại sau.");
+            } finally {
+                setLoading(form, false);
+            }
+        });
+    };
+
+    const setupResetPasswordPage = async () => {
+        const root = document.querySelector("[data-page='reset-password']");
+        if (!root) {
+            return;
+        }
+
+        const form = root.querySelector("[data-reset-password-form]");
+        const tokenHint = root.querySelector("[data-token-hint]");
+        if (!form) {
+            return;
+        }
+
+        const token = new URL(window.location.href).searchParams.get("token");
+        if (!token) {
+            setFormMessage(form, "error", "Thiếu token đặt lại mật khẩu.");
+            if (tokenHint) {
+                tokenHint.textContent = "Liên kết không hợp lệ hoặc bị thiếu token.";
+            }
+            form.querySelector("button[type='submit']").disabled = true;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/v1/auth/validate-reset-token?token=${encodeURIComponent(token)}`);
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok || data.success === false) {
+                setFormMessage(form, "error", data.message || "Liên kết đặt lại mật khẩu không hợp lệ.");
+                if (tokenHint) {
+                    tokenHint.textContent = "Token đã hết hạn, không hợp lệ hoặc đã được sử dụng.";
+                }
+                form.querySelector("button[type='submit']").disabled = true;
+                return;
+            }
+
+            if (tokenHint) {
+                tokenHint.textContent = "Token hợp lệ. Bạn có thể nhập mật khẩu mới bên dưới.";
+            }
+        } catch (error) {
+            setFormMessage(form, "error", "Không thể xác thực token đặt lại mật khẩu.");
+            form.querySelector("button[type='submit']").disabled = true;
+            return;
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearFormMessage(form);
+
+            const newPassword = form.querySelector('[name="newPassword"]').value;
+            const confirmPassword = form.querySelector('[name="confirmPassword"]').value;
+
+            if (newPassword !== confirmPassword) {
+                setFormMessage(form, "error", "Mật khẩu xác nhận chưa khớp.");
+                return;
+            }
+
+            setLoading(form, true);
+
+            try {
+                const response = await fetch("/api/v1/auth/reset-password", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ token, newPassword })
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || data.success === false) {
+                    setFormMessage(form, "error", data.message || "Không thể đặt lại mật khẩu.");
+                    return;
+                }
+
+                form.reset();
+                setFormMessage(form, "success", data.message || "Đặt lại mật khẩu thành công. Đang chuyển đến đăng nhập...");
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 1200);
+            } catch (error) {
+                setFormMessage(form, "error", "Không thể kết nối đến máy chủ. Hãy thử lại sau.");
+            } finally {
+                setLoading(form, false);
+            }
+        });
+    };
     const setupAdminUsersPage = async () => {
         const root = document.querySelector("[data-page='admin-users']");
         if (!root) {
@@ -749,5 +877,7 @@
     setupAuthForms();
     setupLogoutButtons();
     setupProfilePage();
+    setupForgotPasswordPage();
+    setupResetPasswordPage();
     setupAdminUsersPage();
 })();

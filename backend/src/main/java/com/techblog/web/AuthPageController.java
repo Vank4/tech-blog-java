@@ -16,6 +16,15 @@ public class AuthPageController {
         return "auth/register";
     }
 
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "auth/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPasswordPage() {
+        return "auth/reset-password";
+    }
     @GetMapping("/profile")
     public String profilePage() {
         return "user/profile";

@@ -33,55 +33,51 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
-                        .requestMatchers("/author/**", "/admin/**").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
-
                         // ==========================================
                         // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
                         // ==========================================
-                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**",
-                                "/images/**")
-                        .permitAll()
+                        .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
+                        .requestMatchers("/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+
+                        // API Data Public
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
 
                         // ==========================================
-                        // 2. AUTHOR (TÁC GIẢ - WORKFLOW VIẾT BÀI)
+                        // 2. PHÂN QUYỀN GIAO DIỆN (UI)
                         // ==========================================
-                        // Giao diện soạn thảo & danh sách bài cá nhân
-
-                        // API nghiệp vụ của Tác giả
-                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasRole("AUTHOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").hasRole("AUTHOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasRole("AUTHOR")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasRole("AUTHOR")
-
-                        // API Upload ảnh cho bài viết
-                        .requestMatchers("/api/v1/files/upload").authenticated()
+                        .requestMatchers("/admin/**", "/author/**").permitAll()
 
                         // ==========================================
-                        // 3. ADMIN (QUẢN TRỊ VIÊN - KIỂM DUYỆT & HỆ THỐNG)
+                        // 3. ADMIN (API QUẢN TRỊ - PHẢI ĐỂ LÊN TRÊN CÙNG)
                         // ==========================================
-                        // Giao diện quản trị tổng thể
-
-                        // Quản lý Danh mục & Thẻ (Chỉ Admin mới có quyền CRUD)
+                        // Các API cụ thể này phải nằm trên các API có dấu **
                         .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
-
-                        // Nghiệp vụ kiểm duyệt (Approve/Reject/Hide/Featured/Logs)
                         .requestMatchers("/api/v1/posts/*/approve").hasRole("ADMIN")
                         .requestMatchers("/api/v1/posts/*/reject").hasRole("ADMIN")
                         .requestMatchers("/api/v1/posts/*/hide").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/featured").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/posts/*/featured").hasRole("ADMIN") // Đã lên trên để ưu tiên bắt trúng
                         .requestMatchers("/api/v1/posts/moderation-logs").hasRole("ADMIN")
 
                         // ==========================================
-                        // 4. CHỐT CHẶN CUỐI CÙNG
+                        // 4. AUTHOR (API NGHIỆP VỤ CHUNG CHUNG - ĐỂ XUỐNG DƯỚI)
+                        // ==========================================
+                        // Đã thêm quyền ADMIN để Admin có thể xóa bài mà không bị 403
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // API Upload ảnh cho bài viết
+                        .requestMatchers("/api/v1/files/upload").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // ==========================================
+                        // 5. CHỐT CHẶN CUỐI CÙNG
                         // ==========================================
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

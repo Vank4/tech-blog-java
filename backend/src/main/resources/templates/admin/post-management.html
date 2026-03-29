@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Admin CMS | Kiểm duyệt bài viết - TechNexus</title>
+
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
@@ -267,7 +268,7 @@
                     <td class="px-6 py-4">
                         <div class="flex flex-col items-center gap-2">
                             <div class="flex items-center gap-2 ${post.status !== 'PUBLISHED' ? 'opacity-50' : ''}">
-                                <input type="checkbox" id="feat-${post.id}" class="hidden toggle-checkbox" ${post.featured ? 'checked' : ''} onchange="handleUpdateFeatured(${post.id})">
+                                <input type="checkbox" id="feat-${post.id}" class="hidden toggle-checkbox" ${(post.featured || post.isFeatured) ? 'checked' : ''} onchange="handleUpdateFeatured(${post.id})">
                                 <label for="feat-${post.id}" class="toggle-label"></label>
                             </div>
                             <input type="number" id="prio-${post.id}" value="${post.priority || 0}" onchange="handleUpdateFeatured(${post.id})" class="w-12 bg-background-dark border-slate-700 text-xs text-center rounded p-1 text-primary outline-none">
@@ -349,8 +350,32 @@
     function closeReasonModal() { document.getElementById('reasonModal').classList.add('opacity-0', 'pointer-events-none'); }
 
     async function handleUpdateFeatured(postId) {
-        const payload = { featured: document.getElementById(`feat-${postId}`).checked, priority: parseInt(document.getElementById(`prio-${postId}`).value) };
-        await authFetch(`${API_BASE}/posts/${postId}/featured`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const isChecked = document.getElementById(`feat-${postId}`).checked;
+        const prio = parseInt(document.getElementById(`prio-${postId}`).value) || 0;
+
+        // Gửi cả 2 format để Spring Boot (Lombok/Jackson) map DTO chuẩn xác 100%
+        const payload = {
+            featured: isChecked,
+            isFeatured: isChecked,
+            priority: prio
+        };
+
+        try {
+            const res = await authFetch(`${API_BASE}/posts/${postId}/featured`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                alert("Không thể lưu trạng thái ghim lúc này!");
+                fetchAdminPosts(); // Trả lại giao diện cũ nếu lỗi
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Lỗi kết nối hệ thống!");
+            fetchAdminPosts();
+        }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {

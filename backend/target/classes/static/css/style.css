@@ -588,11 +588,14 @@ input {
     object-fit: cover;
 }
 
+<<<<<<< HEAD
+=======
 .avatar-ring--preview .avatar-photo {
     object-fit: contain;
     background: rgba(4, 17, 22, 0.78);
 }
 
+>>>>>>> 759eaefa3c1c9d76cd39daf71c0567630839fc1c
 .profile-quick-stats {
     display: grid;
     grid-template-columns: 1fr;

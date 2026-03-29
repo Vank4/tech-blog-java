@@ -59,7 +59,20 @@
         if (next) {
             return next;
         }
+<<<<<<< HEAD
+
+        if (roles.includes("ADMIN")) {
+            return "/admin/posts";
+        }
+
+        if (roles.includes("AUTHOR")) {
+            return "/author/posts";
+        }
+
+        return "/profile";
+=======
         return "/";
+>>>>>>> 759eaefa3c1c9d76cd39daf71c0567630839fc1c
     };
 
     const authFetch = async (input, init = {}) => {
@@ -207,9 +220,15 @@
 
                     if (formType === "register") {
                         form.reset();
+<<<<<<< HEAD
+                        setFormMessage(form, "success", "Đăng ký thành công. Đang chuyển về trang chủ...");
+                        setTimeout(() => {
+                            window.location.href = "/?registered=1";
+=======
                         setFormMessage(form, "success", "Đăng ký thành công. Đang chuyển đến trang đăng nhập...");
                         setTimeout(() => {
                             window.location.href = "/login?registered=1";
+>>>>>>> 759eaefa3c1c9d76cd39daf71c0567630839fc1c
                         }, 1200);
                         return;
                     }
@@ -226,6 +245,8 @@
 
         const loginForm = document.querySelector('[data-auth-form="login"]');
         if (loginForm) {
+<<<<<<< HEAD
+=======
             if (url.searchParams.get("registered") === "1") {
                 setFormMessage(
                     loginForm,
@@ -233,6 +254,7 @@
                     "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập."
                 );
             }
+>>>>>>> 759eaefa3c1c9d76cd39daf71c0567630839fc1c
             if (url.searchParams.get("unauthorized") === "1") {
                 setFormMessage(
                     loginForm,
@@ -241,7 +263,11 @@
                 );
             }
 
+<<<<<<< HEAD
+            ["unauthorized", "next"].forEach((key) => url.searchParams.delete(key));
+=======
             ["registered", "unauthorized", "next"].forEach((key) => url.searchParams.delete(key));
+>>>>>>> 759eaefa3c1c9d76cd39daf71c0567630839fc1c
             window.history.replaceState({}, "", `${url.pathname}${url.search}`);
         }
     };
@@ -420,6 +446,8 @@
         await loadProfile();
     };
 
+<<<<<<< HEAD
+=======
     const setupForgotPasswordPage = () => {
         const root = document.querySelector("[data-page='forgot-password']");
         if (!root) {
@@ -550,6 +578,7 @@
             }
         });
     };
+>>>>>>> 759eaefa3c1c9d76cd39daf71c0567630839fc1c
     const setupAdminUsersPage = async () => {
         const root = document.querySelector("[data-page='admin-users']");
         if (!root) {
@@ -877,7 +906,10 @@
     setupAuthForms();
     setupLogoutButtons();
     setupProfilePage();
+<<<<<<< HEAD
+=======
     setupForgotPasswordPage();
     setupResetPasswordPage();
+>>>>>>> 759eaefa3c1c9d76cd39daf71c0567630839fc1c
     setupAdminUsersPage();
 })();

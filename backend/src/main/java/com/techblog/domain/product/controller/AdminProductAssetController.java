@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/admin/products")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminProductAssetController {
 
     private final ProductService productService;
@@ -33,6 +35,15 @@ public class AdminProductAssetController {
         ProductImageResponse response = productService.addImage(productId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(true, "Product image added successfully", response));
+    }
+
+    @PutMapping("/{productId}/images/{imageId}")
+    public ResponseEntity<ApiResponse<ProductImageResponse>> updateImage(
+            @PathVariable Long productId,
+            @PathVariable Long imageId,
+            @Valid @RequestBody ProductImageRequest request) {
+        ProductImageResponse response = productService.updateImage(productId, imageId, request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Product image updated successfully", response));
     }
 
     @DeleteMapping("/{productId}/images/{imageId}")

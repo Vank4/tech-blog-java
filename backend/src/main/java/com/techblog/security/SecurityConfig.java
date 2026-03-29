@@ -62,6 +62,7 @@ public class SecurityConfig {
                         // ==========================================
                         .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/products/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/comments/**").hasRole("ADMIN")
 
                         // Admin duyệt/ẩn Bài Viết

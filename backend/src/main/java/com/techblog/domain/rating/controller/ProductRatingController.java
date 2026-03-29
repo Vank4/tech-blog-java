@@ -22,7 +22,7 @@ public class ProductRatingController {
 
     private final ProductRatingService productRatingService;
 
-    @PostMapping("/{productId}/rating")
+    @PostMapping({"/{productId}/rating", "/{productId}/ratings"})
     public ResponseEntity<ApiResponse<ProductRatingSummaryResponse>> upsertRating(
             @PathVariable Long productId,
             @Valid @RequestBody ProductRatingRequest request,
@@ -35,7 +35,7 @@ public class ProductRatingController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Product rating saved successfully", response));
     }
 
-    @GetMapping("/{productId}/rating-summary")
+    @GetMapping({"/{productId}/rating-summary", "/{productId}/ratings"})
     public ResponseEntity<ApiResponse<ProductRatingSummaryResponse>> getRatingSummary(
             @PathVariable Long productId,
             Authentication authentication) {

@@ -25,7 +25,6 @@ public class AuthPageController {
     public String resetPasswordPage() {
         return "auth/reset-password";
     }
-
     @GetMapping("/profile")
     public String profilePage() {
         return "user/profile";

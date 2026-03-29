@@ -233,7 +233,6 @@
                     "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập."
                 );
             }
-
             if (url.searchParams.get("unauthorized") === "1") {
                 setFormMessage(
                     loginForm,
@@ -551,7 +550,6 @@
             }
         });
     };
-
     const setupAdminUsersPage = async () => {
         const root = document.querySelector("[data-page='admin-users']");
         if (!root) {

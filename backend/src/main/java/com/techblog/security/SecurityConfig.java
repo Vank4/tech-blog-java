@@ -33,15 +33,29 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/signup", "/forgot-password", "/reset-password", "/profile", "/post/**").permitAll()
-                        .requestMatchers("/author/**", "/admin/**").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
-
                         // ==========================================
                         // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
                         // ==========================================
                         .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**",
-                                "/images/**")
+                                "/images/**", "/uploads/**")
+                        .permitAll()
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/signup",
+                                "/forgot-password",
+                                "/reset-password",
+                                "/profile",
+                                "/products",
+                                "/products/**",
+                                "/compare",
+                                "/post/**",
+                                "/author/**",
+                                "/admin/posts",
+                                "/admin/categories",
+                                "/admin/tags",
+                                "/admin/users",
+                                "/admin/products")
                         .permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()

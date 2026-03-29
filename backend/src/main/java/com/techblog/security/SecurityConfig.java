@@ -64,13 +64,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/products/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/comments/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/users/**").hasRole("ADMIN")
 
                         // Admin duyệt/ẩn Bài Viết
                         .requestMatchers("/api/v1/posts/*/approve", "/api/v1/posts/*/reject", "/api/v1/posts/*/hide", "/api/v1/posts/*/featured").hasRole("ADMIN")
                         .requestMatchers("/api/v1/posts/moderation-logs").hasRole("ADMIN")
 
                         // Admin duyệt/ẩn Reviews
-                        .requestMatchers("/api/v1/reviews/pending", "/api/v1/reviews/*/approve", "/api/v1/reviews/*/reject", "/api/v1/reviews/*/hide").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/reviews/admin/all", "/api/v1/reviews/pending", "/api/v1/reviews/*/approve", "/api/v1/reviews/*/reject", "/api/v1/reviews/*/hide").hasRole("ADMIN")
 
                         // ==========================================
                         // 4. AUTHOR / AUTHENTICATED (API NGHIỆP VỤ CHUNG)
@@ -82,7 +83,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasAnyRole("AUTHOR", "ADMIN")
 
                         // Đánh giá (Reviews)
-                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/reviews").hasAnyRole("AUTHOR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/reviews/**").hasAnyRole("AUTHOR", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/reviews/*/submit").hasAnyRole("AUTHOR", "ADMIN")

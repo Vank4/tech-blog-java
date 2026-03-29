@@ -479,6 +479,10 @@ input {
     padding: 28px 0 48px;
 }
 
+.site-shell[data-page="profile"] .app-page {
+    padding-top: calc(var(--header-height) + 28px);
+}
+
 .dashboard-shell {
     display: grid;
     grid-template-columns: 290px minmax(0, 1fr);
@@ -503,6 +507,10 @@ input {
     padding: 24px;
     position: sticky;
     top: 88px;
+}
+
+.site-shell[data-page="profile"] .side-panel {
+    top: calc(var(--header-height) + 24px);
 }
 
 .content-panel {

@@ -84,6 +84,16 @@
     align-items: center;
 }
 
+.site-user-shell::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 100%;
+    min-width: 12rem;
+    height: 0.875rem;
+}
+
 .site-user-chip {
     display: flex;
     align-items: center;
@@ -145,7 +155,7 @@
 
 .site-user-menu {
     position: absolute;
-    top: calc(100% + 0.75rem);
+    top: calc(100% + 0.25rem);
     right: 0;
     min-width: 12rem;
     padding: 0.5rem;
@@ -156,6 +166,7 @@
     opacity: 0;
     transform: translateY(-8px);
     pointer-events: none;
+    z-index: 60;
     transition: opacity var(--transition-base), transform var(--transition-base);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);

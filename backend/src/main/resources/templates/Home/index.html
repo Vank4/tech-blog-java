@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -8,6 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -26,8 +29,8 @@
                         "display": ["Inter", "sans-serif"]
                     },
                     backgroundImage: {
-                        'hero-glow': "radial-gradient(circle at center, rgba(6, 232, 249, 0.15) 0%, rgba(15, 33, 35, 0) 70%)",
-                        'gradient-text': "linear-gradient(to right, #06e8f9, #a855f7)",
+                        "hero-glow": "radial-gradient(circle at center, rgba(6, 232, 249, 0.15) 0%, rgba(15, 33, 35, 0) 70%)",
+                        "gradient-text": "linear-gradient(to right, #06e8f9, #a855f7)",
                     },
                     borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
                 },
@@ -39,7 +42,6 @@
         ::-webkit-scrollbar-track { background: #0f2123; }
         ::-webkit-scrollbar-thumb { background: #2d4a4d; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #06e8f9; }
-        .glass-panel { background: rgba(15, 33, 35, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(6, 232, 249, 0.1); }
         .glass-tag { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2); }
         .masonry-grid { column-count: 2; column-gap: 1.5rem; }
         .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; }
@@ -49,46 +51,7 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display transition-colors duration-300 antialiased overflow-x-hidden">
 
-<header class="fixed top-0 w-full z-50 glass-panel border-b border-primary/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-20">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="location.href='/'">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-background-dark font-bold text-lg">T</div>
-                <span class="text-xl font-bold tracking-tight text-white">Tech<span class="text-primary">Nexus</span></span>
-            </div>
-            <nav class="hidden md:flex space-x-8">
-                <a class="text-sm font-medium text-white hover:text-primary transition-colors" href="/">Home</a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors hidden" href="/profile" data-nav-profile>Profile</a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1 hidden" href="/author/posts" data-nav-author>
-                    Author Hub <span class="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse"></span>
-                </a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors hidden" href="/admin/posts" data-nav-admin>Admin</a>
-            </nav>
-            <div class="flex items-center gap-4">
-                <div class="relative hidden sm:block">
-                    <input id="search-input" class="w-64 bg-surface-dark/50 border border-slate-700 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-primary/50 text-white placeholder-slate-500 transition-all" placeholder="Ask AI..." type="text"/>
-                    <span class="material-icons absolute right-3 top-2 text-primary text-lg">auto_awesome</span>
-                </div>
-                <div class="hidden items-center gap-4" data-auth-panel>
-                    <button class="text-slate-400 hover:text-white transition-colors">
-                        <span class="material-icons">notifications</span>
-                    </button>
-                    <a href="/profile" class="h-8 w-8 rounded-full bg-gradient-to-r from-slate-700 to-slate-600 border border-slate-500 overflow-hidden cursor-pointer block" data-avatar-link>
-                        <img alt="User Avatar" class="w-full h-full object-cover" data-user-avatar data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc"/>
-                    </a>
-                </div>
-                <div class="flex items-center gap-3" data-guest-panel>
-                    <a href="/login" class="px-4 py-2 rounded-full border border-slate-700 text-sm font-medium text-slate-200 hover:border-primary/50 hover:text-white transition-colors">
-                        Đăng nhập
-                    </a>
-                    <a href="/register" class="px-4 py-2 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-primary-dark transition-colors shadow-[0_0_20px_rgba(6,232,249,0.25)]">
-                        Đăng ký
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
+<header th:replace="~{fragments/header :: header}"></header>
 
 <main class="pt-24 pb-12 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative">
     <div class="absolute top-0 left-1/4 w-1/2 h-96 bg-hero-glow pointer-events-none -z-10"></div>
@@ -96,23 +59,20 @@
 
         <div class="col-span-12 lg:col-span-9 space-y-12">
             <section id="hero-section" class="relative group">
-                <div class="text-slate-500 py-10 text-center animate-pulse">Đang tải bài viết nổi bật...</div>
+                <div class="text-slate-500 py-10 text-center animate-pulse">Dang tai bai viet noi bat...</div>
             </section>
 
-            <!-- SECTION: LATEST REVIEWS -->
             <section id="reviews-section" class="hidden">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-white flex items-center gap-3">
                         <span class="w-1 h-8 bg-gradient-to-b from-primary to-accent-purple rounded-full shadow-[0_0_15px_rgba(6,232,249,0.5)]"></span>
                         Expert Product Reviews
                     </h2>
-                    <a href="/reviews" class="text-sm font-medium text-primary hover:text-white transition-colors flex items-center gap-1 group">
-                        Tất cả đánh giá <span class="material-icons text-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <a href="#reviews-section" class="text-sm font-medium text-primary hover:text-white transition-colors flex items-center gap-1 group">
+                        Tat ca danh gia <span class="material-icons text-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </a>
                 </div>
-                <div id="latest-reviews-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Reviews will be injected here -->
-                </div>
+                <div id="latest-reviews-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
 
             <section>
@@ -127,138 +87,56 @@
                     </div>
                 </div>
                 <div id="latest-posts-grid" class="masonry-grid">
-                    <div class="text-slate-500 py-10 text-center">Đang tải danh sách bài viết...</div>
+                    <div class="text-slate-500 py-10 text-center">Dang tai danh sach bai viet...</div>
                 </div>
             </section>
         </div>
 
         <aside class="col-span-12 lg:col-span-3 space-y-8 sticky top-24 h-fit">
-
             <div class="bg-surface-dark border border-slate-800 rounded-xl p-6 shadow-lg">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
                         <span class="material-icons text-primary text-lg">trending_up</span>
-                        Đọc Nhiều Nhất
+                        Doc Nhieu Nhat
                     </h3>
                     <span class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(6,232,249,0.8)]"></span>
                 </div>
 
                 <div id="trending-posts" class="space-y-5">
-                    <div class="text-slate-500 text-xs animate-pulse text-center">Đang tải xu hướng...</div>
+                    <div class="text-slate-500 text-xs animate-pulse text-center">Dang tai xu huong...</div>
                 </div>
 
                 <button onclick="window.scrollTo({ top: document.getElementById('latest-posts-grid').offsetTop, behavior: 'smooth' })" class="w-full mt-6 py-2.5 border border-slate-700 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:border-primary transition-colors hover:bg-primary/10">
-                    Khám phá thêm
+                    Kham pha them
                 </button>
             </div>
+
             <div class="bg-surface-dark border border-slate-800 rounded-xl p-6">
                 <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Trending Topics</h3>
                 <div id="trending-tags" class="flex flex-wrap gap-2">
-                    <span class="text-xs text-slate-500">Đang tải tags...</span>
+                    <span class="text-xs text-slate-500">Dang tai tags...</span>
                 </div>
             </div>
         </aside>
     </div>
 </main>
 
-<footer class="border-t border-slate-800 bg-background-dark py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-2">
-                <div class="w-6 h-6 rounded bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-background-dark font-bold text-xs">T</div>
-                <span class="text-lg font-bold text-white">TechNexus</span>
-            </div>
-            <div class="text-slate-500 text-sm">© 2026 TechNexus Inc. All rights reserved.</div>
-        </div>
-    </div>
-</footer>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
     const DEFAULT_AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc";
 
-    const getToken = () => localStorage.getItem("techblog.accessToken");
-
-    const resolveAvatarUrl = (avatarUrl) => {
-        if (!avatarUrl) return DEFAULT_AVATAR;
-        if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) return avatarUrl;
-        if (avatarUrl.startsWith("/")) return avatarUrl;
-        return `/${avatarUrl}`;
-    };
-
-    const toggleElement = (selector, shouldShow, displayValue = "inline-flex") => {
-        const element = document.querySelector(selector);
-        if (!element) return;
-        element.style.display = shouldShow ? displayValue : "none";
-    };
-
-    const applyAuthState = (profile) => {
-        const roles = profile?.roles || [];
-        const isAuthenticated = !!profile;
-        const guestPanel = document.querySelector("[data-guest-panel]");
-        const authPanel = document.querySelector("[data-auth-panel]");
-        const avatar = document.querySelector("[data-user-avatar]");
-        const avatarLink = document.querySelector("[data-avatar-link]");
-
-        if (guestPanel) {
-            guestPanel.style.display = isAuthenticated ? "none" : "flex";
-        }
-
-        if (authPanel) {
-            authPanel.style.display = isAuthenticated ? "flex" : "none";
-        }
-
-        toggleElement("[data-nav-profile]", isAuthenticated);
-        toggleElement("[data-nav-author]", roles.includes("AUTHOR") || roles.includes("ADMIN"));
-        toggleElement("[data-nav-admin]", roles.includes("ADMIN"));
-
-        if (avatar) {
-            avatar.src = resolveAvatarUrl(profile?.avatarUrl);
-            avatar.alt = profile?.fullName ? `Ảnh đại diện của ${profile.fullName}` : "Ảnh đại diện người dùng";
-        }
-
-        if (avatarLink) {
-            avatarLink.href = isAuthenticated ? "/profile" : "/login";
-        }
-    };
-
-    async function loadCurrentUserState() {
-        const token = getToken();
-        if (!token) {
-            applyAuthState(null);
-            return;
-        }
-
-        try {
-            const response = await fetch("/api/v1/users/me", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok || result.success === false) {
-                localStorage.removeItem("techblog.accessToken");
-                applyAuthState(null);
-                return;
-            }
-
-            applyAuthState(result.data || null);
-        } catch (error) {
-            applyAuthState(null);
-        }
-    };
-
     const formatDate = (dateString) => {
-        if (!dateString) return "Vừa xong";
+        if (!dateString) return "Vua xong";
         const date = new Date(dateString);
-        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
     };
 
     const createPostCard = (post) => `
         <article class="masonry-item bg-surface-dark border border-slate-800 rounded-xl overflow-hidden card-hover transition-all duration-300 group">
             <div class="relative h-48 overflow-hidden">
-                <img src="${post.thumbnailUrl || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f'}"
+                <img src="${post.thumbnailUrl || "https://images.unsplash.com/photo-1550745165-9bc0b252726f"}"
                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                 <div class="absolute top-3 right-3 bg-black/50 backdrop-blur text-xs font-bold px-2 py-1 rounded text-white border border-white/10 flex items-center gap-1">
                      <span class="material-icons text-[12px]">visibility</span> ${post.viewCount || 0}
@@ -266,18 +144,18 @@
             </div>
             <div class="p-5">
                 <div class="flex justify-between items-center mb-3">
-                    <span class="text-xs font-bold text-primary tracking-wide uppercase">${post.categoryName || 'General'}</span>
+                    <span class="text-xs font-bold text-primary tracking-wide uppercase">${post.categoryName || "General"}</span>
                     <span class="text-xs text-slate-500">${formatDate(post.createdAt)}</span>
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors line-clamp-2">
                     <a href="/post/${post.slug}">${post.title}</a>
                 </h3>
-                <p class="text-sm text-slate-400 mb-4 line-clamp-3">${post.summary || ''}</p>
+                <p class="text-sm text-slate-400 mb-4 line-clamp-3">${post.summary || ""}</p>
                 <div class="flex items-center gap-2">
                     <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] text-white">
-                        ${post.authorName ? post.authorName.charAt(0).toUpperCase() : 'A'}
+                        ${post.authorName ? post.authorName.charAt(0).toUpperCase() : "A"}
                     </div>
-                    <span class="text-xs text-slate-300">${post.authorName || 'Admin'}</span>
+                    <span class="text-xs text-slate-300">${post.authorName || "Admin"}</span>
                 </div>
             </div>
         </article>
@@ -286,10 +164,10 @@
     const createReviewCard = (review) => `
         <div class="bg-surface-dark border border-slate-800 rounded-2xl p-6 card-hover transition-all duration-300 relative overflow-hidden group">
             <div class="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full -mr-10 -mt-10 group-hover:bg-primary/10 transition-colors"></div>
-            
+
             <div class="flex gap-4 mb-4">
                 <div class="w-16 h-16 rounded-xl bg-slate-800 border border-slate-700 overflow-hidden shrink-0">
-                    <img src="${review.productImageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30'}" 
+                    <img src="${review.productImageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30"}"
                          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 </div>
                 <div class="flex-1">
@@ -307,13 +185,13 @@
                     </h3>
                 </div>
             </div>
-            
-            <p class="text-xs text-slate-400 line-clamp-2 mb-6 h-8">${review.summary || 'Không có tóm tắt.'}</p>
+
+            <p class="text-xs text-slate-400 line-clamp-2 mb-6 h-8">${review.summary || "Khong co tom tat."}</p>
 
             <div class="flex items-center justify-between pt-4 border-t border-slate-800/50">
                 <div class="flex items-center gap-2">
                     <div class="w-7 h-7 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-[10px] border border-slate-600 text-slate-300 font-bold">
-                        ${review.authorName ? review.authorName.charAt(0).toUpperCase() : 'A'}
+                        ${review.authorName ? review.authorName.charAt(0).toUpperCase() : "A"}
                     </div>
                     <div class="flex flex-col">
                         <span class="text-[10px] font-bold text-slate-200">${review.authorName}</span>
@@ -334,12 +212,12 @@
             const post = result.data?.content?.[0];
 
             if (post) {
-                const hero = document.getElementById('hero-section');
-                if(hero) {
+                const hero = document.getElementById("hero-section");
+                if (hero) {
                     hero.innerHTML = `
                         <div class="relative w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 cursor-pointer" onclick="location.href='/post/${post.slug}'">
                             <div class="absolute inset-0 bg-background-dark">
-                                <img src="${post.thumbnailUrl || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb'}"
+                                <img src="${post.thumbnailUrl || "https://images.unsplash.com/photo-1635070041078-e363dbe005cb"}"
                                      class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700">
                                 <div class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/50 to-transparent"></div>
                                 <div class="absolute inset-0 bg-gradient-to-r from-background-dark/90 via-transparent to-transparent"></div>
@@ -348,20 +226,20 @@
                                 <div class="flex justify-between items-start">
                                     <div class="glass-tag px-4 py-1.5 rounded-full flex items-center gap-2">
                                         <span class="material-icons text-primary text-sm">stars</span>
-                                        <span class="text-xs font-semibold tracking-wider text-white uppercase">Tiêu Điểm</span>
+                                        <span class="text-xs font-semibold tracking-wider text-white uppercase">Tieu Diem</span>
                                     </div>
                                 </div>
                                 <div class="max-w-2xl space-y-4">
                                     <div class="flex items-center gap-3 text-sm font-medium text-accent-purple">
-                                        <span class="bg-accent-purple/20 px-2 py-0.5 rounded text-xs border border-accent-purple/30">${post.categoryName || 'HOT'}</span>
+                                        <span class="bg-accent-purple/20 px-2 py-0.5 rounded text-xs border border-accent-purple/30">${post.categoryName || "HOT"}</span>
                                         <span>•</span>
                                         <span class="text-slate-300">${formatDate(post.createdAt)}</span>
                                     </div>
                                     <h1 class="text-5xl font-bold text-white leading-tight font-display text-glow">${post.title}</h1>
-                                    <p class="text-lg text-slate-300 line-clamp-2">${post.summary}</p>
+                                    <p class="text-lg text-slate-300 line-clamp-2">${post.summary || ""}</p>
                                     <div class="pt-4">
                                         <button class="bg-primary hover:bg-primary-dark text-background-dark font-bold py-3 px-8 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,232,249,0.4)]">
-                                            Đọc Ngay <span class="material-icons text-sm">arrow_forward</span>
+                                            Doc Ngay <span class="material-icons text-sm">arrow_forward</span>
                                         </button>
                                     </div>
                                 </div>
@@ -369,7 +247,9 @@
                         </div>`;
                 }
             }
-        } catch (err) { console.error("Lỗi Hero:", err); }
+        } catch (err) {
+            console.error("Loi Hero:", err);
+        }
     }
 
     async function fetchLatestPosts(keyword = "") {
@@ -380,45 +260,44 @@
 
             const response = await fetch(url);
             const result = await response.json();
-            const grid = document.getElementById('latest-posts-grid');
+            const grid = document.getElementById("latest-posts-grid");
 
-            if(grid && result.data?.content) {
-                grid.innerHTML = result.data.content.map(post => createPostCard(post)).join('');
+            if (grid && result.data?.content) {
+                grid.innerHTML = result.data.content.map((post) => createPostCard(post)).join("");
             }
-        } catch (err) { console.error("Lỗi Grid:", err); }
+        } catch (err) {
+            console.error("Loi Grid:", err);
+        }
     }
 
     async function fetchLatestPostsByTag(tagId) {
         try {
             const response = await fetch(`${API_BASE}/posts/search?tagId=${tagId}&t=${new Date().getTime()}`);
             const result = await response.json();
-            const grid = document.getElementById('latest-posts-grid');
-            if(grid && result.data?.content) {
-                grid.innerHTML = result.data.content.map(post => createPostCard(post)).join('');
+            const grid = document.getElementById("latest-posts-grid");
+            if (grid && result.data?.content) {
+                grid.innerHTML = result.data.content.map((post) => createPostCard(post)).join("");
             }
-        } catch (err) { console.error("Lỗi lọc theo Tag:", err); }
+        } catch (err) {
+            console.error("Loi loc theo Tag:", err);
+        }
     }
 
-    // --- HÀM MỚI THÊM ĐỂ LOAD BÀI VIẾT TRENDING ---
     async function fetchTrendingPosts() {
         try {
-            // Cứ gọi API lấy bài viết bình thường (có thể bỏ chữ sort đi cho gọn)
             const response = await fetch(`${API_BASE}/posts?size=10&status=PUBLISHED`);
             const result = await response.json();
-            let posts = result.data?.content || [];
+            const posts = result.data?.content || [];
 
-            if (posts.length === 0) {
-                document.getElementById('trending-posts').innerHTML = '<p class="text-xs text-slate-500 italic text-center">Chưa có bài viết nổi bật.</p>';
+            if (!posts.length) {
+                document.getElementById("trending-posts").innerHTML = "<p class='text-xs text-slate-500 italic text-center'>Chua co bai viet noi bat.</p>";
                 return;
             }
 
-            // 🚀 BƯỚC THẦN THÁNH: Bắt JavaScript tự sắp xếp theo viewCount từ cao xuống thấp
             posts.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
-
-            // Chỉ lấy đúng 5 bài top đầu sau khi đã sắp xếp
             const top5Posts = posts.slice(0, 5);
 
-            const container = document.getElementById('trending-posts');
+            const container = document.getElementById("trending-posts");
             container.innerHTML = top5Posts.map((post, index) => `
                 <div class="group cursor-pointer flex gap-4 items-center" onclick="location.href='/post/${post.slug}'">
                     <div class="text-3xl font-black text-slate-800 group-hover:text-primary transition-colors duration-300">
@@ -427,59 +306,57 @@
                     <div class="flex-1">
                         <h4 class="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors line-clamp-2 leading-tight">${post.title}</h4>
                         <div class="flex justify-between items-center mt-1.5">
-                            <span class="text-[9px] font-bold text-primary uppercase tracking-wider">${post.categoryName || 'General'}</span>
+                            <span class="text-[9px] font-bold text-primary uppercase tracking-wider">${post.categoryName || "General"}</span>
                             <span class="text-[10px] text-slate-500 flex items-center gap-1">
                                 <span class="material-icons text-[12px]">visibility</span> ${post.viewCount || 0}
                             </span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `).join("");
         } catch (err) {
-            console.error("Lỗi Trending:", err);
+            console.error("Loi Trending:", err);
         }
     }
-    // ----------------------------------------------
 
     async function fetchTags() {
         try {
             const response = await fetch(`${API_BASE}/tags`);
             const tags = await response.json();
-            const tagBox = document.getElementById('trending-tags');
-
-            // Xử lý cả 2 trường hợp response trả về trực tiếp mảng hoặc bọc trong thuộc tính data
+            const tagBox = document.getElementById("trending-tags");
             const tagList = Array.isArray(tags) ? tags : (tags.data || []);
 
-            if(tagBox && tagList.length > 0) {
-                tagBox.innerHTML = tagList.map(tag => `
+            if (tagBox && tagList.length > 0) {
+                tagBox.innerHTML = tagList.map((tag) => `
                     <a href="#" onclick="event.preventDefault(); fetchLatestPostsByTag(${tag.id})"
                        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 rounded-md transition-colors border border-slate-700">
                         #${tag.name}
                     </a>
-                `).join('');
+                `).join("");
             }
-        } catch (err) { console.error("Lỗi Tags:", err); }
+        } catch (err) {
+            console.error("Loi Tags:", err);
+        }
     }
 
     async function fetchLatestReviews() {
         try {
             const response = await fetch(`${API_BASE}/reviews/latest?limit=3`);
             const result = await response.json();
-            const grid = document.getElementById('latest-reviews-grid');
-            const section = document.getElementById('reviews-section');
+            const grid = document.getElementById("latest-reviews-grid");
+            const section = document.getElementById("reviews-section");
 
             if (grid && result.data && result.data.length > 0) {
-                grid.innerHTML = result.data.map(review => createReviewCard(review)).join('');
-                if (section) section.classList.remove('hidden');
+                grid.innerHTML = result.data.map((review) => createReviewCard(review)).join("");
+                if (section) section.classList.remove("hidden");
             }
-        } catch (err) { console.error("Lỗi tải Review:", err); }
+        } catch (err) {
+            console.error("Loi tai Review:", err);
+        }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadCurrentUserState();
+    document.addEventListener("DOMContentLoaded", () => {
         fetchHeroPost();
-
-        // Gọi thêm hàm lấy bài viết Trending
         fetchTrendingPosts();
 
         const query = new URLSearchParams(window.location.search);
@@ -492,15 +369,16 @@
         fetchLatestReviews();
         fetchTags();
 
-        const searchInput = document.getElementById('search-input');
+        const searchInput = document.getElementById("search-input");
         if (searchInput) {
-            searchInput.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
+            searchInput.addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
                     fetchLatestPosts(this.value);
                 }
             });
         }
     });
 </script>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

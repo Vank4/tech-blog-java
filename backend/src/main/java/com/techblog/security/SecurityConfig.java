@@ -34,46 +34,62 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // ==========================================
-                        // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
+                        // 1. PUBLIC (GIAO DIỆN UI & TÀI NGUYÊN TĨNH)
                         // ==========================================
-                        .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
-                        .requestMatchers("/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                        .requestMatchers(
+                                "/login", "/register", "/signup", "/forgot-password", "/reset-password",
+                                "/profile", "/products", "/products/**", "/compare", "/post/**", "/review/**",
+                                "/author/**", "/admin/**"
+                        ).permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
-                        // API Data Public
+                        // ==========================================
+                        // 2. PUBLIC API DATA (KHÔNG CẦN ĐĂNG NHẬP ĐỂ XEM)
+                        // ==========================================
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/latest", "/api/v1/reviews/slug/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/{id:[0-9]+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/interactions/status").permitAll()
 
                         // ==========================================
-                        // 2. PHÂN QUYỀN GIAO DIỆN (UI)
+                        // 3. ADMIN (API QUẢN TRỊ VIÊN - ƯU TIÊN KIỂM TRA TRƯỚC)
                         // ==========================================
-                        .requestMatchers("/admin/**", "/author/**").permitAll()
-
-                        // ==========================================
-                        // 3. ADMIN (API QUẢN TRỊ - PHẢI ĐỂ LÊN TRÊN CÙNG)
-                        // ==========================================
-                        // Các API cụ thể này phải nằm trên các API có dấu **
                         .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/approve").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/reject").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/hide").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/featured").hasRole("ADMIN") // Đã lên trên để ưu tiên bắt trúng
+                        .requestMatchers("/api/v1/admin/comments/**").hasRole("ADMIN")
+
+                        // Admin duyệt/ẩn Bài Viết
+                        .requestMatchers("/api/v1/posts/*/approve", "/api/v1/posts/*/reject", "/api/v1/posts/*/hide", "/api/v1/posts/*/featured").hasRole("ADMIN")
                         .requestMatchers("/api/v1/posts/moderation-logs").hasRole("ADMIN")
 
+                        // Admin duyệt/ẩn Reviews
+                        .requestMatchers("/api/v1/reviews/pending", "/api/v1/reviews/*/approve", "/api/v1/reviews/*/reject", "/api/v1/reviews/*/hide").hasRole("ADMIN")
+
                         // ==========================================
-                        // 4. AUTHOR (API NGHIỆP VỤ CHUNG CHUNG - ĐỂ XUỐNG DƯỚI)
+                        // 4. AUTHOR / AUTHENTICATED (API NGHIỆP VỤ CHUNG)
                         // ==========================================
-                        // Đã thêm quyền ADMIN để Admin có thể xóa bài mà không bị 403
+                        // Bài Viết (Posts)
                         .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("AUTHOR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").hasAnyRole("AUTHOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasAnyRole("AUTHOR", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasAnyRole("AUTHOR", "ADMIN")
 
-                        // API Upload ảnh cho bài viết
+                        // Đánh giá (Reviews)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/reviews").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/reviews/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/reviews/*/submit").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers("/api/v1/reviews/mine").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // Bình luận, Tương tác & Upload file
+                        .requestMatchers(HttpMethod.POST, "/api/v1/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/interactions/**").authenticated()
                         .requestMatchers("/api/v1/files/upload").hasAnyRole("AUTHOR", "ADMIN")
 
                         // ==========================================

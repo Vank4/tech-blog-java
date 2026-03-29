@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Public Header / Top Navigation Bar -->
+<header th:fragment="header" class="site-header">
+    <div class="site-header-inner">
+        <div style="display:flex; align-items:center; gap:2rem;">
+            <a th:href="@{/}" class="site-logo">TechNexus</a>
+            <nav class="site-nav">
+                <a th:href="@{/reviews}" class="site-nav-link">Reviews</a>
+                <a th:href="@{/news}" class="site-nav-link">News</a>
+                <a th:href="@{/products}" class="site-nav-link active">Hardware</a>
+                <a th:href="@{/guides}" class="site-nav-link">Guides</a>
+            </nav>
+        </div>
+        <div class="site-header-actions">
+            <div class="search-box">
+                <input class="input" type="text" placeholder="Search tech..."/>
+                <span class="material-symbols-outlined">search</span>
+            </div>
+            <a th:href="@{/login}" class="btn btn-ghost">Login</a>
+            <a th:href="@{/register}" class="btn btn-primary btn-md">Sign Up</a>
+        </div>
+    </div>
+</header>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Public Footer -->
+<footer th:fragment="footer" class="site-footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <span class="site-logo">TechNexus</span>
+            <p>Precision-engineered hardware reviews and technical analysis for the synthetic horizon. Your source for expert benchmarks.</p>
+            <div class="footer-brand-icons">
+                <span class="material-symbols-outlined">rss_feed</span>
+                <span class="material-symbols-outlined">alternate_email</span>
+            </div>
+        </div>
+        <div class="footer-column">
+            <h5>Ecosystem</h5>
+            <ul>
+                <li><a th:href="@{/privacy}">Privacy Hub</a></li>
+                <li><a th:href="@{/terms}">Terms &amp; Conditions</a></li>
+                <li><a th:href="@{/editorial}">Editorial Guidelines</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h5>Connect</h5>
+            <ul>
+                <li><a th:href="@{/newsletter}">Daily Newsletter</a></li>
+                <li><a th:href="@{/contact}">Contact Support</a></li>
+                <li><a th:href="@{/advertise}">Advertise with Us</a></li>
+            </ul>
+        </div>
+        <div style="display:flex; flex-direction:column; justify-content:flex-end;">
+            <p style="font-size:0.625rem; color:#525252; font-weight:500;">
+                &copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span> TechNexus Media Group. All rights reserved.
+            </p>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

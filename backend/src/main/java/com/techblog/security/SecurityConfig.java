@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**", "/review/**").permitAll()
                         .requestMatchers("/author/**", "/admin/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
 
@@ -61,8 +61,36 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasRole("AUTHOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasRole("AUTHOR")
 
+                        // ==========================================
+                        // 3. REVIEWS (ĐÁNH GIÁ SẢN PHẨM)
+                        // ==========================================
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/latest", "/api/v1/reviews/slug/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/{id:[0-9]+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/reviews").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/reviews/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/reviews/*/submit").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers("/api/v1/reviews/mine").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers("/api/v1/reviews/pending").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/reviews/*/approve").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/reviews/*/reject").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/reviews/*/hide").hasRole("ADMIN")
+
                         // API Upload ảnh cho bài viết
                         .requestMatchers("/api/v1/files/upload").authenticated()
+
+                        // ==========================================
+                        // 4. COMMENTS & REPORTING
+                        // ==========================================
+                        .requestMatchers(HttpMethod.GET, "/api/v1/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/comments/**").authenticated()
+                        .requestMatchers("/api/v1/admin/comments/**").hasRole("ADMIN")
+
+                        // ==========================================
+                        // 5. USER INTERACTIONS (LIKES & SAVES)
+                        // ==========================================
+                        .requestMatchers(HttpMethod.GET, "/api/v1/interactions/status").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/interactions/**").authenticated()
 
                         // ==========================================
                         // 3. ADMIN (QUẢN TRỊ VIÊN - KIỂM DUYỆT & HỆ THỐNG)

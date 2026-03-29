@@ -208,16 +208,7 @@
         if (next) {
             return next;
         }
-
-        if (roles.includes("ADMIN")) {
-            return "/admin/posts";
-        }
-
-        if (roles.includes("AUTHOR")) {
-            return "/author/posts";
-        }
-
-        return "/profile";
+        return "/";
     };
 
     const authFetch = async (input, init = {}) => {

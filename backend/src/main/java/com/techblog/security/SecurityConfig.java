@@ -91,7 +91,8 @@ public class SecurityConfig {
                         // Bình luận, Tương tác & Upload file
                         .requestMatchers(HttpMethod.POST, "/api/v1/comments/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/interactions/**").authenticated()
-                        .requestMatchers("/api/v1/files/upload").hasAnyRole("AUTHOR", "ADMIN")
+                        // Upload avatar cũng dùng endpoint này nên user thường cần truy cập được.
+                        .requestMatchers("/api/v1/files/upload").authenticated()
 
                         // ==========================================
                         // 5. CHỐT CHẶN CUỐI CÙNG

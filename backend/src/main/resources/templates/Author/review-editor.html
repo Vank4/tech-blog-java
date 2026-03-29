@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Soạn thảo Review - TechNexus</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#06e8f9", "background-dark": "#0f2123", "surface-dark": "#162a2d" }
+                }
+            }
+        }
+    </script>
+    <style>
+        .ql-toolbar.ql-snow { background: #f8fafc; border-radius: 12px 12px 0 0; border: 1px solid #334155; }
+        .ql-container.ql-snow { background: white; color: #1e293b; border-radius: 0 0 12px 12px; border: 1px solid #334155; min-height: 400px; font-size: 16px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .glass-panel { background: rgba(22, 42, 45, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-200 font-display flex flex-col h-screen overflow-hidden">
+
+<header class="h-20 bg-surface-dark border-b border-slate-800 flex items-center justify-between px-8 shrink-0">
+    <div class="flex items-center gap-4">
+        <button onclick="location.href='/author/reviews'" class="p-2 hover:bg-slate-800 rounded-full transition-colors">
+            <span class="material-icons text-slate-400">arrow_back</span>
+        </button>
+        <h1 id="editor-title" class="text-xl font-bold text-white tracking-tight">Viết đánh giá sản phẩm</h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="saveReview('DRAFT')" class="px-6 py-2.5 border border-slate-700 hover:bg-slate-800 rounded-xl font-medium transition-all text-slate-300">Lưu nháp</button>
+        <button onclick="saveReview('PENDING')" class="px-8 py-2.5 bg-primary text-background-dark font-black rounded-xl shadow-[0_0_20px_rgba(6,232,249,0.3)] hover:scale-105 transition-all">GỬI DUYỆT</button>
+    </div>
+</header>
+
+<main class="flex-1 overflow-auto p-8 bg-[#0a1618] custom-scrollbar">
+    <div class="max-w-6xl mx-auto space-y-8">
+        <!-- Section 1: Basic Info & Product -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="space-y-4">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Chọn sản phẩm Review</label>
+                    <select id="productId" class="w-full bg-surface-dark border-slate-700 rounded-2xl p-4 text-white focus:ring-2 focus:ring-primary outline-none transition-all">
+                        <option value="">-- Đang tải danh sách sản phẩm --</option>
+                    </select>
+                </div>
+                <input type="text" id="reviewTitle" placeholder="Tiêu đề bài review (vd: Đánh giá chi tiết iPhone 15 Pro...)"
+                       class="w-full bg-surface-dark border-slate-700 rounded-2xl p-5 text-2xl font-bold text-white focus:ring-2 focus:ring-primary outline-none transition-all shadow-inner"/>
+                <textarea id="reviewSummary" rows="2" placeholder="Tóm tắt ngắn gọn nhận xét của bạn..."
+                          class="w-full bg-surface-dark border-slate-700 rounded-2xl p-5 text-slate-300 focus:ring-2 focus:ring-primary outline-none transition-all shadow-inner"></textarea>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="glass-panel rounded-3xl p-6 space-y-4">
+                    <label class="block text-xs font-black text-primary uppercase tracking-widest text-center">Overall Score</label>
+                    <div class="flex flex-col items-center">
+                        <input type="range" id="overallScore" min="0" max="10" step="0.1" value="8.0" 
+                               oninput="document.getElementById('scoreValue').innerText = this.value"
+                               class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary"/>
+                        <div class="mt-4 flex items-baseline gap-1">
+                            <span id="scoreValue" class="text-5xl font-black text-white">8.0</span>
+                            <span class="text-xl text-slate-500">/ 10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Pros & Cons -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <label class="flex items-center gap-2 text-xs font-black text-green-500 uppercase tracking-widest">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span> Ưu điểm
+                </label>
+                <textarea id="pros" rows="4" placeholder="Mỗi ưu điểm một dòng..."
+                          class="w-full bg-surface-dark border-green-500/20 rounded-2xl p-5 text-slate-300 focus:ring-2 focus:ring-green-500 outline-none transition-all"></textarea>
+            </div>
+            <div class="space-y-4">
+                <label class="flex items-center gap-2 text-xs font-black text-red-500 uppercase tracking-widest">
+                    <span class="material-symbols-outlined text-[18px]">remove_circle</span> Nhược điểm
+                </label>
+                <textarea id="cons" rows="4" placeholder="Mỗi nhược điểm một dòng..."
+                          class="w-full bg-surface-dark border-red-500/20 rounded-2xl p-5 text-slate-300 focus:ring-2 focus:ring-red-500 outline-none transition-all"></textarea>
+            </div>
+        </div>
+        
+        <!-- Section: Settings -->
+        <div class="glass-panel rounded-2xl p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-icons text-primary">comment</span>
+                <div>
+                    <p class="text-sm font-bold text-white">Cho phép bình luận</p>
+                    <p class="text-xs text-slate-500">Người dùng có thể thảo luận bên dưới bài review này.</p>
+                </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="allowComments" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+        </div>
+
+        <!-- Section 3: Detailed Scores -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Điểm số chi tiết (Criteria)</label>
+                <button onclick="addScoreRow()" class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+                    <span class="material-icons text-sm">add</span> Thêm tiêu chí
+                </button>
+            </div>
+            <div id="scores-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Example Row -->
+                <div class="criteria-row glass-panel p-4 rounded-2xl flex flex-col gap-3 relative group">
+                    <button class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full hidden group-hover:flex items-center justify-center" onclick="this.parentElement.remove()">
+                        <span class="material-icons text-xs">close</span>
+                    </button>
+                    <input type="text" placeholder="Tên tiêu chí (vd: Hiệu năng)" class="bg-transparent border-b border-slate-700 p-1 text-sm text-white focus:border-primary outline-none" value="Hiệu năng"/>
+                    <div class="flex items-center gap-4">
+                        <input type="number" step="0.5" min="0" max="10" value="8.5" class="w-16 bg-slate-800 border-none rounded-lg text-sm text-center text-primary font-bold"/>
+                        <span class="text-xs text-slate-500">/ 10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Content -->
+        <div class="space-y-4">
+            <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Nội dung đánh giá chi tiết</label>
+            <div id="editor-container"></div>
+        </div>
+
+        <div class="h-20"></div>
+    </div>
+</main>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script th:inline="none">
+    const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent(location.pathname + location.search)}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    // 1. Initialize Quill
+    let quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Chia sẻ trải nghiệm thực tế của bạn về sản phẩm này...',
+        modules: { toolbar: [
+            ['bold', 'italic', 'underline'],
+            ['blockquote', 'code-block'],
+            [{ 'header': 2 }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link', 'image'],
+            ['clean']
+        ]}
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentReviewId = urlParams.get('id');
+
+    // 2. Add dynamic score row
+    function addScoreRow(criterion = "", score = 8.0) {
+        const container = document.getElementById('scores-container');
+        const div = document.createElement('div');
+        div.className = "criteria-row glass-panel p-4 rounded-2xl flex flex-col gap-3 relative group animate-in fade-in duration-300";
+        div.innerHTML = `
+            <button class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full hidden group-hover:flex items-center justify-center z-10" onclick="this.parentElement.remove()">
+                <span class="material-icons text-xs">close</span>
+            </button>
+            <input type="text" placeholder="Tên tiêu chí" class="criterion-name bg-transparent border-b border-slate-700 p-1 text-sm text-white focus:border-primary outline-none" value="${criterion}"/>
+            <div class="flex items-center gap-4">
+                <input type="number" step="0.1" min="0" max="10" value="${score}" class="criterion-score w-16 bg-slate-800 border-none rounded-lg text-sm text-center text-primary font-bold"/>
+                <span class="text-xs text-slate-500">/ 10</span>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // 3. Load Data (Products & Review if edit mode)
+    async function init() {
+        try {
+            // Load Products
+            const prodRes = await authFetch(`${API_BASE}/products`);
+            const prodJson = await prodRes.json();
+            const products = prodJson.data || [];
+            document.getElementById('productId').innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+            // Load Existing Review
+            if (currentReviewId) {
+                document.getElementById('editor-title').innerText = "Chỉnh sửa bài Review #" + currentReviewId;
+                const reviewRes = await authFetch(`${API_BASE}/reviews/${currentReviewId}`);
+                const reviewJson = await reviewRes.json();
+                const review = reviewJson.data;
+
+                if (review) {
+                    document.getElementById('productId').value = review.productId;
+                    document.getElementById('reviewTitle').value = review.title;
+                    document.getElementById('reviewSummary').value = review.summary;
+                    document.getElementById('overallScore').value = review.overallScore;
+                    document.getElementById('scoreValue').innerText = review.overallScore;
+                    document.getElementById('pros').value = review.pros;
+                    document.getElementById('cons').value = review.cons;
+                    quill.root.innerHTML = review.content || '';
+
+                    document.getElementById('scores-container').innerHTML = '';
+                    if (review.scores && review.scores.length > 0) {
+                        review.scores.forEach(s => addScoreRow(s.criterion, s.score));
+                    }
+                    document.getElementById('allowComments').checked = review.allowComments !== false;
+                }
+            } else {
+                // Default rows for new review
+                document.getElementById('scores-container').innerHTML = '';
+                addScoreRow("Hiệu năng", 8.0);
+                addScoreRow("Thiết kế", 8.0);
+                addScoreRow("Camera", 8.0);
+            }
+        } catch (e) { alert("Lỗi tải dữ liệu!"); }
+    }
+
+    // 4. Save Logic
+    async function saveReview(targetStatus) {
+        const scoreRows = document.querySelectorAll('.criteria-row');
+        const scores = Array.from(scoreRows).map((row, index) => ({
+            criterion: row.querySelector('.criterion-name').value,
+            score: parseFloat(row.querySelector('.criterion-score').value),
+            maxScore: 10.0,
+            displayOrder: index
+        })).filter(s => s.criterion.trim() !== "");
+
+        const payload = {
+            productId: parseInt(document.getElementById('productId').value),
+            title: document.getElementById('reviewTitle').value,
+            summary: document.getElementById('reviewSummary').value,
+            content: quill.root.innerHTML,
+            pros: document.getElementById('pros').value,
+            cons: document.getElementById('cons').value,
+            overallScore: parseFloat(document.getElementById('overallScore').value),
+            scores: scores,
+            allowComments: document.getElementById('allowComments').checked
+        };
+
+        if (!payload.productId || !payload.title) { alert("Vui lòng nhập đầy đủ tiêu đề và sản phẩm!"); return; }
+
+        const url = currentReviewId ? `${API_BASE}/reviews/${currentReviewId}` : `${API_BASE}/reviews`;
+        const method = currentReviewId ? 'PUT' : 'POST';
+
+        try {
+            const res = await authFetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+
+            if (res.ok) {
+                if (targetStatus === 'PENDING') {
+                    const id = currentReviewId || json.data.id;
+                    await authFetch(`${API_BASE}/reviews/${id}/submit`, { method: 'PATCH' });
+                }
+                alert("Đã lưu thành công!");
+                location.href = "/author/reviews";
+            } else { alert("Lỗi: " + (json.message || "Máy chủ từ chối")); }
+        } catch (error) { alert("Lỗi kết nối!"); }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

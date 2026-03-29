@@ -11,4 +11,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findBySlug(String slug);
 
     List<Review> findByProductIdAndStatusOrderByPublishedAtDesc(Long productId, ContentStatus status);
+
+    List<Review> findAllByStatusOrderByPublishedAtDesc(ContentStatus status);
+
+    List<Review> findAllByStatusOrderByCreatedAtDesc(ContentStatus status);
+
+    List<Review> findAllByAuthorEmailOrderByCreatedAtDesc(String email);
+
+    long countByStatus(ContentStatus status);
 }

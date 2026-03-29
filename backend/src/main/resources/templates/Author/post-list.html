@@ -47,6 +47,9 @@
         <a href="/author/posts/editor" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-colors">
             <span class="material-icons">add_box</span> Viết bài mới
         </a>
+        <a href="/profile" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-xl transition-colors">
+            <span class="material-icons">person</span> Hồ sơ của tôi
+        </a>
         <hr class="border-slate-800 my-4"/>
         <a href="/" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors">
             <span class="material-icons">arrow_back</span> Quay lại trang chủ
@@ -60,9 +63,14 @@
             <h1 class="text-2xl font-bold text-white">Bài viết của tôi</h1>
             <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">DASHBOARD & CONTENT WORKFLOW</p>
         </div>
-        <button onclick="location.href='/author/posts/editor'" class="bg-primary hover:bg-cyan-400 text-background-dark font-black py-2.5 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(6,232,249,0.2)] flex items-center gap-2">
-            <span class="material-icons">add</span> VIẾT BÀI MỚI
-        </button>
+        <div class="flex items-center gap-3">
+            <a href="/profile" class="px-5 py-2.5 border border-slate-700 hover:bg-slate-800 rounded-xl font-medium transition-all text-slate-300 flex items-center gap-2">
+                <span class="material-icons text-[18px]">person</span> Hồ sơ
+            </a>
+            <button onclick="location.href='/author/posts/editor'" class="bg-primary hover:bg-cyan-400 text-background-dark font-black py-2.5 px-6 rounded-xl transition-all shadow-[0_0_20px_rgba(6,232,249,0.2)] flex items-center gap-2">
+                <span class="material-icons">add</span> VIẾT BÀI MỚI
+            </button>
+        </div>
     </header>
 
     <div class="flex-1 overflow-auto p-8 bg-[#0a1618]">
@@ -77,11 +85,51 @@
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) {
+            headers.set("Authorization", `Bearer ${accessToken}`);
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent("/author/posts")}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    async function ensureAuthorAccess() {
+        if (!accessToken) {
+            window.location.href = `/login?next=${encodeURIComponent("/author/posts")}`;
+            return false;
+        }
+
+        try {
+            const response = await authFetch("/api/v1/users/me");
+            const payload = await response.json();
+            const roles = payload.data?.roles || [];
+
+            if (!response.ok || (!roles.includes("AUTHOR") && !roles.includes("ADMIN"))) {
+                window.location.href = "/profile";
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return false;
+        }
+    }
 
     async function fetchMyPosts() {
         const grid = document.getElementById('post-grid');
         try {
-            const res = await fetch(`${API_BASE}/posts?size=100`);
+            const res = await authFetch(`${API_BASE}/posts?size=100`);
             const json = await res.json();
             const posts = json.data?.content || [];
 
@@ -175,7 +223,7 @@
     async function deletePost(id) {
         if(confirm("Xác nhận xóa vĩnh viễn bài viết này? Dữ liệu không thể khôi phục.")) {
             try {
-                const res = await fetch(`${API_BASE}/posts/${id}`, { method: 'DELETE' });
+                const res = await authFetch(`${API_BASE}/posts/${id}`, { method: 'DELETE' });
                 if(res.ok) {
                     // Hiệu ứng Toast đơn giản hoặc refresh list
                     fetchMyPosts();
@@ -187,7 +235,11 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', fetchMyPosts);
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (await ensureAuthorAccess()) {
+            fetchMyPosts();
+        }
+    });
 </script>
 </body>
 </html>

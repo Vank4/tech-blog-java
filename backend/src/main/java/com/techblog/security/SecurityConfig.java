@@ -33,6 +33,10 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
+                        .requestMatchers("/author/**", "/admin/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
+
                         // ==========================================
                         // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
                         // ==========================================
@@ -40,10 +44,8 @@ public class SecurityConfig {
                                 "/images/**")
                         .permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/uploads/**").permitAll() // Xem ảnh đại diện bài viết
-
-                        // Cho phép xem nội dung nhưng không được sửa
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
@@ -52,7 +54,6 @@ public class SecurityConfig {
                         // 2. AUTHOR (TÁC GIẢ - WORKFLOW VIẾT BÀI)
                         // ==========================================
                         // Giao diện soạn thảo & danh sách bài cá nhân
-                        .requestMatchers("/author/**").hasAnyRole("AUTHOR", "ADMIN")
 
                         // API nghiệp vụ của Tác giả
                         .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasRole("AUTHOR")
@@ -61,13 +62,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasRole("AUTHOR")
 
                         // API Upload ảnh cho bài viết
-                        .requestMatchers("/api/v1/files/upload").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers("/api/v1/files/upload").authenticated()
 
                         // ==========================================
                         // 3. ADMIN (QUẢN TRỊ VIÊN - KIỂM DUYỆT & HỆ THỐNG)
                         // ==========================================
                         // Giao diện quản trị tổng thể
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         // Quản lý Danh mục & Thẻ (Chỉ Admin mới có quyền CRUD)
                         .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")

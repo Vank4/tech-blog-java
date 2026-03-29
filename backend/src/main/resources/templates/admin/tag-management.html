@@ -48,6 +48,9 @@
         <a href="/admin/tags" class="flex items-center gap-3 px-4 py-3 text-background-dark bg-primary font-bold rounded-xl shadow-[0_0_15px_rgba(6,232,249,0.3)]">
             <span class="material-icons">tag</span> Quản lý Thẻ (Tags)
         </a>
+        <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">groups</span> Quản lý users
+        </a>
     </nav>
 </aside>
 
@@ -111,12 +114,52 @@
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) {
+            headers.set("Authorization", `Bearer ${accessToken}`);
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/tags")}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    async function ensureAdminAccess() {
+        if (!accessToken) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/tags")}`;
+            return false;
+        }
+
+        try {
+            const response = await authFetch("/api/v1/users/me");
+            const payload = await response.json();
+            const roles = payload.data?.roles || [];
+
+            if (!response.ok || !roles.includes("ADMIN")) {
+                window.location.href = "/profile";
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return false;
+        }
+    }
 
     // LẤY DANH SÁCH TAG
     async function fetchTags() {
         const tbody = document.getElementById('tag-table');
         try {
-            const res = await fetch(`${API_BASE}/tags`);
+            const res = await authFetch(`${API_BASE}/tags`);
             const tags = await res.json();
 
             if (!tags || tags.length === 0) {
@@ -155,7 +198,7 @@
         const url = id ? `${API_BASE}/tags/${id}` : `${API_BASE}/tags`;
 
         try {
-            const res = await fetch(url, {
+            const res = await authFetch(url, {
                 method: method,
                 // Chú ý: Backend TagController đang nhận text thuần (@RequestBody String)
                 headers: { 'Content-Type': 'text/plain' },
@@ -174,7 +217,7 @@
     // XÓA TAG
     async function deleteTag(id) {
         if(confirm("Xác nhận xóa thẻ (Tag) này?")) {
-            const res = await fetch(`${API_BASE}/tags/${id}`, { method: 'DELETE' });
+            const res = await authFetch(`${API_BASE}/tags/${id}`, { method: 'DELETE' });
             if(res.ok) fetchTags();
             else alert("Lỗi khi xóa Tag!");
         }
@@ -203,7 +246,11 @@
         document.getElementById('tagModalContent').classList.replace('scale-100', 'scale-95');
     }
 
-    document.addEventListener('DOMContentLoaded', fetchTags);
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (await ensureAdminAccess()) {
+            fetchTags();
+        }
+    });
 </script>
 </body>
 </html>

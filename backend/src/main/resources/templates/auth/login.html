@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | TechNexus</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="site-shell">
+    <header class="topbar">
+        <a class="brand" href="/">
+            <span class="brand-mark"></span>
+            <span class="brand-name">Tech<span>Nexus</span></span>
+        </a>
+
+        <nav class="topbar-links">
+            <a href="/">Trang chủ</a>
+            <a href="#" class="is-active">Đăng nhập</a>
+            <a href="/register">Đăng ký</a>
+        </nav>
+
+        <div class="auth-actions">
+            <a class="ghost-link" href="/register">Tạo tài khoản</a>
+            <a class="pill-button" href="/register">Sign Up</a>
+        </div>
+    </header>
+
+    <main class="auth-page">
+        <section class="auth-hero">
+            <div class="hero-copy">
+                <div class="eyebrow">Secure Access</div>
+                <h1>Đăng nhập vào hệ sinh thái review công nghệ đậm chất data-first.</h1>
+                <p>
+                    Truy cập hồ sơ cá nhân, danh sách yêu thích, lịch sử so sánh và khu vực quản trị
+                    với giao diện tối, sắc nét, đồng bộ cùng ngôn ngữ TechNexus.
+                </p>
+            </div>
+
+            <div class="hero-grid">
+                <article class="hero-panel">
+                    <h2>Không gian làm việc thống nhất</h2>
+                    <p>
+                        Từ theo dõi phần cứng, quản lý nội dung đến thao tác admin, mọi luồng đều dùng
+                        cùng một tông tối cao cấp với accent cyan làm điểm nhấn điều hướng.
+                    </p>
+                </article>
+
+                <article class="hero-metric">
+                    <strong>JWT</strong>
+                    <span>Xác thực phiên bằng token, phù hợp với các API module hiện có.</span>
+                </article>
+
+                <article class="hero-metric">
+                    <strong>Role-aware</strong>
+                    <span>Mở đúng quyền cho user, author và admin trong cùng một hệ thống.</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="auth-card">
+            <div class="auth-card-header">
+                <div class="eyebrow">Member Login</div>
+                <h1>Chào mừng quay lại</h1>
+                <p>Đăng nhập để tiếp tục với profile, notification và khu vực quản trị người dùng.</p>
+            </div>
+
+            <form data-auth-form="login" data-endpoint="/api/v1/auth/login">
+                <div class="status-message" data-form-message></div>
+
+                <div class="form-grid">
+                    <div class="field field-full">
+                        <label for="login-email">Email</label>
+                        <input id="login-email" name="email" type="email" placeholder="you@technexus.dev" required>
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="login-password">Mật khẩu</label>
+                        <input id="login-password" name="password" type="password" placeholder="Nhập mật khẩu của bạn" required>
+                    </div>
+                </div>
+
+                <div class="helper-row">
+                    <label class="inline-check" for="remember-me">
+                        <input id="remember-me" type="checkbox" name="remember">
+                        <span>Giữ đăng nhập trên thiết bị này</span>
+                    </label>
+
+                    <a href="/api/v1/auth/forgot-password">Quên mật khẩu?</a>
+                </div>
+
+                <div class="stack-actions">
+                    <button class="pill-button" type="submit" data-default-label="Đăng nhập" data-loading-label="Đang xác thực...">
+                        Đăng nhập
+                    </button>
+                    <a class="outline-button" href="/register">Tạo tài khoản mới</a>
+                </div>
+
+                <p class="switch-copy">
+                    Chưa có tài khoản?
+                    <a href="/register">Đăng ký ngay</a>
+                </p>
+            </form>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        © 2026 TechNexus. High-performance hardware review platform.
+    </footer>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

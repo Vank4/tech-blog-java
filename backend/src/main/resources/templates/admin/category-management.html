@@ -47,11 +47,14 @@
         <a href="/admin/posts" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
             <span class="material-icons">admin_panel_settings</span> Kiểm duyệt bài viết
         </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-3 text-background-dark bg-primary font-bold rounded-xl shadow-[0_0_15px_rgba(6,232,249,0.3)]">
+        <a href="/admin/categories" class="flex items-center gap-3 px-4 py-3 text-background-dark bg-primary font-bold rounded-xl shadow-[0_0_15px_rgba(6,232,249,0.3)]">
             <span class="material-icons">category</span> Danh mục
         </a>
         <a href="/admin/tags" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
             <span class="material-icons">tag</span> Quản lý Thẻ (Tags)
+        </a>
+        <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">groups</span> Quản lý users
         </a>
     </nav>
 </aside>
@@ -131,6 +134,46 @@
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) {
+            headers.set("Authorization", `Bearer ${accessToken}`);
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/categories")}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    async function ensureAdminAccess() {
+        if (!accessToken) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/categories")}`;
+            return false;
+        }
+
+        try {
+            const response = await authFetch("/api/v1/users/me");
+            const payload = await response.json();
+            const roles = payload.data?.roles || [];
+
+            if (!response.ok || !roles.includes("ADMIN")) {
+                window.location.href = "/profile";
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return false;
+        }
+    }
 
     // --- 1. LẤY DỮ LIỆU DANH MỤC ---
     async function fetchCategories() {
@@ -139,7 +182,7 @@
 
         try {
             // Giả định bạn có API: GET /api/v1/categories
-            const res = await fetch(`${API_BASE}/categories`);
+            const res = await authFetch(`${API_BASE}/categories`);
             // Tuỳ vào cách backend của bạn trả về data, nếu bọc trong ApiResponse thì là json.data, nếu List thẳng thì là json
             const data = await res.json();
             const categories = data.data || data; // Hỗ trợ cả 2 chuẩn trả về
@@ -215,7 +258,7 @@
         const url = id ? `${API_BASE}/categories/${id}` : `${API_BASE}/categories`;
 
         try {
-            const res = await fetch(url, {
+            const res = await authFetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -236,7 +279,7 @@
         try {
             // Xác định gọi API enable hay disable dựa vào nút gạt
             const endpoint = isActive ? 'enable' : 'disable';
-            const res = await fetch(`${API_BASE}/categories/${id}/${endpoint}`, { method: 'PATCH' });
+            const res = await authFetch(`${API_BASE}/categories/${id}/${endpoint}`, { method: 'PATCH' });
 
             if (!res.ok) {
                 alert("Lỗi khi cập nhật trạng thái!");
@@ -251,7 +294,7 @@
     // --- 4. XÓA DANH MỤC ---
     async function deleteCategory(id) {
         if(confirm("Bạn có chắc muốn xóa danh mục này? Các bài viết thuộc danh mục này có thể bị ảnh hưởng!")) {
-            const res = await fetch(`${API_BASE}/categories/${id}`, { method: 'DELETE' });
+            const res = await authFetch(`${API_BASE}/categories/${id}`, { method: 'DELETE' });
             if(res.ok) fetchCategories();
             else alert("Không thể xóa danh mục đang có bài viết bên trong!");
         }
@@ -284,7 +327,11 @@
     }
 
     // Khởi chạy khi trang Load
-    document.addEventListener('DOMContentLoaded', fetchCategories);
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (await ensureAdminAccess()) {
+            fetchCategories();
+        }
+    });
 </script>
 </body>
 </html>

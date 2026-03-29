@@ -9,7 +9,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "home/index";
+        return "Home/index";
     }
 
     @GetMapping("/post/{slug}")
@@ -22,17 +22,17 @@ public class HomeController {
     // ==========================================
     @GetMapping("/admin/posts")
     public String adminPostManager() {
-        return "Admin/post-management";
+        return "admin/post-management";
     }
 
     @GetMapping("/admin/categories")
     public String adminCategoryManager() {
-        return "Admin/category-management";
+        return "admin/category-management";
     }
 
     @GetMapping("/admin/tags")
     public String adminTagManager() {
-        return "Admin/tag-management";
+        return "admin/tag-management";
     }
 
     // ==========================================

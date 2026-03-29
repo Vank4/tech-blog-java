@@ -29,11 +29,6 @@ public class PageController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-    @GetMapping("/")
-    public String home() {
-        return "redirect:/products";
-    }
-
     @GetMapping("/products")
     public String products(
             @RequestParam(name = "category", required = false) List<String> categorySlugs,

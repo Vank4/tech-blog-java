@@ -36,6 +36,9 @@
         <h1 id="editor-title" class="text-xl font-bold text-white tracking-tight">Soạn bài viết mới</h1>
     </div>
     <div class="flex items-center gap-3">
+        <a href="/profile" class="px-5 py-2.5 border border-slate-700 hover:bg-slate-800 rounded-xl font-medium transition-all text-slate-300 flex items-center gap-2">
+            <span class="material-icons text-[18px]">person</span> Hồ sơ
+        </a>
         <button onclick="savePost('DRAFT')" class="px-6 py-2.5 border border-slate-700 hover:bg-slate-800 rounded-xl font-medium transition-all text-slate-300">Lưu nháp</button>
         <button onclick="savePost('PENDING')" class="px-8 py-2.5 bg-primary text-background-dark font-black rounded-xl shadow-[0_0_20px_rgba(6,232,249,0.3)] hover:scale-105 transition-all">GỬI DUYỆT</button>
     </div>
@@ -93,6 +96,46 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script th:inline="none">
     const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) {
+            headers.set("Authorization", `Bearer ${accessToken}`);
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent("/author/posts/editor")}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    async function ensureAuthorAccess() {
+        if (!accessToken) {
+            window.location.href = `/login?next=${encodeURIComponent("/author/posts/editor")}`;
+            return false;
+        }
+
+        try {
+            const response = await authFetch("/api/v1/users/me");
+            const payload = await response.json();
+            const roles = payload.data?.roles || [];
+
+            if (!response.ok || (!roles.includes("AUTHOR") && !roles.includes("ADMIN"))) {
+                window.location.href = "/profile";
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return false;
+        }
+    }
 
     // 1. Khởi tạo Quill
     let quill = new Quill('#editor-container', {
@@ -135,7 +178,7 @@
         placeholder.innerHTML = '<span class="material-icons animate-spin text-primary">sync</span><p class="text-[10px] mt-2">Đang tải...</p>';
 
         try {
-            const res = await fetch(`${API_BASE}/files/upload`, { method: 'POST', body: formData });
+            const res = await authFetch(`${API_BASE}/files/upload`, { method: 'POST', body: formData });
             const json = await res.json();
             if (res.ok) {
                 document.getElementById('thumbnailUrl').value = json.data;
@@ -150,8 +193,8 @@
     async function init() {
         try {
             const [catRes, tagRes] = await Promise.all([
-                fetch(`${API_BASE}/categories`),
-                fetch(`${API_BASE}/tags`)
+                authFetch(`${API_BASE}/categories`),
+                authFetch(`${API_BASE}/tags`)
             ]);
 
             const catJson = await catRes.json();
@@ -177,7 +220,7 @@
             // 4. Chế độ Edit: Load bài cũ
             if (currentPostId) {
                 document.getElementById('editor-title').innerText = "Chỉnh sửa bài viết #" + currentPostId;
-                const postRes = await fetch(`${API_BASE}/posts/${currentPostId}/admin`);
+                const postRes = await authFetch(`${API_BASE}/posts/${currentPostId}/admin`);
                 const postJson = await postRes.json();
                 const post = postJson.data;
 
@@ -219,7 +262,7 @@
         const method = currentPostId ? 'PUT' : 'POST';
 
         try {
-            const res = await fetch(url, {
+            const res = await authFetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -229,7 +272,7 @@
             if (res.ok) {
                 if (targetStatus === 'PENDING') {
                     const id = currentPostId || json.data.id;
-                    await fetch(`${API_BASE}/posts/${id}/submit`, { method: 'PATCH' });
+                    await authFetch(`${API_BASE}/posts/${id}/submit`, { method: 'PATCH' });
                 }
                 alert("Thao tác thành công!");
                 location.href = "/author/posts";
@@ -237,7 +280,11 @@
         } catch (error) { alert("Lỗi kết nối!"); }
     }
 
-    init();
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (await ensureAuthorAccess()) {
+            init();
+        }
+    });
 </script>
 </body>
 </html>

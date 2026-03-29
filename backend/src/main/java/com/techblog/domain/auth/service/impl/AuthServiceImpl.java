@@ -44,11 +44,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new IllegalArgumentException("Email này đã được sử dụng");
         }
 
         Role userRole = roleRepository.findByName(RoleName.USER)
-                .orElseThrow(() -> new IllegalStateException("Default role USER not found"));
+                .orElseThrow(() -> new IllegalStateException("Không tìm thấy role mặc định USER"));
 
         User user = new User();
         user.setUsername(generateUniqueUsername(request.getFullName(), request.getEmail()));
@@ -72,10 +72,10 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
         try {
             User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                    .orElseThrow(() -> new IllegalArgumentException("Email hoặc mật khẩu không đúng"));
 
             if (!user.isEmailVerified()) {
-                throw new IllegalStateException("Email is not verified");
+                throw new IllegalStateException("Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư và xác thực tài khoản trước khi đăng nhập.");
             }
 
             Authentication authentication = authenticationManager.authenticate(
@@ -100,9 +100,9 @@ public class AuthServiceImpl implements AuthService {
                     .build();
 
         } catch (LockedException ex) {
-            throw new IllegalStateException("User is banned");
+            throw new IllegalStateException("Tài khoản của bạn đã bị khóa");
         } catch (BadCredentialsException ex) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new IllegalArgumentException("Email hoặc mật khẩu không đúng");
         }
     }
 

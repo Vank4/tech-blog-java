@@ -28,7 +28,7 @@ public class AuthController {
         authService.register(request);
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Register successful. Please verify your email before login."
+                "message", "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập."
         ));
     }
 
@@ -37,7 +37,7 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Login successful",
+                "message", "Đăng nhập thành công",
                 "data", response
         ));
     }
@@ -47,7 +47,7 @@ public class AuthController {
         authService.verifyEmail(token);
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Email verified successfully"
+                "message", "Xác thực email thành công"
         ));
     }
 
@@ -56,7 +56,7 @@ public class AuthController {
         emailVerificationService.resendVerification(request.getEmail());
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Verification email sent successfully"
+                "message", "Đã gửi lại email xác thực thành công"
         ));
     }
 
@@ -65,7 +65,7 @@ public class AuthController {
         authService.forgotPassword(request.getEmail());
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Password reset link sent successfully"
+                "message", "Đã gửi liên kết đặt lại mật khẩu"
         ));
     }
 
@@ -74,7 +74,7 @@ public class AuthController {
         authService.validateResetToken(token);
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Reset token is valid"
+                "message", "Token đặt lại mật khẩu hợp lệ"
         ));
     }
 
@@ -83,7 +83,7 @@ public class AuthController {
         authService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Password reset successful"
+                "message", "Đặt lại mật khẩu thành công"
         ));
     }
 }

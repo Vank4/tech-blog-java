@@ -27,11 +27,6 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-//    @ExceptionHandler(ResourceNotFoundException.class)
-//    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
-//        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-//    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new LinkedHashMap<>();
@@ -41,7 +36,7 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("success", false);
-        body.put("message", "Validation failed");
+        body.put("message", "Dữ liệu nhập chưa hợp lệ");
         body.put("errors", errors);
 
         return ResponseEntity.badRequest().body(body);

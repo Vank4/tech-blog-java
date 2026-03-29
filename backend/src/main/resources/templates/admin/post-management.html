@@ -57,6 +57,9 @@
         <a href="/admin/tags" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
             <span class="material-icons">tag</span> Quản lý Thẻ (Tags)
         </a>
+        <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">groups</span> Quản lý users
+        </a>
         <hr class="border-slate-800 my-4">
         <a href="javascript:void(0)" onclick="openLogModal()" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
             <span class="material-icons text-orange-400">history_edu</span> Nhật ký kiểm duyệt
@@ -151,6 +154,46 @@
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) {
+            headers.set("Authorization", `Bearer ${accessToken}`);
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/posts")}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    async function ensureAdminAccess() {
+        if (!accessToken) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/posts")}`;
+            return false;
+        }
+
+        try {
+            const response = await authFetch("/api/v1/users/me");
+            const payload = await response.json();
+            const roles = payload.data?.roles || [];
+
+            if (!response.ok || !roles.includes("ADMIN")) {
+                window.location.href = "/profile";
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return false;
+        }
+    }
 
     // --- 1. SEARCH: Tích hợp tìm kiếm Real-time (Debounce) ---
     let searchTimer;
@@ -191,7 +234,7 @@
             if (status) url += `&status=${status}`;
             if (keyword) url += `&title=${encodeURIComponent(keyword)}`;
 
-            const res = await fetch(url);
+            const res = await authFetch(url);
             const json = await res.json();
             const posts = json.data?.content || [];
 
@@ -249,7 +292,7 @@
         logBody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center animate-pulse">Đang tải lịch sử...</td></tr>`;
 
         try {
-            const res = await fetch(`${API_BASE}/posts/moderation-logs`);
+            const res = await authFetch(`${API_BASE}/posts/moderation-logs`);
             const json = await res.json(); // Lấy toàn bộ Object response
 
             // SỬA DÒNG NÀY: Lấy mảng logs từ trong json.data
@@ -286,7 +329,7 @@
     async function handleAction(postId, actionType) {
         if (actionType === 'APPROVE') {
             if (confirm("DUYỆT bài viết này?")) {
-                const res = await fetch(`${API_BASE}/posts/${postId}/approve`, { method: 'PATCH' });
+                const res = await authFetch(`${API_BASE}/posts/${postId}/approve`, { method: 'PATCH' });
                 if (res.ok) fetchAdminPosts();
             }
         } else {
@@ -294,7 +337,7 @@
             document.getElementById('confirmReasonBtn').onclick = async () => {
                 const reason = document.getElementById('moderationReason').value.trim();
                 const endpoint = actionType === 'REJECT' ? 'reject' : 'hide';
-                const res = await fetch(`${API_BASE}/posts/${postId}/${endpoint}?reason=${encodeURIComponent(reason)}`, { method: 'PATCH' });
+                const res = await authFetch(`${API_BASE}/posts/${postId}/${endpoint}?reason=${encodeURIComponent(reason)}`, { method: 'PATCH' });
                 if (res.ok) { closeReasonModal(); fetchAdminPosts(); }
             };
         }
@@ -304,10 +347,14 @@
 
     async function handleUpdateFeatured(postId) {
         const payload = { featured: document.getElementById(`feat-${postId}`).checked, priority: parseInt(document.getElementById(`prio-${postId}`).value) };
-        await fetch(`${API_BASE}/posts/${postId}/featured`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        await authFetch(`${API_BASE}/posts/${postId}/featured`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     }
 
-    document.addEventListener('DOMContentLoaded', fetchAdminPosts);
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (await ensureAdminAccess()) {
+            fetchAdminPosts();
+        }
+    });
 </script>
 </body>
 </html>

@@ -2,6 +2,7 @@ package com.techblog.domain.product.service;
 
 import com.techblog.common.enums.ProductStatus;
 import com.techblog.common.exception.ResourceNotFoundException;
+import com.techblog.domain.product.dto.ProductDiscussionResponse;
 import com.techblog.domain.category.model.Category;
 import com.techblog.domain.category.repository.CategoryRepository;
 import com.techblog.domain.product.dto.CreateProductRequest;
@@ -17,9 +18,12 @@ import com.techblog.domain.product.model.ProductSpec;
 import com.techblog.domain.product.repository.ProductImageRepository;
 import com.techblog.domain.product.repository.ProductRepository;
 import com.techblog.domain.product.repository.ProductSpecRepository;
+import com.techblog.domain.review.model.Review;
+import com.techblog.domain.review.repository.ReviewRepository;
 import com.techblog.domain.user.model.User;
 import com.techblog.domain.user.repository.UserRepository;
 import jakarta.persistence.criteria.JoinType;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -40,6 +44,7 @@ public class ProductServiceImpl implements ProductService {
     private final UserRepository userRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductSpecRepository productSpecRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -66,6 +71,75 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findBySlugAndStatus(slug, ProductStatus.PUBLISHED)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return mapToResponse(product, true);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getPublicProducts(List<String> categorySlugs, List<String> brands, BigDecimal maxPrice, Integer minRating, String sort) {
+        return productRepository.findAll().stream()
+                .filter(product -> product.getStatus() == ProductStatus.PUBLISHED)
+                .filter(product -> categorySlugs == null || categorySlugs.isEmpty()
+                        || (product.getCategory() != null && categorySlugs.stream()
+                        .anyMatch(slug -> slug != null && slug.equalsIgnoreCase(product.getCategory().getSlug()))))
+                .filter(product -> brands == null || brands.isEmpty()
+                        || brands.stream().anyMatch(brand -> brand != null && brand.equalsIgnoreCase(product.getBrand())))
+                .filter(product -> maxPrice == null || product.getPrice() == null || product.getPrice().compareTo(maxPrice) <= 0)
+                .filter(product -> minRating == null || product.getRatingAverage() == null
+                        || product.getRatingAverage().compareTo(BigDecimal.valueOf(minRating)) >= 0)
+                .sorted(resolveSort(sort).getOrderFor("publishedAt") != null
+                        ? Comparator.comparing(Product::getPublishedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                        : Comparator.comparing(Product::getId).reversed())
+                .map(product -> mapToResponse(product, true))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal getPublicMaxPrice() {
+        return productRepository.findAll().stream()
+                .filter(product -> product.getStatus() == ProductStatus.PUBLISHED)
+                .map(Product::getPrice)
+                .filter(price -> price != null)
+                .max(BigDecimal::compareTo)
+                .orElse(BigDecimal.ONE);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getDistinctBrands() {
+        return productRepository.findAll().stream()
+                .map(Product::getBrand)
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .distinct()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDiscussionResponse> getPublicProductDiscussions(Long productId) {
+        return reviewRepository.findByProductIdAndStatusOrderByPublishedAtDesc(productId, com.techblog.common.enums.ContentStatus.PUBLISHED)
+                .stream()
+                .map(this::mapDiscussionResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getAllProductsForAdmin(String q, Long categoryId, String status) {
+        return productRepository.findAll().stream()
+                .filter(product -> !StringUtils.hasText(q)
+                        || containsIgnoreCase(product.getName(), q)
+                        || containsIgnoreCase(product.getBrand(), q)
+                        || containsIgnoreCase(product.getSlug(), q))
+                .filter(product -> categoryId == null
+                        || (product.getCategory() != null && categoryId.equals(product.getCategory().getId())))
+                .filter(product -> !StringUtils.hasText(status)
+                        || product.getStatus().name().equalsIgnoreCase(status))
+                .sorted(Comparator.comparing(Product::getId).reversed())
+                .map(product -> mapToResponse(product, true))
+                .toList();
     }
 
     @Override
@@ -358,6 +432,27 @@ public class ProductServiceImpl implements ProductService {
         response.setUnit(spec.getUnit());
         response.setDisplayOrder(spec.getDisplayOrder());
         return response;
+    }
+
+    private ProductDiscussionResponse mapDiscussionResponse(Review review) {
+        ProductDiscussionResponse response = new ProductDiscussionResponse();
+        response.setId(review.getId());
+        response.setHeadline(review.getTitle());
+        response.setAuthorName(review.getAuthor() != null ? review.getAuthor().getDisplayName() : null);
+        response.setAuthorMeta(review.getAuthor() != null ? review.getAuthor().getEmail() : null);
+        response.setContent(review.getSummary() != null ? review.getSummary() : review.getContent());
+        response.setCreatedAt(review.getPublishedAt() != null ? review.getPublishedAt() : review.getCreatedAt());
+        response.setHelpfulCount(0);
+        response.setReplyCount(0);
+        response.setStarCount(review.getOverallScore() != null ? review.getOverallScore().intValue() : null);
+        response.setBadgeLabel("Review");
+        response.setVerified(true);
+        return response;
+    }
+
+    private boolean containsIgnoreCase(String source, String keyword) {
+        return StringUtils.hasText(source) && StringUtils.hasText(keyword)
+                && source.toLowerCase().contains(keyword.trim().toLowerCase());
     }
 
     private void clearPrimaryFlag(List<ProductImage> images) {

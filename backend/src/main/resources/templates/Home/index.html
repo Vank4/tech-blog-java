@@ -57,23 +57,33 @@
                 <span class="text-xl font-bold tracking-tight text-white">Tech<span class="text-primary">Nexus</span></span>
             </div>
             <nav class="hidden md:flex space-x-8">
-                <a class="text-sm font-medium text-white hover:text-primary transition-colors" href="#">Reviews</a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors" href="#">News</a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1" href="#">
-                    AI Lab <span class="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse"></span>
+                <a class="text-sm font-medium text-white hover:text-primary transition-colors" href="/">Home</a>
+                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors hidden" href="/profile" data-nav-profile>Profile</a>
+                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1 hidden" href="/author/posts" data-nav-author>
+                    Author Hub <span class="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse"></span>
                 </a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors" href="#">Community</a>
+                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors hidden" href="/admin/posts" data-nav-admin>Admin</a>
             </nav>
             <div class="flex items-center gap-4">
                 <div class="relative hidden sm:block">
                     <input id="search-input" class="w-64 bg-surface-dark/50 border border-slate-700 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-primary/50 text-white placeholder-slate-500 transition-all" placeholder="Ask AI..." type="text"/>
                     <span class="material-icons absolute right-3 top-2 text-primary text-lg">auto_awesome</span>
                 </div>
-                <button class="text-slate-400 hover:text-white transition-colors">
-                    <span class="material-icons">notifications</span>
-                </button>
-                <div class="h-8 w-8 rounded-full bg-gradient-to-r from-slate-700 to-slate-600 border border-slate-500 overflow-hidden cursor-pointer">
-                    <img alt="User Avatar" class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc"/>
+                <div class="hidden items-center gap-4" data-auth-panel>
+                    <button class="text-slate-400 hover:text-white transition-colors">
+                        <span class="material-icons">notifications</span>
+                    </button>
+                    <a href="/profile" class="h-8 w-8 rounded-full bg-gradient-to-r from-slate-700 to-slate-600 border border-slate-500 overflow-hidden cursor-pointer block" data-avatar-link>
+                        <img alt="User Avatar" class="w-full h-full object-cover" data-user-avatar data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc"/>
+                    </a>
+                </div>
+                <div class="flex items-center gap-3" data-guest-panel>
+                    <a href="/login" class="px-4 py-2 rounded-full border border-slate-700 text-sm font-medium text-slate-200 hover:border-primary/50 hover:text-white transition-colors">
+                        Đăng nhập
+                    </a>
+                    <a href="/register" class="px-4 py-2 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-primary-dark transition-colors shadow-[0_0_20px_rgba(6,232,249,0.25)]">
+                        Đăng ký
+                    </a>
                 </div>
             </div>
         </div>
@@ -172,6 +182,79 @@
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
+    const DEFAULT_AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc";
+
+    const getToken = () => localStorage.getItem("techblog.accessToken");
+
+    const resolveAvatarUrl = (avatarUrl) => {
+        if (!avatarUrl) return DEFAULT_AVATAR;
+        if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) return avatarUrl;
+        if (avatarUrl.startsWith("/")) return avatarUrl;
+        return `/${avatarUrl}`;
+    };
+
+    const toggleElement = (selector, shouldShow, displayValue = "inline-flex") => {
+        const element = document.querySelector(selector);
+        if (!element) return;
+        element.style.display = shouldShow ? displayValue : "none";
+    };
+
+    const applyAuthState = (profile) => {
+        const roles = profile?.roles || [];
+        const isAuthenticated = !!profile;
+        const guestPanel = document.querySelector("[data-guest-panel]");
+        const authPanel = document.querySelector("[data-auth-panel]");
+        const avatar = document.querySelector("[data-user-avatar]");
+        const avatarLink = document.querySelector("[data-avatar-link]");
+
+        if (guestPanel) {
+            guestPanel.style.display = isAuthenticated ? "none" : "flex";
+        }
+
+        if (authPanel) {
+            authPanel.style.display = isAuthenticated ? "flex" : "none";
+        }
+
+        toggleElement("[data-nav-profile]", isAuthenticated);
+        toggleElement("[data-nav-author]", roles.includes("AUTHOR") || roles.includes("ADMIN"));
+        toggleElement("[data-nav-admin]", roles.includes("ADMIN"));
+
+        if (avatar) {
+            avatar.src = resolveAvatarUrl(profile?.avatarUrl);
+            avatar.alt = profile?.fullName ? `Ảnh đại diện của ${profile.fullName}` : "Ảnh đại diện người dùng";
+        }
+
+        if (avatarLink) {
+            avatarLink.href = isAuthenticated ? "/profile" : "/login";
+        }
+    };
+
+    async function loadCurrentUserState() {
+        const token = getToken();
+        if (!token) {
+            applyAuthState(null);
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/v1/users/me", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success === false) {
+                localStorage.removeItem("techblog.accessToken");
+                applyAuthState(null);
+                return;
+            }
+
+            applyAuthState(result.data || null);
+        } catch (error) {
+            applyAuthState(null);
+        }
+    };
 
     const formatDate = (dateString) => {
         if (!dateString) return "Vừa xong";
@@ -298,8 +381,15 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        loadCurrentUserState();
         fetchHeroPost();
-        fetchLatestPosts();
+        const query = new URLSearchParams(window.location.search);
+        const tagId = query.get("tagId");
+        if (tagId) {
+            fetchLatestPostsByTag(tagId);
+        } else {
+            fetchLatestPosts();
+        }
         fetchTags();
 
         const searchInput = document.getElementById('search-input');

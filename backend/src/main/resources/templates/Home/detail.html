@@ -91,9 +91,21 @@
         <a href="/" class="text-2xl font-black tracking-tighter text-[#14ffdf]">TechNexus</a>
         <div class="hidden md:flex items-center gap-8">
             <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors" href="/">Home</a>
-            <a class="text-[#14ffdf] border-b-2 border-[#14ffdf] pb-1" href="#">Read Article</a>
+            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors hidden" href="/profile" data-nav-profile>Profile</a>
+            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors hidden" href="/author/posts" data-nav-author>Author Hub</a>
+            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors hidden" href="/admin/posts" data-nav-admin>Admin</a>
+            <a class="text-[#14ffdf] border-b-2 border-[#14ffdf] pb-1" href="javascript:void(0)">Read Article</a>
         </div>
         <div class="flex items-center gap-4">
+            <div class="hidden items-center gap-3" data-auth-panel>
+                <a href="/profile" class="w-10 h-10 rounded-full overflow-hidden border border-[#14ffdf]/20 bg-[#1a1a1a] block" data-avatar-link>
+                    <img alt="User Avatar" class="w-full h-full object-cover" data-user-avatar src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc"/>
+                </a>
+            </div>
+            <div class="flex items-center gap-3" data-guest-panel>
+                <a href="/login" class="px-4 py-2 rounded-full border border-[#484847]/50 text-sm text-[#adaaaa] hover:text-white hover:border-[#14ffdf]/50 transition-colors">Đăng nhập</a>
+                <a href="/register" class="px-4 py-2 rounded-full bg-[#14ffdf] text-black text-sm font-bold hover:brightness-110 transition-all">Đăng ký</a>
+            </div>
             <button class="p-2 hover:bg-[#262626]/50 rounded-full transition-all duration-300 scale-95 active:scale-90">
                 <span class="material-symbols-outlined text-[#14ffdf]" data-icon="search">search</span>
             </button>
@@ -212,6 +224,79 @@
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
+    const DEFAULT_AVATAR = "https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc";
+
+    const getToken = () => localStorage.getItem("techblog.accessToken");
+
+    const resolveAvatarUrl = (avatarUrl) => {
+        if (!avatarUrl) return DEFAULT_AVATAR;
+        if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) return avatarUrl;
+        if (avatarUrl.startsWith("/")) return avatarUrl;
+        return `/${avatarUrl}`;
+    };
+
+    const toggleElement = (selector, shouldShow, displayValue = "inline-flex") => {
+        const element = document.querySelector(selector);
+        if (!element) return;
+        element.style.display = shouldShow ? displayValue : "none";
+    };
+
+    const applyAuthState = (profile) => {
+        const roles = profile?.roles || [];
+        const isAuthenticated = !!profile;
+        const guestPanel = document.querySelector("[data-guest-panel]");
+        const authPanel = document.querySelector("[data-auth-panel]");
+        const avatar = document.querySelector("[data-user-avatar]");
+        const avatarLink = document.querySelector("[data-avatar-link]");
+
+        if (guestPanel) {
+            guestPanel.style.display = isAuthenticated ? "none" : "flex";
+        }
+
+        if (authPanel) {
+            authPanel.style.display = isAuthenticated ? "flex" : "none";
+        }
+
+        toggleElement("[data-nav-profile]", isAuthenticated);
+        toggleElement("[data-nav-author]", roles.includes("AUTHOR") || roles.includes("ADMIN"));
+        toggleElement("[data-nav-admin]", roles.includes("ADMIN"));
+
+        if (avatar) {
+            avatar.src = resolveAvatarUrl(profile?.avatarUrl);
+            avatar.alt = profile?.fullName ? `Ảnh đại diện của ${profile.fullName}` : "Ảnh đại diện người dùng";
+        }
+
+        if (avatarLink) {
+            avatarLink.href = isAuthenticated ? "/profile" : "/login";
+        }
+    };
+
+    async function loadCurrentUserState() {
+        const token = getToken();
+        if (!token) {
+            applyAuthState(null);
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/v1/users/me", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success === false) {
+                localStorage.removeItem("techblog.accessToken");
+                applyAuthState(null);
+                return;
+            }
+
+            applyAuthState(result.data || null);
+        } catch (error) {
+            applyAuthState(null);
+        }
+    }
 
     const formatDate = (dateString) => {
         if (!dateString) return "Vừa xong";
@@ -272,6 +357,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        loadCurrentUserState();
         loadPostDetail();
     });
 </script>

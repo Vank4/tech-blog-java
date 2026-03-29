@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -46,49 +46,14 @@
         .text-glow { text-shadow: 0 0 20px rgba(6, 232, 249, 0.3); }
         .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 30px -10px rgba(6, 232, 249, 0.15); border-color: rgba(6, 232, 249, 0.4); }
     </style>
+    <!-- Core layout CSS for shared fragments -->
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display transition-colors duration-300 antialiased overflow-x-hidden">
 
-<header class="fixed top-0 w-full z-50 glass-panel border-b border-primary/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-20">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-background-dark font-bold text-lg">T</div>
-                <span class="text-xl font-bold tracking-tight text-white">Tech<span class="text-primary">Nexus</span></span>
-            </div>
-            <nav class="hidden md:flex space-x-8">
-                <a class="text-sm font-medium text-white hover:text-primary transition-colors" href="/">Home</a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors hidden" href="/profile" data-nav-profile>Profile</a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1 hidden" href="/author/posts" data-nav-author>
-                    Author Hub <span class="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse"></span>
-                </a>
-                <a class="text-sm font-medium text-slate-400 hover:text-white transition-colors hidden" href="/admin/posts" data-nav-admin>Admin</a>
-            </nav>
-            <div class="flex items-center gap-4">
-                <div class="relative hidden sm:block">
-                    <input id="search-input" class="w-64 bg-surface-dark/50 border border-slate-700 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-primary/50 text-white placeholder-slate-500 transition-all" placeholder="Ask AI..." type="text"/>
-                    <span class="material-icons absolute right-3 top-2 text-primary text-lg">auto_awesome</span>
-                </div>
-                <div class="hidden items-center gap-4" data-auth-panel>
-                    <button class="text-slate-400 hover:text-white transition-colors">
-                        <span class="material-icons">notifications</span>
-                    </button>
-                    <a href="/profile" class="h-8 w-8 rounded-full bg-gradient-to-r from-slate-700 to-slate-600 border border-slate-500 overflow-hidden cursor-pointer block" data-avatar-link>
-                        <img alt="User Avatar" class="w-full h-full object-cover" data-user-avatar data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc"/>
-                    </a>
-                </div>
-                <div class="flex items-center gap-3" data-guest-panel>
-                    <a href="/login" class="px-4 py-2 rounded-full border border-slate-700 text-sm font-medium text-slate-200 hover:border-primary/50 hover:text-white transition-colors">
-                        Đăng nhập
-                    </a>
-                    <a href="/register" class="px-4 py-2 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-primary-dark transition-colors shadow-[0_0_20px_rgba(6,232,249,0.25)]">
-                        Đăng ký
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
+<header th:replace="~{fragments/header :: header}"></header>
 
 <main class="pt-24 pb-12 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative">
     <div class="absolute top-0 left-1/4 w-1/2 h-96 bg-hero-glow pointer-events-none -z-10"></div>
@@ -168,17 +133,7 @@
     </div>
 </main>
 
-<footer class="border-t border-slate-800 bg-background-dark py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-2">
-                <div class="w-6 h-6 rounded bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-background-dark font-bold text-xs">T</div>
-                <span class="text-lg font-bold text-white">TechNexus</span>
-            </div>
-            <div class="text-slate-500 text-sm">© 2026 TechNexus Inc. All rights reserved.</div>
-        </div>
-    </div>
-</footer>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";

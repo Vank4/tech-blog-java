@@ -1,347 +1,351 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{admin/fragments/head :: head('Product Management')}"></head>
+
 <body data-page="admin-products" style="background:var(--color-surface); color:var(--color-on-surface);">
-<aside th:replace="~{admin/fragments/sidebar :: sidebar}"></aside>
+    <aside th:replace="~{admin/fragments/sidebar :: sidebar}"></aside>
 
-<main class="admin-main" id="admin-main">
-    <header class="admin-header admin-products-header">
-        <div>
-            <h2 style="font-size:1.5rem; font-weight:900; letter-spacing:-0.05em;">Product Management</h2>
-            <p style="font-size:0.75rem; color:var(--color-on-surface-variant); font-weight:500; letter-spacing:0.025em;"
-               th:text="|Total: ${products.size()} products|">Manage inventory, specifications, and pricing.</p>
-        </div>
-        <div class="admin-header-actions">
-            <button type="button" id="open-create-product" class="btn btn-primary btn-md">
-                <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
-                New Product
-            </button>
-            <a th:href="@{/admin/products}" class="btn btn-sm" style="background:var(--color-surface-container-highest); color:var(--color-secondary); padding:0.5rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem; font-weight:700;">
-                <span class="material-symbols-outlined" style="font-size:0.875rem;">refresh</span>
-                Refresh
-            </a>
-        </div>
-    </header>
-
-    <section class="admin-auth-panel">
-        <div>
-            <p class="admin-auth-title">Admin API Access</p>
-            <p class="admin-auth-copy">CRUD actions use the protected admin API. Sign in here once to store a JWT for this browser session.</p>
-        </div>
-        <form id="admin-auth-form" class="admin-auth-form">
-            <input id="admin-auth-email" class="admin-search-input" type="email" placeholder="admin@email.com" autocomplete="username"/>
-            <input id="admin-auth-password" class="admin-search-input" type="password" placeholder="Password" autocomplete="current-password"/>
-            <button type="submit" class="btn btn-secondary btn-md">Connect Admin</button>
-            <button type="button" id="admin-clear-token" class="btn btn-ghost">Disconnect</button>
-        </form>
-        <div id="admin-auth-status" class="admin-auth-status">Checking admin token...</div>
-    </section>
-
-    <section class="admin-search-section">
-        <form th:action="@{/admin/products}" method="get" class="admin-search-bar">
-            <div class="admin-search-input-wrap" style="width:100%; max-width:24rem;">
-                <span class="material-symbols-outlined">search</span>
-                <input class="admin-search-input input-with-icon" type="text" name="q" th:value="${query}" placeholder="Search products, brands, SKUs..."/>
+    <main class="admin-main" id="admin-main">
+        <header class="admin-header admin-products-header">
+            <div>
+                <h2 style="font-size:1.5rem; font-weight:900; letter-spacing:-0.05em;">Product Management</h2>
+                <p style="font-size:0.75rem; color:var(--color-on-surface-variant); font-weight:500; letter-spacing:0.025em;"
+                    th:text="|Total: ${products.size()} products|">Manage inventory, specifications, and pricing.</p>
             </div>
-            <div class="admin-filters">
-                <select class="admin-filter-select" name="category">
-                    <option value="">All Categories</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+            <div class="admin-header-actions">
+                <button type="button" id="open-create-product" class="btn btn-primary btn-md">
+                    <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
+                    New Product
+                </button>
+                <a th:href="@{/admin/products}" class="btn btn-sm"
+                    style="background:var(--color-surface-container-highest); color:var(--color-secondary); padding:0.5rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem; font-weight:700;">
+                    <span class="material-symbols-outlined" style="font-size:0.875rem;">refresh</span>
+                    Refresh
+                </a>
+            </div>
+        </header>
+
+        <section class="admin-search-section">
+            <form th:action="@{/admin/products}" method="get" class="admin-search-bar">
+                <div class="admin-search-input-wrap" style="width:100%; max-width:24rem;">
+                    <span class="material-symbols-outlined">search</span>
+                    <input class="admin-search-input input-with-icon" type="text" name="q" th:value="${query}"
+                        placeholder="Search products, brands, SKUs..." />
+                </div>
+                <div class="admin-filters">
+                    <select class="admin-filter-select" name="category">
+                        <option value="">All Categories</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
                             th:selected="${selectedCategory != null and selectedCategory == cat.id}">Category</option>
-                </select>
-                <select class="admin-filter-select" name="status" style="min-width:7.5rem;">
-                    <option value="">All Status</option>
-                    <option value="published" th:selected="${selectedStatus == 'published'}">Published</option>
-                    <option value="hidden" th:selected="${selectedStatus == 'hidden'}">Hidden</option>
-                    <option value="draft" th:selected="${selectedStatus == 'draft'}">Draft</option>
-                    <option value="deleted" th:selected="${selectedStatus == 'deleted'}">Deleted</option>
-                </select>
-                <button type="submit" class="admin-filter-btn">
-                    <span class="material-symbols-outlined">filter_list</span>
+                    </select>
+                    <select class="admin-filter-select" name="status" style="min-width:7.5rem;">
+                        <option value="">All Status</option>
+                        <option value="published" th:selected="${selectedStatus == 'published'}">Published</option>
+                        <option value="hidden" th:selected="${selectedStatus == 'hidden'}">Hidden</option>
+                        <option value="draft" th:selected="${selectedStatus == 'draft'}">Draft</option>
+                        <option value="deleted" th:selected="${selectedStatus == 'deleted'}">Deleted</option>
+                    </select>
+                    <button type="submit" class="admin-filter-btn">
+                        <span class="material-symbols-outlined">filter_list</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="admin-table-section">
+            <div class="admin-table-wrap">
+                <div class="admin-bulk-actions">
+                    <div class="admin-bulk-left">
+                        <input type="checkbox" class="checkbox checkbox-admin" id="select-all" />
+                        <span id="selected-count">0 items selected</span>
+                    </div>
+                    <div class="admin-bulk-right">
+                        <span style="font-size:0.75rem; color:var(--color-on-surface-variant);"
+                            th:text="|Showing ${products.size()} products|">Showing 0 products</span>
+                    </div>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category &amp; Brand</th>
+                                <th>Price</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="product : ${products}">
+                                <td>
+                                    <div class="admin-product-cell">
+                                        <input type="checkbox" class="checkbox checkbox-admin product-checkbox"
+                                            th:value="${product.id}" />
+                                        <div class="admin-product-thumb">
+                                            <img th:if="${product.thumbnailUrl != null}"
+                                                th:src="${product.thumbnailUrl}" th:alt="${product.name}" />
+                                            <span th:if="${product.thumbnailUrl == null}"
+                                                class="material-symbols-outlined"
+                                                style="font-size:1.5rem; color:var(--color-on-surface-variant); display:flex; align-items:center; justify-content:center; width:100%; height:100%;">image</span>
+                                        </div>
+                                        <div>
+                                            <p class="admin-product-name">
+                                                <a th:href="@{/products/{slug}(slug=${product.slug})}"
+                                                    th:text="${product.name}" style="color:inherit;">Product Name</a>
+                                            </p>
+                                            <p class="admin-product-sku" th:text="|SLUG: ${product.slug}|">SLUG:
+                                                product-slug</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="admin-category" th:text="${product.categoryName ?: 'Uncategorized'}">
+                                        Category</p>
+                                    <p class="admin-brand" th:text="${product.brand}">Brand</p>
+                                </td>
+                                <td>
+                                    <span style="font-size:0.875rem; font-weight:700;"
+                                        th:text="${product.price != null ? #numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT') + ' ' + product.currency : 'N/A'}">0
+                                        VND</span>
+                                </td>
+                                <td>
+                                    <div class="admin-rating">
+                                        <span th:text="${product.ratingAverage}">0</span>
+                                        <span class="material-symbols-outlined filled">star</span>
+                                        <span style="font-size:0.625rem; color:var(--color-on-surface-variant);"
+                                            th:text="|(${product.ratingCount})|">(0)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="admin-status-label"
+                                        th:classappend="${product.status.name() == 'PUBLISHED'} ? 'published' : (${product.status.name() == 'DELETED'} ? 'deleted' : 'hidden')"
+                                        th:text="${product.status}">DRAFT</span>
+                                </td>
+                                <td>
+                                    <div class="admin-row-actions" style="opacity:1;">
+                                        <a th:href="@{/products/{slug}(slug=${product.slug})}" class="btn-icon"
+                                            style="color:var(--color-on-surface-variant);" title="View">
+                                            <span class="material-symbols-outlined"
+                                                style="font-size:1.125rem;">visibility</span>
+                                        </a>
+                                        <button type="button" class="btn-icon btn-edit-product"
+                                            th:attr="data-product-id=${product.id}" title="Edit">
+                                            <span class="material-symbols-outlined"
+                                                style="font-size:1.125rem;">edit</span>
+                                        </button>
+                                        <button type="button" class="btn-icon btn-status-product"
+                                            th:if="${product.status.name() != 'DELETED'}"
+                                            th:attr="data-product-id=${product.id},data-current-status=${product.status.name()}"
+                                            th:title="${product.status.name() == 'PUBLISHED'} ? 'Hide product' : 'Publish product'">
+                                            <span class="material-symbols-outlined" style="font-size:1.125rem;"
+                                                th:text="${product.status.name() == 'PUBLISHED'} ? 'visibility_off' : 'publish'"></span>
+                                        </button>
+                                        <button type="button" class="btn-icon btn-icon-danger btn-delete-product"
+                                            th:if="${product.status.name() != 'DELETED'}"
+                                            th:attr="data-product-id=${product.id},data-product-name=${product.name}"
+                                            title="Delete">
+                                            <span class="material-symbols-outlined"
+                                                style="font-size:1.125rem;">delete</span>
+                                        </button>
+                                        <button type="button" class="btn-icon btn-restore-product"
+                                            th:if="${product.status.name() == 'DELETED'}"
+                                            th:attr="data-product-id=${product.id}" title="Restore">
+                                            <span class="material-symbols-outlined"
+                                                style="font-size:1.125rem;">restore_from_trash</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${products == null or products.isEmpty()}">
+                                <td colspan="6"
+                                    style="text-align:center; padding:3rem; color:var(--color-on-surface-variant);">
+                                    <span class="material-symbols-outlined" style="font-size:2rem;">inventory_2</span>
+                                    <p style="margin-top:0.5rem;">No products found.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="product-modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <h3 id="product-modal-title" class="modal-title">Create Product</h3>
+                    <p id="product-modal-subtitle" class="modal-subtitle">Draft mode</p>
+                </div>
+                <button type="button" class="modal-close" data-close-product-modal>
+                    <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-        </form>
-    </section>
-
-    <section class="admin-table-section">
-        <div class="admin-table-wrap">
-            <div class="admin-bulk-actions">
-                <div class="admin-bulk-left">
-                    <input type="checkbox" class="checkbox checkbox-admin" id="select-all"/>
-                    <span id="selected-count">0 items selected</span>
-                </div>
-                <div class="admin-bulk-right">
-                    <span style="font-size:0.75rem; color:var(--color-on-surface-variant);" th:text="|Showing ${products.size()} products|">Showing 0 products</span>
-                </div>
-            </div>
-
-            <div style="overflow-x:auto;">
-                <table class="admin-table">
-                    <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Category &amp; Brand</th>
-                        <th>Price</th>
-                        <th>Rating</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="product : ${products}">
-                        <td>
-                            <div class="admin-product-cell">
-                                <input type="checkbox" class="checkbox checkbox-admin product-checkbox" th:value="${product.id}"/>
-                                <div class="admin-product-thumb">
-                                    <img th:if="${product.thumbnailUrl != null}" th:src="${product.thumbnailUrl}" th:alt="${product.name}"/>
-                                    <span th:if="${product.thumbnailUrl == null}" class="material-symbols-outlined" style="font-size:1.5rem; color:var(--color-on-surface-variant); display:flex; align-items:center; justify-content:center; width:100%; height:100%;">image</span>
+            <div class="modal-body">
+                <aside class="modal-tabs">
+                    <button type="button" class="modal-tab active" data-tab-target="basic">
+                        <span class="material-symbols-outlined">info</span>
+                        Basic Info
+                    </button>
+                    <button type="button" class="modal-tab" data-tab-target="images">
+                        <span class="material-symbols-outlined">image</span>
+                        Images
+                    </button>
+                    <button type="button" class="modal-tab" data-tab-target="specs">
+                        <span class="material-symbols-outlined">settings_input_component</span>
+                        Specifications
+                    </button>
+                </aside>
+                <div class="modal-content">
+                    <section class="modal-panel" data-tab-panel="basic">
+                        <div class="modal-form-group">
+                            <div class="modal-form-row">
+                                <div>
+                                    <label class="modal-form-label" for="product-name-input">Product Name</label>
+                                    <input id="product-name-input" class="input" type="text" />
                                 </div>
                                 <div>
-                                    <p class="admin-product-name">
-                                        <a th:href="@{/products/{slug}(slug=${product.slug})}" th:text="${product.name}" style="color:inherit;">Product Name</a>
-                                    </p>
-                                    <p class="admin-product-sku" th:text="|SLUG: ${product.slug}|">SLUG: product-slug</p>
+                                    <label class="modal-form-label" for="product-slug-input">Slug</label>
+                                    <input id="product-slug-input" class="input" type="text" />
                                 </div>
                             </div>
-                        </td>
-                        <td>
-                            <p class="admin-category" th:text="${product.categoryName ?: 'Uncategorized'}">Category</p>
-                            <p class="admin-brand" th:text="${product.brand}">Brand</p>
-                        </td>
-                        <td>
-                            <span style="font-size:0.875rem; font-weight:700;"
-                                  th:text="${product.price != null ? #numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT') + ' ' + product.currency : 'N/A'}">0 VND</span>
-                        </td>
-                        <td>
-                            <div class="admin-rating">
-                                <span th:text="${product.ratingAverage}">0</span>
-                                <span class="material-symbols-outlined filled">star</span>
-                                <span style="font-size:0.625rem; color:var(--color-on-surface-variant);" th:text="|(${product.ratingCount})|">(0)</span>
+                            <div class="modal-form-row">
+                                <div>
+                                    <label class="modal-form-label" for="product-brand-input">Brand</label>
+                                    <input id="product-brand-input" class="input" type="text"
+                                        list="admin-brand-options" />
+                                    <datalist id="admin-brand-options">
+                                        <option th:each="brandName : ${allBrands}" th:value="${brandName}"></option>
+                                    </datalist>
+                                </div>
+                                <div>
+                                    <label class="modal-form-label" for="product-model-input">Model</label>
+                                    <input id="product-model-input" class="input" type="text" />
+                                </div>
                             </div>
-                        </td>
-                        <td>
-                            <span class="admin-status-label"
-                                  th:classappend="${product.status.name() == 'PUBLISHED'} ? 'published' : (${product.status.name() == 'DELETED'} ? 'deleted' : 'hidden')"
-                                  th:text="${product.status}">DRAFT</span>
-                        </td>
-                        <td>
-                            <div class="admin-row-actions" style="opacity:1;">
-                                <a th:href="@{/products/{slug}(slug=${product.slug})}" class="btn-icon" style="color:var(--color-on-surface-variant);" title="View">
-                                    <span class="material-symbols-outlined" style="font-size:1.125rem;">visibility</span>
-                                </a>
-                                <button type="button"
-                                        class="btn-icon btn-edit-product"
-                                        th:attr="data-product-id=${product.id}"
-                                        title="Edit">
-                                    <span class="material-symbols-outlined" style="font-size:1.125rem;">edit</span>
-                                </button>
-                                <button type="button"
-                                        class="btn-icon btn-status-product"
-                                        th:if="${product.status.name() != 'DELETED'}"
-                                        th:attr="data-product-id=${product.id},data-current-status=${product.status.name()}"
-                                        th:title="${product.status.name() == 'PUBLISHED'} ? 'Hide product' : 'Publish product'">
-                                    <span class="material-symbols-outlined" style="font-size:1.125rem;" th:text="${product.status.name() == 'PUBLISHED'} ? 'visibility_off' : 'publish'"></span>
-                                </button>
-                                <button type="button"
-                                        class="btn-icon btn-icon-danger btn-delete-product"
-                                        th:if="${product.status.name() != 'DELETED'}"
-                                        th:attr="data-product-id=${product.id},data-product-name=${product.name}"
-                                        title="Delete">
-                                    <span class="material-symbols-outlined" style="font-size:1.125rem;">delete</span>
-                                </button>
-                                <button type="button"
-                                        class="btn-icon btn-restore-product"
-                                        th:if="${product.status.name() == 'DELETED'}"
-                                        th:attr="data-product-id=${product.id}"
-                                        title="Restore">
-                                    <span class="material-symbols-outlined" style="font-size:1.125rem;">restore_from_trash</span>
-                                </button>
+                            <div class="modal-form-row">
+                                <div>
+                                    <label class="modal-form-label" for="product-category-input">Category</label>
+                                    <select id="product-category-input" class="select">
+                                        <option value="">Uncategorized</option>
+                                        <option th:each="cat : ${categories}" th:value="${cat.id}"
+                                            th:text="${cat.name}">Category</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="modal-form-label" for="product-status-input">Target Status</label>
+                                    <select id="product-status-input" class="select">
+                                        <option value="DRAFT">Draft</option>
+                                        <option value="PUBLISHED">Published</option>
+                                        <option value="HIDDEN">Hidden</option>
+                                    </select>
+                                </div>
                             </div>
-                        </td>
-                    </tr>
-                    <tr th:if="${products == null or products.isEmpty()}">
-                        <td colspan="6" style="text-align:center; padding:3rem; color:var(--color-on-surface-variant);">
-                            <span class="material-symbols-outlined" style="font-size:2rem;">inventory_2</span>
-                            <p style="margin-top:0.5rem;">No products found.</p>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                            <div class="modal-form-row">
+                                <div>
+                                    <label class="modal-form-label" for="product-price-input">Price</label>
+                                    <input id="product-price-input" class="input" type="number" min="0" step="1000" />
+                                </div>
+                                <div>
+                                    <label class="modal-form-label" for="product-currency-input">Currency</label>
+                                    <input id="product-currency-input" class="input" type="text" value="VND" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="modal-form-label" for="product-short-description-input">Short
+                                    Description</label>
+                                <textarea id="product-short-description-input" class="input" rows="3"></textarea>
+                            </div>
+                            <div>
+                                <label class="modal-form-label" for="product-description-input">Description</label>
+                                <textarea id="product-description-input" class="input" rows="7"></textarea>
+                            </div>
+                            <label class="toggle-wrap">
+                                <span class="modal-form-label" style="margin-bottom:0;">Allow Comments</span>
+                                <span class="switch">
+                                    <input id="product-allow-comments-input" type="checkbox" checked />
+                                    <span class="switch-track"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="modal-panel" data-tab-panel="images" hidden>
+                        <div class="modal-section-block">
+                            <div class="modal-section-header-row">
+                                <h4 class="modal-section-title">Product Images</h4>
+                                <button type="button" id="add-image-row" class="btn btn-ghost">Add Image</button>
+                            </div>
+                            <div id="modal-images-grid" class="modal-images-grid admin-modal-list"></div>
+                        </div>
+                    </section>
+
+                    <section class="modal-panel" data-tab-panel="specs" hidden>
+                        <div class="modal-section-block">
+                            <div class="modal-section-header-row">
+                                <h4 class="modal-section-title">Technical Specifications</h4>
+                                <button type="button" id="add-spec-row" class="btn btn-ghost">Add Spec</button>
+                            </div>
+                            <div id="spec-rows" class="admin-spec-list"></div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer-left">
+                    <span id="product-modal-status" class="modal-helper-text">Ready</span>
+                </div>
+                <div class="modal-footer-right">
+                    <button type="button" class="btn btn-ghost" data-close-product-modal>Cancel</button>
+                    <button type="button" id="save-product-button" class="btn btn-primary btn-md">Save Product</button>
+                </div>
             </div>
         </div>
-    </section>
-</main>
+    </div>
 
-<div id="product-modal-overlay" class="modal-overlay">
-    <div class="modal">
-        <div class="modal-header">
-            <div>
-                <h3 id="product-modal-title" class="modal-title">Create Product</h3>
-                <p id="product-modal-subtitle" class="modal-subtitle">Draft mode</p>
+    <template id="admin-image-card-template">
+        <div class="admin-modal-card image-card-row">
+            <div class="admin-modal-card-preview">
+                <img class="admin-image-preview" alt="Product image preview" />
+                <div class="admin-image-preview-empty">
+                    <span class="material-symbols-outlined">image</span>
+                </div>
             </div>
-            <button type="button" class="modal-close" data-close-product-modal>
-                <span class="material-symbols-outlined">close</span>
+            <div class="admin-modal-card-fields">
+                <input class="input admin-image-url" type="url" placeholder="https://example.com/image.jpg" />
+                <input class="input admin-image-alt" type="text" placeholder="Alt text" />
+                <div class="admin-image-row-meta">
+                    <input class="input admin-image-order" type="number" min="0" step="1" placeholder="Order" />
+                    <label class="admin-inline-checkbox">
+                        <input class="checkbox admin-image-primary" type="checkbox" />
+                        <span>Main image</span>
+                    </label>
+                    <button type="button" class="btn-icon btn-icon-danger admin-remove-image-row">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="admin-spec-row-template">
+        <div class="modal-spec-row admin-spec-row-item">
+            <input class="modal-spec-key admin-spec-key-input" type="text" placeholder="Spec name" />
+            <div class="admin-spec-value-group">
+                <input class="modal-spec-value admin-spec-value-input" type="text" placeholder="Spec value" />
+                <input class="input admin-spec-unit-input" type="text" placeholder="Unit" />
+                <input class="input admin-spec-order-input" type="number" min="0" step="1" placeholder="Order" />
+            </div>
+            <button type="button" class="modal-spec-remove admin-remove-spec-row">
+                <span class="material-symbols-outlined" style="font-size:0.875rem;">remove_circle</span>
             </button>
         </div>
-        <div class="modal-body">
-            <aside class="modal-tabs">
-                <button type="button" class="modal-tab active" data-tab-target="basic">
-                    <span class="material-symbols-outlined">info</span>
-                    Basic Info
-                </button>
-                <button type="button" class="modal-tab" data-tab-target="images">
-                    <span class="material-symbols-outlined">image</span>
-                    Images
-                </button>
-                <button type="button" class="modal-tab" data-tab-target="specs">
-                    <span class="material-symbols-outlined">settings_input_component</span>
-                    Specifications
-                </button>
-            </aside>
-            <div class="modal-content">
-                <section class="modal-panel" data-tab-panel="basic">
-                    <div class="modal-form-group">
-                        <div class="modal-form-row">
-                            <div>
-                                <label class="modal-form-label" for="product-name-input">Product Name</label>
-                                <input id="product-name-input" class="input" type="text"/>
-                            </div>
-                            <div>
-                                <label class="modal-form-label" for="product-slug-input">Slug</label>
-                                <input id="product-slug-input" class="input" type="text"/>
-                            </div>
-                        </div>
-                        <div class="modal-form-row">
-                            <div>
-                                <label class="modal-form-label" for="product-brand-input">Brand</label>
-                                <input id="product-brand-input" class="input" type="text" list="admin-brand-options"/>
-                                <datalist id="admin-brand-options">
-                                    <option th:each="brandName : ${allBrands}" th:value="${brandName}"></option>
-                                </datalist>
-                            </div>
-                            <div>
-                                <label class="modal-form-label" for="product-model-input">Model</label>
-                                <input id="product-model-input" class="input" type="text"/>
-                            </div>
-                        </div>
-                        <div class="modal-form-row">
-                            <div>
-                                <label class="modal-form-label" for="product-category-input">Category</label>
-                                <select id="product-category-input" class="select">
-                                    <option value="">Uncategorized</option>
-                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="modal-form-label" for="product-status-input">Target Status</label>
-                                <select id="product-status-input" class="select">
-                                    <option value="DRAFT">Draft</option>
-                                    <option value="PUBLISHED">Published</option>
-                                    <option value="HIDDEN">Hidden</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-form-row">
-                            <div>
-                                <label class="modal-form-label" for="product-price-input">Price</label>
-                                <input id="product-price-input" class="input" type="number" min="0" step="1000"/>
-                            </div>
-                            <div>
-                                <label class="modal-form-label" for="product-currency-input">Currency</label>
-                                <input id="product-currency-input" class="input" type="text" value="VND"/>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="modal-form-label" for="product-short-description-input">Short Description</label>
-                            <textarea id="product-short-description-input" class="input" rows="3"></textarea>
-                        </div>
-                        <div>
-                            <label class="modal-form-label" for="product-description-input">Description</label>
-                            <textarea id="product-description-input" class="input" rows="7"></textarea>
-                        </div>
-                        <label class="toggle-wrap">
-                            <span class="modal-form-label" style="margin-bottom:0;">Allow Comments</span>
-                            <span class="switch">
-                                <input id="product-allow-comments-input" type="checkbox" checked/>
-                                <span class="switch-track"></span>
-                            </span>
-                        </label>
-                    </div>
-                </section>
+    </template>
 
-                <section class="modal-panel" data-tab-panel="images" hidden>
-                    <div class="modal-section-block">
-                        <div class="modal-section-header-row">
-                            <h4 class="modal-section-title">Product Images</h4>
-                            <button type="button" id="add-image-row" class="btn btn-ghost">Add Image</button>
-                        </div>
-                        <div id="modal-images-grid" class="modal-images-grid admin-modal-list"></div>
-                    </div>
-                </section>
-
-                <section class="modal-panel" data-tab-panel="specs" hidden>
-                    <div class="modal-section-block">
-                        <div class="modal-section-header-row">
-                            <h4 class="modal-section-title">Technical Specifications</h4>
-                            <button type="button" id="add-spec-row" class="btn btn-ghost">Add Spec</button>
-                        </div>
-                        <div id="spec-rows" class="admin-spec-list"></div>
-                    </div>
-                </section>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div class="modal-footer-left">
-                <span id="product-modal-status" class="modal-helper-text">Ready</span>
-            </div>
-            <div class="modal-footer-right">
-                <button type="button" class="btn btn-ghost" data-close-product-modal>Cancel</button>
-                <button type="button" id="save-product-button" class="btn btn-primary btn-md">Save Product</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<template id="admin-image-card-template">
-    <div class="admin-modal-card image-card-row">
-        <div class="admin-modal-card-preview">
-            <img class="admin-image-preview" alt="Product image preview"/>
-            <div class="admin-image-preview-empty">
-                <span class="material-symbols-outlined">image</span>
-            </div>
-        </div>
-        <div class="admin-modal-card-fields">
-            <input class="input admin-image-url" type="url" placeholder="https://example.com/image.jpg"/>
-            <input class="input admin-image-alt" type="text" placeholder="Alt text"/>
-            <div class="admin-image-row-meta">
-                <input class="input admin-image-order" type="number" min="0" step="1" placeholder="Order"/>
-                <label class="admin-inline-checkbox">
-                    <input class="checkbox admin-image-primary" type="checkbox"/>
-                    <span>Main image</span>
-                </label>
-                <button type="button" class="btn-icon btn-icon-danger admin-remove-image-row">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</template>
-
-<template id="admin-spec-row-template">
-    <div class="modal-spec-row admin-spec-row-item">
-        <input class="modal-spec-key admin-spec-key-input" type="text" placeholder="Spec name"/>
-        <div class="admin-spec-value-group">
-            <input class="modal-spec-value admin-spec-value-input" type="text" placeholder="Spec value"/>
-            <input class="input admin-spec-unit-input" type="text" placeholder="Unit"/>
-            <input class="input admin-spec-order-input" type="number" min="0" step="1" placeholder="Order"/>
-        </div>
-        <button type="button" class="modal-spec-remove admin-remove-spec-row">
-            <span class="material-symbols-outlined" style="font-size:0.875rem;">remove_circle</span>
-        </button>
-    </div>
-</template>
-
-<script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
 </body>
-</html>
 
+</html>

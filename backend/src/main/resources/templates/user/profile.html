@@ -1,32 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ cá nhân | TechNexus</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Hồ sơ cá nhân | TechNexus', 'style.css')}"></head>
 <body>
 <div class="site-shell" data-page="profile" data-profile-inline="true">
-    <header class="topbar">
-        <a class="brand" href="/">
-            <span class="brand-mark"></span>
-            <span class="brand-name">Tech<span>Nexus</span></span>
-        </a>
-
-        <nav class="topbar-links">
-            <a href="/">Trang chủ</a>
-            <a href="/profile" class="is-active">Hồ sơ</a>
-            <a href="/author/posts" data-author-link style="display:none;">Author Hub</a>
-            <a href="/admin/posts" data-admin-posts-link style="display:none;">Admin</a>
-            <a href="/admin/users" data-admin-users-link style="display:none;">Quản lý user</a>
-        </nav>
-
-        <div class="topbar-actions">
-            <a class="outline-button" href="/">Về trang chủ</a>
-            <button class="outline-button logout-button" type="button" data-logout>Đăng xuất</button>
-        </div>
-    </header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
     <main class="app-page">
         <div class="dashboard-shell profile-shell profile-shell--tabs">
@@ -198,9 +175,7 @@
         </div>
     </main>
 
-    <footer class="page-footer">
-        © 2026 TechNexus. Personal workspace for account settings.
-    </footer>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </div>
 
 <div class="toast-stack" data-toast-stack></div>

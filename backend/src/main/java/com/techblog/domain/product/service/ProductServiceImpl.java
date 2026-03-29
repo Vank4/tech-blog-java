@@ -1,7 +1,10 @@
 package com.techblog.domain.product.service;
 
+import com.techblog.common.enums.ContentStatus;
 import com.techblog.common.enums.ProductStatus;
 import com.techblog.common.exception.ResourceNotFoundException;
+import com.techblog.domain.ai.model.ProductSentimentSummary;
+import com.techblog.domain.ai.repository.ProductSentimentSummaryRepository;
 import com.techblog.domain.product.dto.ProductDiscussionResponse;
 import com.techblog.domain.category.model.Category;
 import com.techblog.domain.category.repository.CategoryRepository;
@@ -9,6 +12,7 @@ import com.techblog.domain.product.dto.CreateProductRequest;
 import com.techblog.domain.product.dto.ProductImageRequest;
 import com.techblog.domain.product.dto.ProductImageResponse;
 import com.techblog.domain.product.dto.ProductResponse;
+import com.techblog.domain.product.dto.ProductSentimentSummaryResponse;
 import com.techblog.domain.product.dto.ProductSpecRequest;
 import com.techblog.domain.product.dto.ProductSpecResponse;
 import com.techblog.domain.product.dto.ProductStatusUpdateRequest;
@@ -24,6 +28,7 @@ import com.techblog.domain.user.model.User;
 import com.techblog.domain.user.repository.UserRepository;
 import jakarta.persistence.criteria.JoinType;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -45,6 +50,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductImageRepository productImageRepository;
     private final ProductSpecRepository productSpecRepository;
     private final ReviewRepository reviewRepository;
+    private final ProductSentimentSummaryRepository productSentimentSummaryRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -86,10 +92,8 @@ public class ProductServiceImpl implements ProductService {
                 .filter(product -> maxPrice == null || product.getPrice() == null || product.getPrice().compareTo(maxPrice) <= 0)
                 .filter(product -> minRating == null || product.getRatingAverage() == null
                         || product.getRatingAverage().compareTo(BigDecimal.valueOf(minRating)) >= 0)
-                .sorted(resolveSort(sort).getOrderFor("publishedAt") != null
-                        ? Comparator.comparing(Product::getPublishedAt, Comparator.nullsLast(Comparator.reverseOrder()))
-                        : Comparator.comparing(Product::getId).reversed())
-                .map(product -> mapToResponse(product, true))
+                .sorted(resolveComparator(sort))
+                .map(product -> mapToResponse(product, false))
                 .toList();
     }
 
@@ -119,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductDiscussionResponse> getPublicProductDiscussions(Long productId) {
-        return reviewRepository.findByProductIdAndStatusOrderByPublishedAtDesc(productId, com.techblog.common.enums.ContentStatus.PUBLISHED)
+        return reviewRepository.findByProductIdAndStatusOrderByPublishedAtDesc(productId, ContentStatus.PUBLISHED)
                 .stream()
                 .map(this::mapDiscussionResponse)
                 .toList();
@@ -138,8 +142,14 @@ public class ProductServiceImpl implements ProductService {
                 .filter(product -> !StringUtils.hasText(status)
                         || product.getStatus().name().equalsIgnoreCase(status))
                 .sorted(Comparator.comparing(Product::getId).reversed())
-                .map(product -> mapToResponse(product, true))
+                .map(product -> mapToResponse(product, false))
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductResponse getProductForAdmin(Long id) {
+        return mapToResponse(getProductById(id), true);
     }
 
     @Override
@@ -180,8 +190,10 @@ public class ProductServiceImpl implements ProductService {
         }
 
         ProductStatus nextStatus = request.getStatus();
-        if (nextStatus != ProductStatus.PUBLISHED && nextStatus != ProductStatus.HIDDEN) {
-            throw new IllegalArgumentException("Only PUBLISHED or HIDDEN are supported in this endpoint");
+        if (nextStatus != ProductStatus.PUBLISHED
+                && nextStatus != ProductStatus.HIDDEN
+                && nextStatus != ProductStatus.DRAFT) {
+            throw new IllegalArgumentException("Only DRAFT, PUBLISHED, or HIDDEN are supported in this endpoint");
         }
 
         product.setStatus(nextStatus);
@@ -232,6 +244,30 @@ public class ProductServiceImpl implements ProductService {
         }
 
         image.setPrimary(shouldSetMain);
+        return mapImageResponse(productImageRepository.save(image));
+    }
+
+    @Override
+    public ProductImageResponse updateImage(Long productId, Long imageId, ProductImageRequest request) {
+        getProductById(productId);
+
+        List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(productId);
+        ProductImage image = images.stream()
+                .filter(candidate -> candidate.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Product image not found"));
+
+        image.setImageUrl(request.getImageUrl().trim());
+        image.setAltText(normalizeNullable(request.getAltText()));
+        image.setDisplayOrder(request.getDisplayOrder());
+
+        if (request.isPrimary()) {
+            clearPrimaryFlag(images);
+            image.setPrimary(true);
+        } else {
+            image.setPrimary(false);
+        }
+
         return mapImageResponse(productImageRepository.save(image));
     }
 
@@ -354,15 +390,74 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Sort resolveSort(String sort) {
-        if ("rating-asc".equalsIgnoreCase(sort)) {
+        String normalizedSort = normalizeSort(sort);
+
+        if ("rating-asc".equals(normalizedSort) || "rating_asc".equals(normalizedSort)) {
             return Sort.by(Sort.Order.asc("ratingAverage"), Sort.Order.asc("id"));
         }
 
-        if ("latest".equalsIgnoreCase(sort)) {
+        if ("price-asc".equals(normalizedSort) || "price_asc".equals(normalizedSort)) {
+            return Sort.by(Sort.Order.asc("price"), Sort.Order.desc("ratingAverage"), Sort.Order.desc("id"));
+        }
+
+        if ("price-desc".equals(normalizedSort) || "price_desc".equals(normalizedSort)) {
+            return Sort.by(Sort.Order.desc("price"), Sort.Order.desc("ratingAverage"), Sort.Order.desc("id"));
+        }
+
+        if ("latest".equals(normalizedSort) || "newest".equals(normalizedSort)) {
             return Sort.by(Sort.Order.desc("publishedAt"), Sort.Order.desc("id"));
         }
 
+        if ("reviews".equals(normalizedSort)) {
+            return Sort.by(Sort.Order.desc("ratingCount"), Sort.Order.desc("ratingAverage"), Sort.Order.desc("id"));
+        }
+
         return Sort.by(Sort.Order.desc("ratingAverage"), Sort.Order.desc("ratingCount"), Sort.Order.desc("id"));
+    }
+
+    private Comparator<Product> resolveComparator(String sort) {
+        String normalizedSort = normalizeSort(sort);
+
+        if ("rating-asc".equals(normalizedSort) || "rating_asc".equals(normalizedSort)) {
+            return Comparator.comparing(Product::getRatingAverage, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparingInt(Product::getRatingCount)
+                    .thenComparing(Product::getId);
+        }
+
+        if ("price-asc".equals(normalizedSort) || "price_asc".equals(normalizedSort)) {
+            return Comparator.comparing(Product::getPrice, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(Comparator.comparing(Product::getRatingAverage, Comparator.nullsLast(Comparator.reverseOrder())))
+                    .thenComparing(Comparator.comparing(Product::getId, Comparator.reverseOrder()));
+        }
+
+        if ("price-desc".equals(normalizedSort) || "price_desc".equals(normalizedSort)) {
+            return Comparator.comparing(Product::getPrice, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(Comparator.comparing(Product::getRatingAverage, Comparator.nullsLast(Comparator.reverseOrder())))
+                    .thenComparing(Comparator.comparing(Product::getId, Comparator.reverseOrder()));
+        }
+
+        if ("latest".equals(normalizedSort) || "newest".equals(normalizedSort)) {
+            return Comparator.comparing(Product::getPublishedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(Comparator.comparing(Product::getId, Comparator.reverseOrder()));
+        }
+
+        if ("reviews".equals(normalizedSort)) {
+            return Comparator.comparingInt(Product::getRatingCount).reversed()
+                    .thenComparing(Comparator.comparing(Product::getRatingAverage, Comparator.nullsLast(Comparator.reverseOrder())))
+                    .thenComparing(Comparator.comparing(Product::getId, Comparator.reverseOrder()));
+        }
+
+        return Comparator.comparing(Product::getRatingAverage, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(Comparator.comparingInt(Product::getRatingCount).reversed())
+                .thenComparing(Comparator.comparing(Product::getId, Comparator.reverseOrder()));
+    }
+
+    private String normalizeSort(String sort) {
+        if (!StringUtils.hasText(sort)) {
+            return "rating";
+        }
+
+        return sort.trim().toLowerCase();
     }
 
     private ProductResponse mapToResponse(Product product, boolean includeAssets) {
@@ -392,6 +487,8 @@ public class ProductServiceImpl implements ProductService {
         response.setThumbnailUrl(resolveThumbnail(images));
 
         if (includeAssets) {
+            response.setReviewScore(resolveReviewScore(product.getId()));
+            response.setSentiment(resolveSentimentSummary(product.getId()));
             response.setImages(images.stream()
                     .map(this::mapImageResponse)
                     .toList());
@@ -421,6 +518,39 @@ public class ProductServiceImpl implements ProductService {
         response.setAltText(image.getAltText());
         response.setPrimary(image.isPrimary());
         response.setDisplayOrder(image.getDisplayOrder());
+        return response;
+    }
+
+    private BigDecimal resolveReviewScore(Long productId) {
+        List<Review> reviews = reviewRepository.findByProductIdAndStatusOrderByPublishedAtDesc(productId, ContentStatus.PUBLISHED);
+        if (reviews.isEmpty()) {
+            return null;
+        }
+
+        BigDecimal total = reviews.stream()
+                .map(Review::getOverallScore)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return total.divide(BigDecimal.valueOf(reviews.size()), 2, RoundingMode.HALF_UP);
+    }
+
+    private ProductSentimentSummaryResponse resolveSentimentSummary(Long productId) {
+        return productSentimentSummaryRepository.findByProductId(productId)
+                .map(this::mapSentimentSummary)
+                .orElse(null);
+    }
+
+    private ProductSentimentSummaryResponse mapSentimentSummary(ProductSentimentSummary summary) {
+        ProductSentimentSummaryResponse response = new ProductSentimentSummaryResponse();
+        response.setTotalComments(summary.getTotalComments());
+        response.setPositiveCount(summary.getPositiveCount());
+        response.setNegativeCount(summary.getNegativeCount());
+        response.setNeutralCount(summary.getNeutralCount());
+        response.setPositiveRatio(summary.getPositiveRatio());
+        response.setNegativeRatio(summary.getNegativeRatio());
+        response.setNeutralRatio(summary.getNeutralRatio());
+        response.setConclusion(summary.getConclusion());
+        response.setLastCalculatedAt(summary.getLastCalculatedAt());
         return response;
     }
 

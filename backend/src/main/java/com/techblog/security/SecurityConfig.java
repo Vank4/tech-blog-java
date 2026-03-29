@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/register", "/signup", "/profile", "/post/**").permitAll()
+                        .requestMatchers("/products", "/products/**", "/compare").permitAll()
                         .requestMatchers("/author/**", "/admin/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
 
@@ -72,6 +73,7 @@ public class SecurityConfig {
                         // Quản lý Danh mục & Thẻ (Chỉ Admin mới có quyền CRUD)
                         .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/products/**").hasRole("ADMIN")
 
                         // Nghiệp vụ kiểm duyệt (Approve/Reject/Hide/Featured/Logs)
                         .requestMatchers("/api/v1/posts/*/approve").hasRole("ADMIN")

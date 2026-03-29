@@ -4,6 +4,8 @@ import com.techblog.domain.category.dto.CategoryResponse;
 import com.techblog.domain.category.dto.CreateCategoryRequest;
 import com.techblog.domain.category.model.Category;
 import com.techblog.domain.category.repository.CategoryRepository;
+// DÒNG IMPORT QUAN TRỌNG VỪA ĐƯỢC THÊM VÀO ĐÂY 👇
+import com.techblog.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final PostRepository postRepository;
 
     @Transactional
     public CategoryResponse createCategory(CreateCategoryRequest request) {
@@ -27,7 +30,6 @@ public class CategoryService {
         category.setName(request.getName());
         category.setSlug(request.getSlug());
         category.setType(request.getType());
-
 
         category.setActive(true);
 
@@ -46,7 +48,6 @@ public class CategoryService {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
-
 
     @Transactional
     public void disableCategory(Long id) {
@@ -76,6 +77,7 @@ public class CategoryService {
 
         if (category.getParent() != null) {
             res.setParentId(category.getParent().getId());
+            res.setParentName(category.getParent().getName());
         }
         return res;
     }
@@ -113,5 +115,20 @@ public class CategoryService {
         }
 
         return mapToResponse(categoryRepository.save(category));
+    }
+
+    @Transactional
+    public void deleteCategory(Long categoryId) {
+        // 1. Tìm xem danh mục có tồn tại không
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
+
+        // 2. Kiểm tra an toàn: Nếu danh mục đang có bài viết thì KHÔNG CHO XÓA
+        if (postRepository.existsByCategoryId(categoryId)) {
+            throw new RuntimeException("Không thể xóa! Đang có bài viết thuộc danh mục này.");
+        }
+
+        // 3. Nếu không vướng bài viết nào, tiến hành xóa
+        categoryRepository.delete(category);
     }
 }

@@ -44,6 +44,32 @@
     };
 
     const getToken = () => localStorage.getItem("techblog.accessToken");
+    const fetchCurrentProfile = async () => {
+        const { response, data } = await authFetch("/api/v1/users/me");
+        return {
+            response,
+            data,
+            profile: data.data || {},
+            roles: data.data?.roles || []
+        };
+    };
+
+    const getPostLoginRedirect = (roles = []) => {
+        const next = url.searchParams.get("next");
+        if (next) {
+            return next;
+        }
+
+        if (roles.includes("ADMIN")) {
+            return "/admin/posts";
+        }
+
+        if (roles.includes("AUTHOR")) {
+            return "/author/posts";
+        }
+
+        return "/profile";
+    };
 
     const authFetch = async (input, init = {}) => {
         const token = getToken();
@@ -108,19 +134,23 @@
 
         button.disabled = isLoading;
         button.textContent = isLoading
-                ? button.dataset.loadingLabel || "Đang xử lý..."
-                : button.dataset.defaultLabel || "Gửi";
+            ? button.dataset.loadingLabel || "Đang xử lý..."
+            : button.dataset.defaultLabel || "Gửi";
     };
 
-    const roleBadge = (role) => `<span class="badge is-accent">${role}</span>`;
+    const roleBadge = (role) => `
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+            ${role}
+        </span>
+    `;
     const statusBadge = (status) => {
         const key = (status || "").toUpperCase();
         const map = {
-            ACTIVE: "is-success",
-            BANNED: "is-danger",
-            INACTIVE: "is-warning"
+            ACTIVE: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+            BANNED: "bg-rose-500/10 text-rose-300 border-rose-500/20",
+            INACTIVE: "bg-amber-500/10 text-amber-300 border-amber-500/20"
         };
-        return `<span class="badge ${map[key] || ""}">${key || "UNKNOWN"}</span>`;
+        return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${map[key] || "bg-slate-800 text-slate-300 border-slate-700"}">${key || "UNKNOWN"}</span>`;
     };
 
     const setupAuthForms = () => {
@@ -175,25 +205,20 @@
 
                     if (formType === "login" && data.data?.accessToken) {
                         localStorage.setItem("techblog.accessToken", data.data.accessToken);
-                        setFormMessage(form, "success", "Đăng nhập thành công. Phiên làm việc đã được lưu trong trình duyệt.");
-                        const next = url.searchParams.get("next") || "/";
+                        setFormMessage(form, "success", "Đăng nhập thành công. Đang chuyển đến khu vực phù hợp...");
+                        const roles = Array.isArray(data.data.roles) ? data.data.roles : Array.from(data.data.roles || []);
+                        const target = getPostLoginRedirect(roles);
                         setTimeout(() => {
-                            window.location.href = next;
+                            window.location.href = target;
                         }, 900);
                         return;
                     }
 
                     if (formType === "register") {
-                        const email = payload.email || "";
                         form.reset();
-                        setFormMessage(form, "success", "Đăng ký thành công. Đang chuyển sang trang đăng nhập...");
+                        setFormMessage(form, "success", "Đăng ký thành công. Đang chuyển về trang chủ...");
                         setTimeout(() => {
-                            const loginUrl = new URL("/login", window.location.origin);
-                            loginUrl.searchParams.set("registered", "1");
-                            if (email) {
-                                loginUrl.searchParams.set("email", email);
-                            }
-                            window.location.href = loginUrl.toString();
+                            window.location.href = "/?registered=1";
                         }, 1200);
                         return;
                     }
@@ -210,19 +235,7 @@
 
         const loginForm = document.querySelector('[data-auth-form="login"]');
         if (loginForm) {
-            const emailField = loginForm.querySelector('input[name="email"]');
-            const rememberedEmail = url.searchParams.get("email");
-            if (emailField && rememberedEmail) {
-                emailField.value = rememberedEmail;
-            }
-
-            if (url.searchParams.get("registered") === "1") {
-                setFormMessage(
-                    loginForm,
-                    "success",
-                    "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập."
-                );
-            } else if (url.searchParams.get("unauthorized") === "1") {
+            if (url.searchParams.get("unauthorized") === "1") {
                 setFormMessage(
                     loginForm,
                     "error",
@@ -230,7 +243,7 @@
                 );
             }
 
-            ["registered", "unauthorized", "email", "next"].forEach((key) => url.searchParams.delete(key));
+            ["unauthorized", "next"].forEach((key) => url.searchParams.delete(key));
             window.history.replaceState({}, "", `${url.pathname}${url.search}`);
         }
     };
@@ -239,7 +252,7 @@
         document.querySelectorAll("[data-logout]").forEach((button) => {
             button.addEventListener("click", () => {
                 localStorage.removeItem("techblog.accessToken");
-                window.location.href = "/login";
+                window.location.href = "/";
             });
         });
     };
@@ -247,6 +260,10 @@
     const setupProfilePage = async () => {
         const root = document.querySelector("[data-page='profile']");
         if (!root) {
+            return;
+        }
+
+        if (root.dataset.profileInline === "true") {
             return;
         }
 
@@ -265,6 +282,7 @@
         const summaryStatus = root.querySelector("[data-profile-status-badge]");
         const summaryVerified = root.querySelector("[data-profile-verified]");
         const avatar = root.querySelector("[data-profile-avatar]");
+        const avatarFallback = root.querySelector("[data-profile-avatar-fallback]");
         const countRoles = root.querySelector("[data-stat-roles]");
         const countVerified = root.querySelector("[data-stat-verified]");
         const countStatus = root.querySelector("[data-stat-status]");
@@ -285,17 +303,45 @@
                 summaryRoles.innerHTML = (profile.roles || []).map(roleBadge).join("") || '<span class="badge">Chưa có role</span>';
                 summaryStatus.innerHTML = statusBadge(profile.status);
                 summaryVerified.innerHTML = profile.emailVerified
-                        ? '<span class="badge is-success">Đã xác thực email</span>'
-                        : '<span class="badge is-warning">Chưa xác thực email</span>';
-                avatar.textContent = (profile.fullName || profile.email || "U").trim().charAt(0).toUpperCase();
+                    ? '<span class="badge is-success">Đã xác thực email</span>'
+                    : '<span class="badge is-warning">Chưa xác thực email</span>';
+                const avatarText = (profile.fullName || profile.email || "U").trim().charAt(0).toUpperCase();
+                if (avatarFallback) {
+                    avatarFallback.textContent = avatarText;
+                } else if (avatar) {
+                    avatar.textContent = avatarText;
+                }
 
                 profileForm.querySelector('[name="fullName"]').value = profile.fullName || "";
                 profileForm.querySelector('[name="avatarUrl"]').value = profile.avatarUrl || "";
                 profileForm.querySelector('[name="bio"]').value = profile.bio || "";
 
-                countRoles.textContent = `${(profile.roles || []).length}`;
-                countVerified.textContent = profile.emailVerified ? "Yes" : "No";
-                countStatus.textContent = profile.status || "UNKNOWN";
+                if (countRoles) {
+                    countRoles.textContent = `${(profile.roles || []).length}`;
+                }
+                if (countVerified) {
+                    countVerified.textContent = profile.emailVerified ? "Yes" : "No";
+                }
+                if (countStatus) {
+                    countStatus.textContent = profile.status || "UNKNOWN";
+                }
+
+                const authorLink = root.querySelector("[data-author-link]");
+                const adminPostsLink = root.querySelector("[data-admin-posts-link]");
+                const adminUsersLink = root.querySelector("[data-admin-users-link]");
+                const roles = profile.roles || [];
+
+                if (authorLink) {
+                    authorLink.style.display = roles.includes("AUTHOR") || roles.includes("ADMIN") ? "inline-flex" : "none";
+                }
+
+                if (adminPostsLink) {
+                    adminPostsLink.style.display = roles.includes("ADMIN") ? "inline-flex" : "none";
+                }
+
+                if (adminUsersLink) {
+                    adminUsersLink.style.display = roles.includes("ADMIN") ? "inline-flex" : "none";
+                }
             } catch (error) {
                 if (error.message !== "UNAUTHORIZED") {
                     setMessage(statusBox, "error", "Không thể tải hồ sơ từ máy chủ.");
@@ -410,14 +456,29 @@
         let currentUser = null;
         let totalElements = 0;
 
+        try {
+            const { response, roles } = await fetchCurrentProfile();
+            if (!response.ok || !roles.includes("ADMIN")) {
+                window.location.href = "/profile";
+                return;
+            }
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return;
+        }
+
         const renderDetails = (user) => {
             currentUser = user;
             detailName.textContent = user ? user.fullName || "Chưa có tên hiển thị" : "Chưa chọn người dùng";
             detailMeta.textContent = user ? user.email || "" : "Chọn một người dùng trong bảng để xem chi tiết và thao tác.";
             detailRoles.innerHTML = user
-                    ? (user.roles || []).map(roleBadge).join("") || '<span class="badge">Không có role</span>'
-                    : '<span class="badge">Chưa có dữ liệu</span>';
-            detailStatus.innerHTML = user ? statusBadge(user.status) : '<span class="badge">Unknown</span>';
+                ? (user.roles || []).map(roleBadge).join("") || '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Không có role</span>'
+                : '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Chưa có dữ liệu</span>';
+            detailStatus.innerHTML = user
+                ? statusBadge(user.status)
+                : '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">UNKNOWN</span>';
             detailCreated.textContent = user ? formatDate(user.createdAt) : "Chưa có dữ liệu";
 
             if (rolesForm) {
@@ -435,10 +496,8 @@
             if (!users.length) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="6">
-                            <div class="empty-box">
-                                <p class="empty-copy">Không tìm thấy người dùng phù hợp với bộ lọc hiện tại.</p>
-                            </div>
+                        <td colspan="6" class="px-6 py-10 text-center text-slate-500">
+                            Không tìm thấy người dùng phù hợp với bộ lọc hiện tại.
                         </td>
                     </tr>
                 `;
@@ -446,23 +505,41 @@
             }
 
             tableBody.innerHTML = users.map((user) => `
-                <tr class="${currentUser && currentUser.id === user.id ? "row-active" : ""}">
-                    <td>
-                        <div class="user-title">
-                            <strong>${user.fullName || "Chưa có tên"}</strong>
-                            <span class="muted">${user.email || ""}</span>
+                <tr class="border-b border-slate-800/50 transition-colors ${currentUser && currentUser.id === user.id ? "bg-primary/10" : "hover:bg-slate-800/30"}">
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col gap-1">
+                            <strong class="text-white font-semibold">${user.fullName || "Chưa có tên"}</strong>
+                            <span class="text-slate-400">${user.email || ""}</span>
                         </div>
                     </td>
-                    <td>${statusBadge(user.status)}</td>
-                    <td>${user.emailVerified ? '<span class="badge is-success">Đã xác thực</span>' : '<span class="badge is-warning">Chưa xác thực</span>'}</td>
-                    <td>${(user.roles || []).map(roleBadge).join("")}</td>
-                    <td>${formatDate(user.createdAt)}</td>
-                    <td><button class="outline-button" type="button" data-select-user="${user.id}">Chi tiết</button></td>
+                    <td class="px-6 py-4 text-center">${statusBadge(user.status)}</td>
+                    <td class="px-6 py-4 text-center">${user.emailVerified ? '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Đã xác thực</span>' : '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">Chưa xác thực</span>'}</td>
+                    <td class="px-6 py-4"><div class="flex flex-wrap items-center justify-center gap-2">${(user.roles || []).map(roleBadge).join("")}</div></td>
+                    <td class="px-6 py-4 text-slate-300">${formatDate(user.createdAt)}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-700 text-slate-200 hover:text-white hover:border-primary/40 hover:bg-slate-800 transition-colors" type="button" data-select-user="${user.id}">
+                            Chi tiết
+                        </button>
+                    </td>
                 </tr>
             `).join("");
 
             tableBody.querySelectorAll("[data-select-user]").forEach((button) => {
                 button.addEventListener("click", () => loadUserDetail(button.dataset.selectUser));
+            });
+
+            tableBody.querySelectorAll("tr").forEach((row) => {
+                const button = row.querySelector("[data-select-user]");
+                if (!button) {
+                    return;
+                }
+
+                row.addEventListener("click", (event) => {
+                    if (event.target.closest("button")) {
+                        return;
+                    }
+                    loadUserDetail(button.dataset.selectUser);
+                });
             });
         };
 

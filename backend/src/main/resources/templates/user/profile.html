@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<div class="site-shell" data-page="profile">
+<div class="site-shell" data-page="profile" data-profile-inline="true">
     <header class="topbar">
         <a class="brand" href="/">
             <span class="brand-mark"></span>
@@ -17,91 +17,108 @@
         <nav class="topbar-links">
             <a href="/">Trang chủ</a>
             <a href="/profile" class="is-active">Hồ sơ</a>
-            <a href="/admin/users">Admin users</a>
+            <a href="/author/posts" data-author-link style="display:none;">Author Hub</a>
+            <a href="/admin/posts" data-admin-posts-link style="display:none;">Admin</a>
+            <a href="/admin/users" data-admin-users-link style="display:none;">Quản lý user</a>
         </nav>
 
         <div class="topbar-actions">
-            <a class="outline-button" href="/admin/users">Bảng quản trị</a>
+            <a class="outline-button" href="/">Về trang chủ</a>
             <button class="outline-button logout-button" type="button" data-logout>Đăng xuất</button>
         </div>
     </header>
 
     <main class="app-page">
-        <div class="dashboard-shell">
-            <aside class="side-panel">
-                <p class="section-label">Personal Console</p>
+        <div class="dashboard-shell profile-shell profile-shell--tabs">
+            <aside class="side-panel profile-identity-panel">
                 <div class="profile-summary">
-                    <div class="avatar-ring" data-profile-avatar>U</div>
-                    <div>
-                        <h2 data-profile-name>Đang tải hồ sơ...</h2>
+                    <div class="avatar-ring avatar-ring--large" data-profile-avatar>
+                        <img class="avatar-photo" data-profile-avatar-image alt="Ảnh đại diện người dùng" style="display:none;">
+                        <span data-profile-avatar-fallback>U</span>
                     </div>
-                    <div class="meta-stack">
-                        <span data-profile-email>Đang tải email...</span>
-                    </div>
-                    <div class="badge-row" data-profile-status-badge></div>
-                    <div class="badge-row" data-profile-verified></div>
-                    <div class="badge-row" data-profile-roles></div>
-                    <p class="helper-copy" data-profile-bio>
-                        Hồ sơ cá nhân sẽ hiển thị bio, vai trò hiện tại và trạng thái xác thực email của bạn.
-                    </p>
-                </div>
 
-                <div class="nav-list">
-                    <a class="nav-chip is-active" href="#profile-form">Thông tin cá nhân</a>
-                    <a class="nav-chip" href="#password-form">Đổi mật khẩu</a>
-                    <a class="nav-chip" href="#activity-panel">Khu vực mở rộng</a>
+                    <div class="profile-summary-copy">
+                        <h2 data-profile-name>Đang tải hồ sơ...</h2>
+                        <div class="meta-stack">
+                            <span data-profile-email>Đang tải email...</span>
+                        </div>
+                    </div>
+
+                    <div class="badge-row" data-profile-status-badge></div>
+                    <div data-profile-verified hidden></div>
+                    <div data-profile-roles hidden></div>
+                    <p class="helper-copy" data-profile-bio>Đang tải mô tả hồ sơ...</p>
+
+                    <div data-stat-roles hidden>0</div>
+                    <div data-stat-verified hidden>No</div>
+                    <div data-stat-status hidden>UNKNOWN</div>
                 </div>
             </aside>
 
             <section class="content-panel">
-                <div class="page-heading">
+                <div class="page-heading profile-heading">
                     <div>
-                        <p class="section-label">User Profile</p>
                         <h1>Hồ sơ cá nhân</h1>
-                        <p>
-                            Cập nhật thông tin hiển thị, ảnh đại diện, mô tả cá nhân và quản lý mật khẩu trong cùng
-                            một giao diện tối ưu cho trải nghiệm dark-tech của TechNexus.
-                        </p>
+                        <p>Chỉnh thông tin tài khoản theo từng mục riêng để thao tác rõ ràng, gọn và đúng nhu cầu sử dụng.</p>
                     </div>
                 </div>
 
                 <div class="status-message" data-profile-status></div>
 
-                <div class="stat-grid">
-                    <article class="mini-panel">
-                        <strong data-stat-roles>0</strong>
-                        <span>Số role hiện có</span>
-                    </article>
-                    <article class="mini-panel">
-                        <strong data-stat-verified>No</strong>
-                        <span>Trạng thái xác thực email</span>
-                    </article>
-                    <article class="mini-panel">
-                        <strong data-stat-status>UNKNOWN</strong>
-                        <span>Trạng thái tài khoản</span>
-                    </article>
+                <div class="profile-tabbar">
+                    <button class="profile-tab is-active" type="button" data-profile-tab="info">Thông tin</button>
+                    <button class="profile-tab" type="button" data-profile-tab="password">Đổi mật khẩu</button>
+                    <button class="profile-tab" type="button" data-profile-tab="settings">Cài đặt</button>
                 </div>
 
-                <div class="content-grid">
-                    <article class="data-card" id="profile-form">
-                        <p class="section-label">Profile Info</p>
+                <section class="profile-panel is-active" data-profile-panel="info">
+                    <article class="data-card">
                         <h3>Thông tin cá nhân</h3>
+
                         <form class="stack-form" data-profile-form>
                             <div class="status-message" data-form-message></div>
 
-                            <div class="field">
-                                <label for="profile-full-name">Họ và tên</label>
-                                <input id="profile-full-name" name="fullName" type="text" placeholder="Tên hiển thị của bạn">
-                            </div>
+                            <div class="profile-info-top">
+                                <div class="profile-info-fields">
+                                    <div class="field">
+                                        <label for="profile-email">Email đăng nhập</label>
+                                        <input id="profile-email" type="email" data-profile-email-input readonly>
+                                    </div>
 
-                            <div class="field">
-                                <label for="profile-avatar-url">URL ảnh đại diện</label>
-                                <input id="profile-avatar-url" name="avatarUrl" type="url" placeholder="https://...">
+                                    <div class="field">
+                                        <label for="profile-full-name">Họ và tên</label>
+                                        <input id="profile-full-name" name="fullName" type="text" placeholder="Tên hiển thị của bạn">
+                                        <span class="field-error" data-error-for="fullName"></span>
+                                    </div>
+                                </div>
+
+                                <div class="field profile-avatar-field">
+                                    <label>Ảnh đại diện</label>
+                                    <input id="profile-avatar-url" name="avatarUrl" type="hidden">
+                                    <div class="avatar-upload-box">
+                                        <div class="avatar-preview-card avatar-preview-card--compact">
+                                            <div class="avatar-ring avatar-ring--preview">
+                                                <img class="avatar-photo" data-profile-avatar-preview-image alt="Xem trước ảnh đại diện" style="display:none;">
+                                                <span data-profile-avatar-preview-fallback>U</span>
+                                            </div>
+                                            <div class="avatar-preview-copy">
+                                                <p data-avatar-upload-status>Chưa có ảnh.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="inline-actions">
+                                            <label class="outline-button upload-trigger" for="profile-avatar-file">Tải ảnh lên</label>
+                                            <button class="outline-button" type="button" data-avatar-clear>Xóa ảnh</button>
+                                        </div>
+                                    </div>
+                                    <input id="profile-avatar-file" type="file" accept="image/*" hidden>
+                                </div>
                             </div>
 
                             <div class="field">
                                 <label for="profile-bio">Bio</label>
                                 <textarea id="profile-bio" name="bio" placeholder="Viết vài dòng giới thiệu ngắn về bạn..."></textarea>
+                                <span class="field-error" data-error-for="bio"></span>
                             </div>
 
                             <button class="pill-button" type="submit" data-default-label="Lưu thay đổi" data-loading-label="Đang lưu...">
@@ -109,26 +126,44 @@
                             </button>
                         </form>
                     </article>
+                </section>
 
-                    <article class="data-card" id="password-form">
-                        <p class="section-label">Security</p>
+                <section class="profile-panel" data-profile-panel="password">
+                    <article class="data-card">
                         <h3>Đổi mật khẩu</h3>
+
                         <form class="stack-form" data-password-form>
                             <div class="status-message" data-form-message></div>
 
                             <div class="field">
                                 <label for="current-password">Mật khẩu hiện tại</label>
-                                <input id="current-password" name="currentPassword" type="password" placeholder="Nhập mật khẩu hiện tại">
+                                <div class="password-input-wrap">
+                                    <input id="current-password" name="currentPassword" type="password" placeholder="Nhập mật khẩu hiện tại">
+                                    <button class="input-action" type="button" data-toggle-password="#current-password">Hiện</button>
+                                </div>
+                                <span class="field-error" data-error-for="currentPassword"></span>
                             </div>
 
                             <div class="field">
                                 <label for="new-password">Mật khẩu mới</label>
-                                <input id="new-password" name="newPassword" type="password" placeholder="Ít nhất 6 ký tự">
+                                <div class="password-input-wrap">
+                                    <input id="new-password" name="newPassword" type="password" placeholder="Ít nhất 6 ký tự">
+                                    <button class="input-action" type="button" data-toggle-password="#new-password">Hiện</button>
+                                </div>
+                                <div class="strength-meter">
+                                    <div class="strength-meter-bar" data-password-strength-bar></div>
+                                </div>
+                                <span class="field-hint" data-password-strength-text>Độ mạnh mật khẩu sẽ hiển thị tại đây.</span>
+                                <span class="field-error" data-error-for="newPassword"></span>
                             </div>
 
                             <div class="field">
                                 <label for="confirm-password">Xác nhận mật khẩu mới</label>
-                                <input id="confirm-password" name="confirmPassword" type="password" placeholder="Nhập lại mật khẩu mới">
+                                <div class="password-input-wrap">
+                                    <input id="confirm-password" name="confirmPassword" type="password" placeholder="Nhập lại mật khẩu mới">
+                                    <button class="input-action" type="button" data-toggle-password="#confirm-password">Hiện</button>
+                                </div>
+                                <span class="field-error" data-error-for="confirmPassword"></span>
                             </div>
 
                             <button class="pill-button" type="submit" data-default-label="Cập nhật mật khẩu" data-loading-label="Đang cập nhật...">
@@ -136,38 +171,398 @@
                             </button>
                         </form>
                     </article>
+                </section>
 
-                    <article class="data-card" id="activity-panel">
-                        <p class="section-label">Favorites</p>
-                        <h3>Danh sách yêu thích</h3>
-                        <div class="empty-box">
-                            <p class="empty-copy">
-                                API yêu thích chưa được nối vào trang này, nhưng bố cục đã sẵn sàng để hiển thị thẻ sản phẩm
-                                hoặc bài viết mà người dùng đã lưu.
-                            </p>
-                        </div>
-                    </article>
-
+                <section class="profile-panel" data-profile-panel="settings">
                     <article class="data-card">
-                        <p class="section-label">Compare</p>
-                        <h3>Danh sách so sánh</h3>
-                        <div class="empty-box">
-                            <p class="empty-copy">
-                                Khu vực này dành cho compare list, trạng thái đồng bộ và các gợi ý tiếp tục so sánh khi
-                                module interaction được nối đầy đủ.
-                            </p>
+                        <h3>Cài đặt tài khoản</h3>
+
+                        <div class="stack-form">
+                            <div class="field">
+                                <label>Trạng thái tài khoản</label>
+                                <div class="settings-inline" data-profile-settings-status>
+                                    <span class="badge">Đang tải...</span>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Phiên hiện tại</label>
+                                <div class="empty-box compact-note">
+                                    <p class="empty-copy">Bạn đang đăng nhập trên thiết bị này. Nếu dùng máy lạ, hãy đổi mật khẩu và đăng xuất sau khi sử dụng.</p>
+                                </div>
+                            </div>
                         </div>
                     </article>
-                </div>
+                </section>
             </section>
         </div>
     </main>
 
     <footer class="page-footer">
-        © 2026 TechNexus. Personal workspace for community-driven hardware review.
+        © 2026 TechNexus. Personal workspace for account settings.
     </footer>
 </div>
 
+<div class="toast-stack" data-toast-stack></div>
+
 <script src="/js/main.js"></script>
+<script>
+    (() => {
+        const root = document.querySelector("[data-page='profile']");
+        if (!root) return;
+
+        const token = localStorage.getItem("techblog.accessToken");
+        if (!token) return;
+
+        const summaryName = root.querySelector("[data-profile-name]");
+        const summaryEmail = root.querySelector("[data-profile-email]");
+        const summaryBio = root.querySelector("[data-profile-bio]");
+        const avatarImage = root.querySelector("[data-profile-avatar-image]");
+        const avatarFallback = root.querySelector("[data-profile-avatar-fallback]");
+        const previewImage = root.querySelector("[data-profile-avatar-preview-image]");
+        const previewFallback = root.querySelector("[data-profile-avatar-preview-fallback]");
+        const emailInput = root.querySelector("[data-profile-email-input]");
+        const avatarInput = root.querySelector('[name="avatarUrl"]');
+        const avatarFileInput = root.querySelector("#profile-avatar-file");
+        const avatarClearButton = root.querySelector("[data-avatar-clear]");
+        const avatarUploadStatus = root.querySelector("[data-avatar-upload-status]");
+        const nameInput = root.querySelector('[name="fullName"]');
+        const bioInput = root.querySelector('[name="bio"]');
+        const currentPasswordInput = root.querySelector('[name="currentPassword"]');
+        const newPasswordInput = root.querySelector('[name="newPassword"]');
+        const confirmPasswordInput = root.querySelector('[name="confirmPassword"]');
+        const strengthBar = root.querySelector("[data-password-strength-bar]");
+        const strengthText = root.querySelector("[data-password-strength-text]");
+        const toastStack = document.querySelector("[data-toast-stack]");
+        const profileForm = root.querySelector("[data-profile-form]");
+        const passwordForm = root.querySelector("[data-password-form]");
+        const profileMessageBox = root.querySelector('[data-profile-form] [data-form-message]');
+        const passwordMessageBox = root.querySelector('[data-password-form] [data-form-message]');
+        const settingsStatus = root.querySelector("[data-profile-settings-status]");
+
+        const setFieldError = (fieldName, message) => {
+            const target = root.querySelector(`[data-error-for="${fieldName}"]`);
+            if (!target) return;
+            target.textContent = message || "";
+            target.classList.toggle("is-visible", Boolean(message));
+        };
+
+        const setBoxMessage = (box, kind, message) => {
+            if (!box) return;
+            box.textContent = message || "";
+            box.className = message ? `status-message is-visible is-${kind}` : "status-message";
+        };
+
+        const showToast = (message, kind = "success") => {
+            if (!toastStack || !message) return;
+            const toast = document.createElement("div");
+            toast.className = `toast toast-${kind}`;
+            toast.textContent = message;
+            toastStack.appendChild(toast);
+            window.setTimeout(() => toast.classList.add("is-visible"), 20);
+            window.setTimeout(() => {
+                toast.classList.remove("is-visible");
+                window.setTimeout(() => toast.remove(), 220);
+            }, 2600);
+        };
+
+        const setSubmitLoading = (form, loading) => {
+            const button = form?.querySelector("button[type='submit']");
+            if (!button) return;
+            button.disabled = loading;
+            button.textContent = loading
+                ? button.dataset.loadingLabel || "Đang xử lý..."
+                : button.dataset.defaultLabel || "Gửi";
+        };
+
+        const evaluatePasswordStrength = (value) => {
+            let score = 0;
+            if (value.length >= 8) score += 1;
+            if (/[A-Z]/.test(value)) score += 1;
+            if (/[a-z]/.test(value)) score += 1;
+            if (/\d/.test(value)) score += 1;
+            if (/[^A-Za-z0-9]/.test(value)) score += 1;
+            if (score <= 1) return { label: "Yếu", percent: 20, tone: "weak" };
+            if (score <= 3) return { label: "Trung bình", percent: 60, tone: "medium" };
+            return { label: "Mạnh", percent: 100, tone: "strong" };
+        };
+
+        const validateProfileForm = () => {
+            let isValid = true;
+            const fullName = nameInput?.value?.trim() || "";
+            const bio = bioInput?.value?.trim() || "";
+
+            if (!fullName) {
+                setFieldError("fullName", "Vui lòng nhập họ tên.");
+                isValid = false;
+            } else {
+                setFieldError("fullName", "");
+            }
+
+            if (bio.length > 500) {
+                setFieldError("bio", "Bio không được vượt quá 500 ký tự.");
+                isValid = false;
+            } else {
+                setFieldError("bio", "");
+            }
+
+            return isValid;
+        };
+
+        const validatePasswordForm = () => {
+            let isValid = true;
+            const currentPassword = currentPasswordInput?.value || "";
+            const newPassword = newPasswordInput?.value || "";
+            const confirmPassword = confirmPasswordInput?.value || "";
+
+            if (newPassword || confirmPassword || currentPassword) {
+                if (!currentPassword) {
+                    setFieldError("currentPassword", "Vui lòng nhập mật khẩu hiện tại.");
+                    isValid = false;
+                } else {
+                    setFieldError("currentPassword", "");
+                }
+
+                if (newPassword.length < 6) {
+                    setFieldError("newPassword", "Mật khẩu mới phải có ít nhất 6 ký tự.");
+                    isValid = false;
+                } else {
+                    setFieldError("newPassword", "");
+                }
+
+                if (confirmPassword !== newPassword) {
+                    setFieldError("confirmPassword", "Mật khẩu xác nhận chưa khớp.");
+                    isValid = false;
+                } else {
+                    setFieldError("confirmPassword", "");
+                }
+            } else {
+                setFieldError("currentPassword", "");
+                setFieldError("newPassword", "");
+                setFieldError("confirmPassword", "");
+            }
+
+            const strength = evaluatePasswordStrength(newPassword);
+            if (strengthBar) {
+                strengthBar.style.width = `${newPassword ? strength.percent : 0}%`;
+                strengthBar.dataset.tone = strength.tone;
+            }
+            if (strengthText) {
+                strengthText.textContent = newPassword
+                    ? `Độ mạnh mật khẩu: ${strength.label}`
+                    : "Độ mạnh mật khẩu sẽ hiển thị tại đây.";
+            }
+
+            return isValid;
+        };
+
+        const setAvatar = (imageEl, fallbackEl, avatarUrl, fallbackText) => {
+            const safeFallback = (fallbackText || "U").trim().charAt(0).toUpperCase();
+            if (avatarUrl) {
+                imageEl.src = avatarUrl;
+                imageEl.style.display = "block";
+                fallbackEl.style.display = "none";
+                fallbackEl.textContent = safeFallback;
+                return;
+            }
+            imageEl.removeAttribute("src");
+            imageEl.style.display = "none";
+            fallbackEl.style.display = "inline";
+            fallbackEl.textContent = safeFallback;
+        };
+
+        const syncPreview = () => {
+            const fullName = nameInput?.value?.trim() || summaryName?.textContent || "Người dùng TechNexus";
+            const avatarUrl = avatarInput?.value?.trim() || "";
+            setAvatar(previewImage, previewFallback, avatarUrl, fullName);
+            setAvatar(avatarImage, avatarFallback, avatarUrl, fullName);
+            if (avatarUploadStatus) {
+                avatarUploadStatus.textContent = avatarUrl ? "Đã chọn ảnh." : "Chưa có ảnh.";
+            }
+        };
+
+        const activateTab = (target) => {
+            root.querySelectorAll("[data-profile-tab]").forEach((button) => {
+                button.classList.toggle("is-active", button.dataset.profileTab === target);
+            });
+            root.querySelectorAll("[data-profile-panel]").forEach((panel) => {
+                panel.classList.toggle("is-active", panel.dataset.profilePanel === target);
+            });
+        };
+
+        const hydrateProfileEnhancements = async () => {
+            try {
+                const response = await fetch("/api/v1/users/me", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const result = await response.json().catch(() => ({}));
+                const profile = result.data || {};
+
+                if (emailInput) emailInput.value = profile.email || "";
+                if (nameInput) nameInput.value = profile.fullName || "";
+                if (bioInput) bioInput.value = profile.bio || "";
+                if (avatarInput) avatarInput.value = profile.avatarUrl || "";
+
+                if (summaryName) summaryName.textContent = profile.fullName || "Người dùng TechNexus";
+                if (summaryEmail) summaryEmail.textContent = profile.email || "Chưa có email";
+                if (summaryBio) summaryBio.textContent = profile.bio || "Chưa có mô tả cá nhân.";
+
+                setAvatar(
+                    avatarImage,
+                    avatarFallback,
+                    profile.avatarUrl || "",
+                    profile.fullName || profile.email || "U"
+                );
+
+                if (settingsStatus) {
+                    settingsStatus.innerHTML = profile.status
+                        ? `<span class="badge">${profile.status}</span>`
+                        : `<span class="badge">Đang hoạt động</span>`;
+                }
+
+                syncPreview();
+            } catch (error) {
+                syncPreview();
+            }
+        };
+
+        root.querySelectorAll("[data-profile-tab]").forEach((button) => {
+            button.addEventListener("click", () => activateTab(button.dataset.profileTab));
+        });
+
+        nameInput?.addEventListener("input", () => {
+            validateProfileForm();
+            syncPreview();
+        });
+        bioInput?.addEventListener("input", validateProfileForm);
+        currentPasswordInput?.addEventListener("input", validatePasswordForm);
+        newPasswordInput?.addEventListener("input", validatePasswordForm);
+        confirmPasswordInput?.addEventListener("input", validatePasswordForm);
+
+        root.querySelectorAll("[data-toggle-password]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const input = root.querySelector(button.dataset.togglePassword);
+                if (!input) return;
+                input.type = input.type === "password" ? "text" : "password";
+                button.textContent = input.type === "password" ? "Hiện" : "Ẩn";
+            });
+        });
+
+        avatarFileInput?.addEventListener("change", async (event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            if (avatarUploadStatus) avatarUploadStatus.textContent = "Đang tải ảnh...";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("/api/v1/files/upload", {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: formData
+                });
+
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || result.success === false) {
+                    avatarUploadStatus.textContent = result.message || "Tải ảnh thất bại.";
+                    return;
+                }
+
+                if (avatarInput) avatarInput.value = result.data || "";
+                syncPreview();
+                showToast("Tải ảnh thành công");
+            } catch (error) {
+                avatarUploadStatus.textContent = "Không thể tải ảnh lên.";
+            } finally {
+                avatarFileInput.value = "";
+            }
+        });
+
+        avatarClearButton?.addEventListener("click", () => {
+            if (avatarInput) avatarInput.value = "";
+            syncPreview();
+        });
+
+        profileForm?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            if (!validateProfileForm()) return;
+
+            setBoxMessage(profileMessageBox, "", "");
+            setSubmitLoading(profileForm, true);
+
+            try {
+                const response = await fetch("/api/v1/users/me", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        fullName: nameInput?.value?.trim() || "",
+                        avatarUrl: avatarInput?.value?.trim() || "",
+                        bio: bioInput?.value?.trim() || ""
+                    })
+                });
+
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || result.success === false) {
+                    setBoxMessage(profileMessageBox, "error", result.message || "Không thể cập nhật hồ sơ.");
+                    return;
+                }
+
+                setBoxMessage(profileMessageBox, "success", result.message || "Cập nhật hồ sơ thành công.");
+                await hydrateProfileEnhancements();
+                showToast("Cập nhật thành công");
+            } catch (error) {
+                setBoxMessage(profileMessageBox, "error", "Không thể kết nối đến máy chủ.");
+            } finally {
+                setSubmitLoading(profileForm, false);
+            }
+        });
+
+        passwordForm?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            if (!validatePasswordForm()) return;
+
+            setBoxMessage(passwordMessageBox, "", "");
+            setSubmitLoading(passwordForm, true);
+
+            try {
+                const response = await fetch("/api/v1/users/change-password", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword: currentPasswordInput?.value || "",
+                        newPassword: newPasswordInput?.value || ""
+                    })
+                });
+
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || result.success === false) {
+                    setBoxMessage(passwordMessageBox, "error", result.message || "Không thể đổi mật khẩu.");
+                    return;
+                }
+
+                passwordForm.reset();
+                validatePasswordForm();
+                setBoxMessage(passwordMessageBox, "success", result.message || "Đổi mật khẩu thành công.");
+                showToast("Đổi mật khẩu thành công");
+            } catch (error) {
+                setBoxMessage(passwordMessageBox, "error", "Không thể kết nối đến máy chủ.");
+            } finally {
+                setSubmitLoading(passwordForm, false);
+            }
+        });
+
+        activateTab("info");
+        hydrateProfileEnhancements();
+        validatePasswordForm();
+    })();
+</script>
 </body>
 </html>

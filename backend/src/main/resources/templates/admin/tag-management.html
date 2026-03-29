@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Admin CMS | Quản lý Thẻ (Tags) - TechNexus</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#06e8f9",
+                        "accent-purple": "#a855f7",
+                        "background-dark": "#0f2123",
+                        "surface-dark": "#162a2d",
+                        "surface-hover": "#1d373b",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .modal { transition: opacity 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-200 font-display flex h-screen overflow-hidden">
+
+<aside class="w-64 bg-surface-dark border-r border-slate-800 flex flex-col z-20">
+    <div class="h-20 flex items-center px-6 border-b border-slate-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent-purple flex items-center justify-center text-background-dark font-bold text-lg mr-2">T</div>
+        <span class="text-xl font-bold text-white tracking-tight">Tech<span class="text-primary">Admin</span></span>
+    </div>
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <a href="/" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">dashboard</span> Dashboard
+        </a>
+        <a href="/admin/posts" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">admin_panel_settings</span> Kiểm duyệt bài viết
+        </a>
+        <a href="/admin/categories" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">category</span> Danh mục
+        </a>
+        <a href="/admin/tags" class="flex items-center gap-3 px-4 py-3 text-background-dark bg-primary font-bold rounded-xl shadow-[0_0_15px_rgba(6,232,249,0.3)]">
+            <span class="material-icons">tag</span> Quản lý Thẻ (Tags)
+        </a>
+        <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-surface-hover rounded-xl transition-colors">
+            <span class="material-icons">groups</span> Quản lý users
+        </a>
+    </nav>
+</aside>
+
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+    <header class="h-20 bg-surface-dark border-b border-slate-800 flex items-center justify-between px-8 z-10">
+        <h1 class="text-2xl font-bold text-white">Quản lý Thẻ (Tags)</h1>
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <input type="text" id="tag-search" placeholder="Tìm kiếm tag..." class="bg-background-dark border border-slate-700 text-sm rounded-full pl-4 pr-10 py-2 focus:border-primary text-white w-64 outline-none">
+                <span class="material-icons absolute right-3 top-2.5 text-slate-500">search</span>
+            </div>
+            <button onclick="openTagModal()" class="bg-accent-purple hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors shadow-lg shadow-purple-500/20">
+                <span class="material-icons text-sm">add</span> Tạo Tag mới
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 overflow-auto p-8">
+        <div class="bg-surface-dark rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
+            <table class="w-full text-sm text-left text-slate-400">
+                <thead class="text-xs text-slate-400 uppercase bg-slate-800/80 border-b border-slate-800">
+                <tr>
+                    <th class="px-6 py-5 font-semibold w-24 text-center">ID</th>
+                    <th class="px-6 py-5 font-semibold">Tên Thẻ (Tag Name)</th>
+                    <th class="px-6 py-5 font-semibold">Đường dẫn (Slug)</th>
+                    <th class="px-6 py-5 text-right font-semibold">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody id="tag-table" class="divide-y divide-slate-800/50">
+                <tr><td colspan="4" class="px-6 py-10 text-center animate-pulse text-slate-500">Đang tải dữ liệu tags...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="tagModal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[60]">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeTagModal()"></div>
+    <div class="bg-surface-dark w-full max-w-sm mx-auto rounded-2xl p-8 z-[70] border border-slate-700 shadow-2xl transform transition-transform scale-95" id="tagModalContent">
+        <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
+            <h3 class="text-xl font-bold text-white" id="modalTitle">Tạo Tag mới</h3>
+            <span class="material-icons text-slate-500 hover:text-white cursor-pointer" onclick="closeTagModal()">close</span>
+        </div>
+
+        <form id="tagForm" class="space-y-5">
+            <input type="hidden" id="tagId">
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tên thẻ (Tag Name) <span class="text-red-500">*</span></label>
+                <input type="text" id="tagName" required placeholder="VD: Lập trình Java" class="w-full bg-background-dark border-slate-700 rounded-xl text-white focus:ring-primary focus:border-primary outline-none p-2.5">
+                <p class="text-[10px] text-slate-500 mt-1">Hệ thống sẽ tự động tạo đường dẫn (Slug).</p>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="closeTagModal()" class="px-5 py-2 text-slate-400 hover:text-white font-medium transition-colors">Hủy</button>
+                <button type="submit" class="bg-primary hover:bg-primary-dark text-background-dark px-6 py-2 rounded-xl font-bold transition-colors shadow-lg shadow-primary/20">Lưu Tag</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) {
+            headers.set("Authorization", `Bearer ${accessToken}`);
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/tags")}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    async function ensureAdminAccess() {
+        if (!accessToken) {
+            window.location.href = `/login?next=${encodeURIComponent("/admin/tags")}`;
+            return false;
+        }
+
+        try {
+            const response = await authFetch("/api/v1/users/me");
+            const payload = await response.json();
+            const roles = payload.data?.roles || [];
+
+            if (!response.ok || !roles.includes("ADMIN")) {
+                window.location.href = "/profile";
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return false;
+        }
+    }
+
+    // LẤY DANH SÁCH TAG
+    async function fetchTags() {
+        const tbody = document.getElementById('tag-table');
+        try {
+            const res = await authFetch(`${API_BASE}/tags`);
+            const tags = await res.json();
+
+            if (!tags || tags.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-500">Chưa có thẻ (tag) nào.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = tags.map(tag => `
+                <tr class="hover:bg-slate-800/40 transition-colors group border-b border-slate-800/50">
+                    <td class="px-6 py-4 text-center text-slate-500 font-mono">${tag.id}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-block bg-slate-800 px-3 py-1 rounded-md border border-slate-700 font-bold text-white group-hover:border-primary/50 transition-colors">
+                            #${tag.name}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-slate-400 text-xs font-mono">/${tag.slug}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick='openTagModal(${JSON.stringify(tag).replace(/'/g, "&apos;")})' class="p-1.5 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Chỉnh sửa"><span class="material-icons text-sm">edit</span></button>
+                        <button onclick="deleteTag(${tag.id})" class="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors ml-2" title="Xóa"><span class="material-icons text-sm">delete</span></button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            console.error(e);
+            tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-red-400">Lỗi kết nối Server!</td></tr>`;
+        }
+    }
+
+    // THÊM / SỬA TAG
+    document.getElementById('tagForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('tagId').value;
+        const name = document.getElementById('tagName').value;
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API_BASE}/tags/${id}` : `${API_BASE}/tags`;
+
+        try {
+            const res = await authFetch(url, {
+                method: method,
+                // Chú ý: Backend TagController đang nhận text thuần (@RequestBody String)
+                headers: { 'Content-Type': 'text/plain' },
+                body: name
+            });
+
+            if (res.ok) {
+                closeTagModal();
+                fetchTags();
+            } else {
+                alert("Lỗi khi lưu Tag! Có thể tên Tag đã bị trùng.");
+            }
+        } catch (e) { console.error(e); }
+    });
+
+    // XÓA TAG
+    async function deleteTag(id) {
+        if(confirm("Xác nhận xóa thẻ (Tag) này?")) {
+            const res = await authFetch(`${API_BASE}/tags/${id}`, { method: 'DELETE' });
+            if(res.ok) fetchTags();
+            else alert("Lỗi khi xóa Tag!");
+        }
+    }
+
+    // MỞ / ĐÓNG MODAL
+    function openTagModal(data = null) {
+        document.getElementById('tagForm').reset();
+        const modalContent = document.getElementById('tagModalContent');
+
+        if (data) {
+            document.getElementById('modalTitle').innerText = "Chỉnh sửa Tag";
+            document.getElementById('tagId').value = data.id;
+            document.getElementById('tagName').value = data.name;
+        } else {
+            document.getElementById('modalTitle').innerText = "Tạo Tag mới";
+            document.getElementById('tagId').value = "";
+        }
+
+        document.getElementById('tagModal').classList.remove('opacity-0', 'pointer-events-none');
+        modalContent.classList.replace('scale-95', 'scale-100');
+    }
+
+    function closeTagModal() {
+        document.getElementById('tagModal').classList.add('opacity-0', 'pointer-events-none');
+        document.getElementById('tagModalContent').classList.replace('scale-100', 'scale-95');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (await ensureAdminAccess()) {
+            fetchTags();
+        }
+    });
+</script>
+</body>
+</html>

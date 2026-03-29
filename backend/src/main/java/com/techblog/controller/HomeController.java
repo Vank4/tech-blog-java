@@ -17,6 +17,11 @@ public class HomeController {
         return "Home/detail";
     }
 
+    @GetMapping("/review/{slug}")
+    public String reviewDetail(@PathVariable String slug) {
+        return "Home/review-detail";
+    }
+
     // ==========================================
     // CÁC ĐƯỜNG DẪN CHO ADMIN
     // ==========================================
@@ -35,6 +40,11 @@ public class HomeController {
         return "admin/tag-management";
     }
 
+    @GetMapping("/admin/comments")
+    public String adminCommentManager() {
+        return "admin/comment-management";
+    }
+
     // ==========================================
     // CÁC ĐƯỜNG DẪN CHO TÁC GIẢ (AUTHOR) -
     // ==========================================
@@ -48,6 +58,26 @@ public class HomeController {
     // 2. Trang soạn thảo (Dùng chung cho cả Tạo mới và Chỉnh sửa)
     @GetMapping("/author/posts/editor")
     public String authorEditor() {
-        return "Author/editor"; // Trỏ đến templates/Author/editor.html
+        return "Author/editor";
+    }
+
+    // 3. Trang danh sách review cá nhân
+    @GetMapping("/author/reviews")
+    public String authorReviewManager() {
+        return "Author/review-list";
+    }
+
+    // 4. Trang soạn thảo review
+    @GetMapping("/author/reviews/editor")
+    public String authorReviewEditor() {
+        return "Author/review-editor";
+    }
+
+    // ==========================================
+    // TRANG KIỂM DUYỆT (ADMIN)
+    // ==========================================
+    @GetMapping("/admin/reviews/moderation")
+    public String adminReviewModeration() {
+        return "admin/review-moderation";
     }
 }

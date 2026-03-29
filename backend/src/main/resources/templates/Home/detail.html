@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -83,35 +83,14 @@
         /* Chỉnh lại style cho ảnh trong bài viết để nó không bị tràn */
         #post-content img { border-radius: 0.75rem; max-width: 100%; height: auto; margin: 2rem auto; }
     </style>
+    <!-- Core layout CSS for shared fragments -->
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
 </head>
 <body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
 
-<header class="fixed top-0 w-full z-50 bg-surface/60 dark:bg-[#0e0e0e]/60 backdrop-blur-xl shadow-[0px_40px_0px_0%_rgba(255,255,255,0.06)] font-['Inter'] antialiased">
-    <nav class="flex justify-between items-center px-8 h-20 max-w-[1440px] mx-auto">
-        <a href="/" class="text-2xl font-black tracking-tighter text-[#14ffdf]">TechNexus</a>
-        <div class="hidden md:flex items-center gap-8">
-            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors" href="/">Home</a>
-            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors hidden" href="/profile" data-nav-profile>Profile</a>
-            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors hidden" href="/author/posts" data-nav-author>Author Hub</a>
-            <a class="text-[#adaaaa] hover:text-[#ffffff] transition-colors hidden" href="/admin/posts" data-nav-admin>Admin</a>
-            <a class="text-[#14ffdf] border-b-2 border-[#14ffdf] pb-1" href="javascript:void(0)">Read Article</a>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="hidden items-center gap-3" data-auth-panel>
-                <a href="/profile" class="w-10 h-10 rounded-full overflow-hidden border border-[#14ffdf]/20 bg-[#1a1a1a] block" data-avatar-link>
-                    <img alt="User Avatar" class="w-full h-full object-cover" data-user-avatar src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMTVKLE7jCewBWF3Z-8L-_NFspNpEw9leOoqs1TgrZQXHJa0Todogbgl0RVoMxBU8SOgJ_TKNYi-rpDQ9elZVd-eC_4RoGyiorju5-9BraVaV26MX5j8Cur-O9TafgG60xcP5YfNsXJ8YNrF9pMBmnPdh_8hnhNZk7h25685I6NARuWDKWo7QNItPstsxcgop4sOFxOSxbjp1y7zFO0Y2i56JEQfCt_iT8qIUH1jRzQQ3zBCjLAw9bFQ9JodV64yq63hnGMKsCSqc"/>
-                </a>
-            </div>
-            <div class="flex items-center gap-3" data-guest-panel>
-                <a href="/login" class="px-4 py-2 rounded-full border border-[#484847]/50 text-sm text-[#adaaaa] hover:text-white hover:border-[#14ffdf]/50 transition-colors">Đăng nhập</a>
-                <a href="/register" class="px-4 py-2 rounded-full bg-[#14ffdf] text-black text-sm font-bold hover:brightness-110 transition-all">Đăng ký</a>
-            </div>
-            <button class="p-2 hover:bg-[#262626]/50 rounded-full transition-all duration-300 scale-95 active:scale-90">
-                <span class="material-symbols-outlined text-[#14ffdf]" data-icon="search">search</span>
-            </button>
-        </div>
-    </nav>
-</header>
+<header th:replace="~{fragments/header :: header}"></header>
 
 <main class="pt-20">
     <section class="relative w-full h-[600px] flex items-end overflow-hidden">
@@ -148,10 +127,20 @@
 
         <aside class="hidden xl:block sticky top-32 h-fit">
             <div class="flex flex-col gap-4 bg-surface-container p-3 rounded-2xl border border-outline-variant/15 glass-panel">
-                <button class="flex flex-col items-center p-3 hover:bg-surface-variant rounded-xl transition-all group">
-                    <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" data-icon="thumb_up">thumb_up</span>
+                <button onclick="toggleInteraction('like')" id="btn-like" class="flex flex-col gap-1 items-center p-3 hover:bg-surface-variant rounded-xl transition-all group">
+                    <span id="icon-like" class="material-symbols-outlined text-[#adaaaa] group-hover:text-primary group-hover:scale-110 transition-all" data-icon="thumb_up">thumb_up</span>
+                    <span id="count-like" class="text-[10px] font-bold text-on-surface-variant">0</span>
                 </button>
+                
                 <div class="h-px bg-outline-variant/20 mx-2"></div>
+                
+                <button onclick="toggleInteraction('favorite')" id="btn-save" class="flex flex-col gap-1 items-center p-3 hover:bg-surface-variant rounded-xl transition-all group">
+                    <span id="icon-save" class="material-symbols-outlined text-[#adaaaa] group-hover:text-primary group-hover:scale-110 transition-all" data-icon="bookmark">bookmark</span>
+                    <span id="count-save" class="text-[10px] font-bold text-on-surface-variant">0</span>
+                </button>
+                
+                <div class="h-px bg-outline-variant/20 mx-2"></div>
+                
                 <button class="flex flex-col items-center p-3 hover:bg-surface-variant rounded-xl transition-all group">
                     <span class="material-symbols-outlined text-[#adaaaa] group-hover:text-primary transition-colors" data-icon="share">share</span>
                 </button>
@@ -168,22 +157,37 @@
             </div>
 
             <section class="mt-24 pt-12 border-t border-outline-variant/15">
-                <h3 class="text-2xl font-bold mb-10">Intelligence Exchange</h3>
-                <div class="mb-12 p-6 bg-surface-container rounded-2xl border border-outline-variant/15 glass-panel">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
-                            <span class="material-symbols-outlined text-on-primary-fixed" data-icon="person">person</span>
-                        </div>
-                        <span class="font-bold">Add to the exchange...</span>
+                <div class="flex items-center justify-between mb-10">
+                    <h3 class="text-2xl font-bold text-white tracking-tight">Intelligence Exchange</h3>
+                    <div class="px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">
+                         <span class="text-[10px] font-black text-primary uppercase tracking-widest" id="comment-count">0 COMMENTS</span>
                     </div>
-                    <textarea class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline focus:border-primary focus:ring-0 text-on-surface p-4 rounded-t-lg transition-colors placeholder:text-on-surface-variant/40" placeholder="Share your insights..." rows="3"></textarea>
-                    <div class="flex justify-end mt-4">
-                        <button class="bg-gradient-to-br from-primary to-secondary px-8 py-3 rounded-lg text-on-primary-fixed font-black text-xs uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">
+                </div>
+
+                <!-- Comment Input -->
+                <div class="mb-12 p-8 bg-surface-container rounded-3xl border border-outline-variant/10 glass-panel shadow-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+                    <div class="flex items-center gap-4 mb-6 relative">
+                        <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shadow-lg">
+                            <span class="material-symbols-outlined text-on-primary-fixed" data-icon="terminal">terminal</span>
+                        </div>
+                        <span class="text-sm font-bold text-white tracking-wide">Initialize new node in the exchange...</span>
+                    </div>
+                    <textarea id="main-comment-input" class="w-full bg-surface-container-lowest border-0 border-b-2 border-outline/30 focus:border-primary focus:ring-0 text-on-surface p-4 rounded-t-xl transition-all placeholder:text-on-surface-variant/40 text-sm leading-relaxed" placeholder="Share your insights with the monolith..." rows="3"></textarea>
+                    <div class="flex justify-end mt-6">
+                        <button onclick="submitComment()" class="bg-gradient-to-br from-primary to-primary-dim px-8 py-3 rounded-xl text-on-primary-fixed font-black text-[10px] uppercase tracking-[0.2em] hover:brightness-110 active:scale-95 transition-all shadow-lg">
                             Post Insight
                         </button>
                     </div>
                 </div>
-                <div class="text-center text-on-surface-variant text-sm italic">Comments are currently in read-only mode.</div>
+
+                <!-- Comment List -->
+                <div id="comment-list" class="space-y-8">
+                    <div class="animate-pulse flex flex-col gap-4">
+                        <div class="h-4 bg-surface-container-high rounded w-1/4"></div>
+                        <div class="h-10 bg-surface-container-high rounded w-full"></div>
+                    </div>
+                </div>
             </section>
         </article>
 
@@ -215,12 +219,7 @@
     </div>
 </main>
 
-<footer class="w-full py-16 px-8 mt-10 border-t border-[#484847]/15 bg-[#0e0e0e] font-['Inter'] text-xs uppercase tracking-[0.1em]">
-    <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-        <div class="text-xl font-black text-[#14ffdf]">TechNexus</div>
-        <p class="text-[#adaaaa] text-center md:text-right">© 2026 TechNexus Monolith. All rights reserved.</p>
-    </div>
-</footer>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script>
     const API_BASE = "http://localhost:8081/api/v1";
@@ -304,26 +303,23 @@
         return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
     };
 
+    let currentPostId = null;
+
     async function loadPostDetail() {
-        // Lấy slug từ thanh URL. Ví dụ: http://localhost:8081/post/ai-la-gi -> Lấy ra chữ 'ai-la-gi'
         const pathArray = window.location.pathname.split('/');
         const slug = pathArray[pathArray.length - 1];
 
-        if (!slug || slug === 'detail.html' || slug === '') {
-            document.getElementById('post-title').textContent = "Không tìm thấy URL hợp lệ.";
-            return;
-        }
+        if (!slug || slug === 'detail.html' || slug === '') return;
 
         try {
-            // Gọi API lấy chi tiết bài viết (Khi API này được gọi ở backend, Backend nên tự động cộng View luôn)
             const response = await fetch(`${API_BASE}/posts/${slug}`);
             if (!response.ok) throw new Error("Không tìm thấy bài viết");
 
             const result = await response.json();
             const post = result.data;
+            currentPostId = post.id;
 
             if (post) {
-                // Đổ dữ liệu vào Header bài viết
                 document.getElementById('post-thumbnail').src = post.thumbnailUrl || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb';
                 document.getElementById('post-category').textContent = post.categoryName || 'Tech';
                 document.getElementById('post-title').textContent = post.title;
@@ -331,29 +327,243 @@
                 document.getElementById('post-author-avatar').textContent = post.authorName ? post.authorName.charAt(0).toUpperCase() : 'A';
                 document.getElementById('post-date').textContent = formatDate(post.createdAt);
                 document.getElementById('post-views').innerHTML = `<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span> ${post.viewCount || 0} views`;
-
-                // Đổ nội dung chính của bài viết (HTML)
                 document.getElementById('post-content').innerHTML = post.content || `<p class="text-xl">${post.summary}</p>`;
 
-                // Đổ danh sách Tags sang Sidebar
                 const tagsContainer = document.getElementById('post-tags');
                 if (tagsContainer) {
-                    if (post.tags && post.tags.length > 0) {
-                        tagsContainer.innerHTML = post.tags.map(tag => `
-                            <div class="p-3 bg-surface-container-high rounded-xl border-l-2 border-primary hover:bg-surface-variant transition-colors cursor-pointer" onclick="window.location.href='/?tagId=${tag.id}'">
-                                <p class="text-xs font-bold tracking-wide text-on-surface">#${tag.name}</p>
-                            </div>
-                        `).join('');
-                    } else {
-                        tagsContainer.innerHTML = `<span class="text-xs text-on-surface-variant">Không có tag nào.</span>`;
-                    }
+                    tagsContainer.innerHTML = (post.tags && post.tags.length > 0) ? post.tags.map(tag => `
+                        <div class="p-3 bg-surface-container-high rounded-xl border-l-2 border-primary hover:bg-surface-variant transition-colors cursor-pointer" onclick="window.location.href='/?tagId=${tag.id}'">
+                            <p class="text-xs font-bold tracking-wide text-on-surface">#${tag.name}</p>
+                        </div>
+                    `).join('') : `<span class="text-xs text-on-surface-variant">Không có tag nào.</span>`;
                 }
+
+                loadInteractionStatus();
+                loadComments();
             }
         } catch (error) {
             console.error("Lỗi:", error);
-            document.getElementById('post-title').textContent = "Bài viết không tồn tại hoặc đã bị xóa.";
-            document.getElementById('post-content').innerHTML = "";
+            document.getElementById('post-title').textContent = "Bài viết không tồn tại.";
         }
+    }
+
+    // COMMENT LOGIC
+    async function loadComments() {
+        if (!currentPostId) return;
+        try {
+            const res = await fetch(`${API_BASE}/comments/POST/${currentPostId}`);
+            const result = await res.json();
+            const comments = result.data || [];
+            renderComments(comments);
+            document.getElementById('comment-count').textContent = `${comments.length} COMMENTS`;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderComments(comments, containerId = 'comment-list', isReply = false) {
+        const container = document.getElementById(containerId);
+        if (!isReply) container.innerHTML = '';
+
+        if (comments.length === 0 && !isReply) {
+            container.innerHTML = '<p class="text-sm text-on-surface-variant/50 italic py-10 text-center">No nodes in the exchange yet. Be the first.</p>';
+            return;
+        }
+
+        comments.forEach(c => {
+            const commentEl = document.createElement('div');
+            commentEl.className = `${isReply ? 'ml-12 mt-6 border-l-2 border-outline-variant/10 pl-6' : 'mb-10 last:mb-0'}`;
+            commentEl.innerHTML = `
+                <div class="group/node relative">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-surface-container-high border border-primary/20 flex items-center justify-center text-primary font-black shadow-lg">
+                            ${c.authorName ? c.authorName.charAt(0).toUpperCase() : '?'}
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white tracking-tight">${c.authorName}</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">${formatDate(c.createdAt)}</p>
+                        </div>
+                    </div>
+                    <div class="bg-surface-container/50 p-6 rounded-2xl border border-outline-variant/10 leading-relaxed text-on-surface-variant text-sm">
+                        ${c.content}
+                    </div>
+                    <div class="flex items-center gap-4 mt-3 opacity-0 group-hover/node:opacity-100 transition-opacity">
+                        <button onclick="showReplyForm(${c.id})" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs" data-icon="reply">reply</span> Reply
+                        </button>
+                        <button onclick="showReportForm(${c.id})" class="text-[10px] font-black text-on-surface-variant/40 hover:text-red-400 uppercase tracking-widest flex items-center gap-1">
+                             Report
+                        </button>
+                    </div>
+                    <div id="reply-form-container-${c.id}" class="mt-4 hidden"></div>
+                    <div id="replies-container-${c.id}"></div>
+                </div>
+            `;
+            container.appendChild(commentEl);
+            if (c.replies && c.replies.length > 0) {
+                renderComments(c.replies, `replies-container-${c.id}`, true);
+            }
+        });
+    }
+
+    async function submitComment(parentId = null) {
+        const token = getToken();
+        if (!token) {
+            alert("Vui lòng đăng nhập để bình luận!");
+            window.location.href = "/login";
+            return;
+        }
+
+        const inputId = parentId ? `reply-input-${parentId}` : 'main-comment-input';
+        const input = document.getElementById(inputId);
+        const content = input.value.trim();
+
+        if (!content) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    content,
+                    targetType: 'POST',
+                    targetId: currentPostId,
+                    parentId
+                })
+            });
+
+            if (response.ok) {
+                input.value = '';
+                if (parentId) document.getElementById(`reply-form-container-${parentId}`).classList.add('hidden');
+                loadComments();
+            } else {
+                const err = await response.json();
+                alert("Lỗi: " + err.message);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function showReplyForm(commentId) {
+        const container = document.getElementById(`reply-form-container-${commentId}`);
+        container.innerHTML = `
+            <div class="p-6 bg-surface-container-high rounded-2xl border border-primary/20 shadow-xl">
+                <textarea id="reply-input-${commentId}" class="w-full bg-surface-container-lowest border-0 border-b-2 border-primary/30 focus:border-primary focus:ring-0 text-on-surface p-3 text-sm rounded-t-lg" placeholder="Type your reply..." rows="2"></textarea>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button onclick="this.closest('.hidden').classList.add('hidden')" class="px-4 py-2 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Cancel</button>
+                    <button onclick="submitComment(${commentId})" class="bg-primary px-6 py-2 rounded-xl text-on-primary-fixed font-black text-[10px] uppercase tracking-widest">Reply</button>
+                </div>
+            </div>
+        `;
+        container.classList.remove('hidden');
+    }
+
+    function showReportForm(commentId) {
+        const reason = prompt("Lý do báo cáo vi phạm:");
+        if (reason) {
+            reportComment(commentId, reason);
+        }
+    }
+
+    async function reportComment(commentId, reason) {
+        const token = getToken();
+        if (!token) { alert("Vui lòng đăng nhập!"); return; }
+
+        try {
+            const response = await fetch(`${API_BASE}/comments/${commentId}/report`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reason })
+            });
+
+            if (response.ok) {
+                alert("Đã gửi báo cáo vi phạm thành công. Admin sẽ sớm xử lý.");
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    // INTERACTION LOGIC (Like & Save)
+    async function loadInteractionStatus() {
+        if (!currentPostId) return;
+        const token = getToken();
+        
+        try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch(`${API_BASE}/interactions/status?targetType=POST&targetId=${currentPostId}`, { headers });
+            const result = await res.json();
+            
+            if (result.success) {
+                updateInteractionUI(result.data);
+            }
+        } catch (e) { console.error("Failed to load interaction status", e); }
+    }
+
+    function updateInteractionUI(data) {
+        document.getElementById('count-like').textContent = data.likeCount || 0;
+        document.getElementById('count-save').textContent = data.saveCount || 0;
+
+        const iconLike = document.getElementById('icon-like');
+        if (data.liked) {
+            iconLike.classList.remove('text-[#adaaaa]');
+            iconLike.classList.add('text-primary');
+            iconLike.style.fontVariationSettings = "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+        } else {
+            iconLike.classList.add('text-[#adaaaa]');
+            iconLike.classList.remove('text-primary');
+            iconLike.style.fontVariationSettings = "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+        }
+
+        const iconSave = document.getElementById('icon-save');
+        if (data.saved) {
+            iconSave.classList.remove('text-[#adaaaa]');
+            iconSave.classList.add('text-primary');
+            iconSave.style.fontVariationSettings = "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+        } else {
+            iconSave.classList.add('text-[#adaaaa]');
+            iconSave.classList.remove('text-primary');
+            iconSave.style.fontVariationSettings = "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+        }
+    }
+
+    async function toggleInteraction(action) {
+        const token = getToken();
+        if (!token) {
+            alert("Vui lòng đăng nhập để thực hiện thao tác này!");
+            window.location.href = "/login";
+            return;
+        }
+
+        const endpoint = action === 'like' ? 'like' : 'favorite';
+        
+        try {
+            const response = await fetch(`${API_BASE}/interactions/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ targetType: 'POST', targetId: currentPostId })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    updateInteractionUI(result.data);
+                }
+            } else if (response.status === 401) {
+                alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+                window.location.href = "/login";
+            }
+        } catch (e) { console.error("Interaction failed", e); }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

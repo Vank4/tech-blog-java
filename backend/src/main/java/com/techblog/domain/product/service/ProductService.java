@@ -27,6 +27,8 @@ public interface ProductService {
 
     List<ProductResponse> getAllProductsForAdmin(String q, Long categoryId, String status);
 
+    ProductResponse getProductForAdmin(Long id);
+
     ProductResponse createProduct(CreateProductRequest request, String actorEmail);
 
     ProductResponse updateProduct(Long id, CreateProductRequest request);
@@ -38,6 +40,8 @@ public interface ProductService {
     ProductResponse restoreProduct(Long id);
 
     ProductImageResponse addImage(Long productId, ProductImageRequest request);
+
+    ProductImageResponse updateImage(Long productId, Long imageId, ProductImageRequest request);
 
     void removeImage(Long productId, Long imageId);
 

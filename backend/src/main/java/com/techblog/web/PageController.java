@@ -3,6 +3,7 @@ package com.techblog.web;
 import com.techblog.common.exception.ResourceNotFoundException;
 import com.techblog.domain.category.dto.CategoryResponse;
 import com.techblog.domain.category.service.CategoryService;
+import com.techblog.domain.interaction.service.CompareService;
 import com.techblog.domain.product.dto.ProductDiscussionResponse;
 import com.techblog.domain.product.dto.ProductResponse;
 import com.techblog.domain.product.dto.ProductSpecResponse;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -28,6 +30,7 @@ public class PageController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final CompareService compareService;
 
     @GetMapping("/products")
     public String products(
@@ -73,9 +76,10 @@ public class PageController {
     @GetMapping("/compare")
     public String compare(
             @RequestParam(required = false) List<String> slugs,
+            Authentication authentication,
             Model model) {
 
-        List<String> selectedSlugs = normalizeValues(slugs).stream().limit(3).toList();
+        List<String> selectedSlugs = resolveCompareSlugs(slugs, authentication);
         List<ProductResponse> comparisonProducts = selectedSlugs.stream()
                 .map(this::findPublicProduct)
                 .filter(Objects::nonNull)
@@ -85,6 +89,27 @@ public class PageController {
         model.addAttribute("comparisonSpecKeys", buildComparisonSpecKeys(comparisonProducts));
         model.addAttribute("selectedCompareSlugs", comparisonProducts.stream().map(ProductResponse::getSlug).toList());
         return "products/comparison";
+    }
+
+    private List<String> resolveCompareSlugs(List<String> slugs, Authentication authentication) {
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && StringUtils.hasText(authentication.getName())
+                && !"anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            List<String> persistedSlugs = compareService.getCompare(authentication.getName())
+                    .getItems()
+                    .stream()
+                    .map(item -> item.getSlug())
+                    .filter(StringUtils::hasText)
+                    .limit(3)
+                    .toList();
+
+            if (!persistedSlugs.isEmpty()) {
+                return persistedSlugs;
+            }
+        }
+
+        return normalizeValues(slugs).stream().limit(3).toList();
     }
 
     private ProductResponse findPublicProduct(String slug) {

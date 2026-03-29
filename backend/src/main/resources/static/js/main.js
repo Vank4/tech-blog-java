@@ -1,6 +1,8 @@
 (() => {
     const forms = document.querySelectorAll("[data-auth-form]");
     const url = new URL(window.location.href);
+    const authStateEventName = "techblog:auth-changed";
+    const postLoginNext = url.searchParams.get("next");
 
     const normalizeMessage = (message) => {
         if (!message) {
@@ -44,6 +46,153 @@
     };
 
     const getToken = () => localStorage.getItem("techblog.accessToken");
+    const emitAuthStateChange = () => {
+        window.dispatchEvent(new CustomEvent(authStateEventName));
+    };
+
+    const buildAvatarDataUri = (label = "U") => {
+        const safeLabel = encodeURIComponent((label || "U").trim().charAt(0).toUpperCase() || "U");
+        return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+                <rect width="80" height="80" rx="40" fill="#0f172a"/>
+                <rect x="2" y="2" width="76" height="76" rx="38" fill="none" stroke="#22d3ee" stroke-opacity="0.22"/>
+                <text x="40" y="48" text-anchor="middle" font-size="30" font-family="Inter,Arial,sans-serif" font-weight="700" fill="#e2f8fb">${decodeURIComponent(safeLabel)}</text>
+            </svg>`
+        )}`;
+    };
+
+    const resolveAvatarUrl = (avatarUrl, fallbackLabel = "U") => {
+        if (!avatarUrl) {
+            return buildAvatarDataUri(fallbackLabel);
+        }
+
+        if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://") || avatarUrl.startsWith("data:")) {
+            return avatarUrl;
+        }
+
+        if (avatarUrl.startsWith("/")) {
+            return avatarUrl;
+        }
+
+        return `/${avatarUrl}`;
+    };
+
+    const setElementVisible = (element, shouldShow, displayValue = "inline-flex") => {
+        if (!element) {
+            return;
+        }
+
+        element.style.display = shouldShow ? displayValue : "none";
+    };
+
+    const getRoles = (profile) => {
+        const roles = profile?.roles || [];
+        return Array.isArray(roles) ? roles : Array.from(roles);
+    };
+
+    const getSafePostLoginNext = () => {
+        if (!postLoginNext || !postLoginNext.startsWith("/")) {
+            return null;
+        }
+
+        return postLoginNext;
+    };
+
+    const updateActiveNavigation = () => {
+        const pathname = window.location.pathname || "/";
+        document.querySelectorAll("[data-nav-link]").forEach((link) => {
+            const target = link.dataset.navLink || "";
+            const exact = link.dataset.navExact === "true";
+            const isActive = exact ? pathname === target : pathname === target || pathname.startsWith(`${target}/`);
+            link.classList.toggle("active", isActive);
+        });
+    };
+
+    const applyPublicHeaderState = (profile) => {
+        updateActiveNavigation();
+
+        const roles = getRoles(profile);
+        const isAuthenticated = Boolean(profile);
+        const guestPanel = document.querySelector("[data-guest-panel]");
+        const authPanel = document.querySelector("[data-auth-panel]");
+        const avatarLink = document.querySelector("[data-avatar-link]");
+        const avatar = document.querySelector("[data-user-avatar]");
+        const userName = document.querySelector("[data-user-name]");
+        const userCaption = document.querySelector("[data-user-caption]");
+        const profileLink = document.querySelector("[data-nav-profile]");
+        const authorLink = document.querySelector("[data-nav-author]");
+        const adminLink = document.querySelector("[data-nav-admin]");
+
+        setElementVisible(guestPanel, !isAuthenticated, "flex");
+        setElementVisible(authPanel, isAuthenticated, "flex");
+        setElementVisible(profileLink, isAuthenticated, "flex");
+        setElementVisible(authorLink, roles.includes("AUTHOR") || roles.includes("ADMIN"), "flex");
+        setElementVisible(adminLink, roles.includes("ADMIN"), "flex");
+
+        if (!isAuthenticated) {
+            if (avatarLink) {
+                avatarLink.href = "/login";
+            }
+            if (avatar) {
+                avatar.src = buildAvatarDataUri("U");
+                avatar.alt = "Guest account";
+            }
+            if (userName) {
+                userName.textContent = "Guest";
+            }
+            if (userCaption) {
+                userCaption.textContent = "Sign in";
+            }
+            return;
+        }
+
+        const displayName = profile.fullName || profile.email || "TechNexus User";
+        const primaryRole = roles.includes("ADMIN") ? "Admin" : roles.includes("AUTHOR") ? "Author" : "Member";
+
+        if (avatarLink) {
+            avatarLink.href = "/profile";
+        }
+        if (avatar) {
+            avatar.src = resolveAvatarUrl(profile.avatarUrl, displayName);
+            avatar.alt = `${displayName} avatar`;
+        }
+        if (userName) {
+            userName.textContent = displayName;
+        }
+        if (userCaption) {
+            userCaption.textContent = `${primaryRole} account`;
+        }
+    };
+
+    const loadCurrentUserState = async () => {
+        const token = getToken();
+        if (!token) {
+            applyPublicHeaderState(null);
+            return null;
+        }
+
+        try {
+            const response = await fetch("/api/v1/users/me", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) {
+                localStorage.removeItem("techblog.accessToken");
+                applyPublicHeaderState(null);
+                return null;
+            }
+
+            applyPublicHeaderState(data.data || null);
+            return data.data || null;
+        } catch (error) {
+            applyPublicHeaderState(null);
+            return null;
+        }
+    };
+
     const fetchCurrentProfile = async () => {
         const { response, data } = await authFetch("/api/v1/users/me");
         return {
@@ -55,7 +204,7 @@
     };
 
     const getPostLoginRedirect = (roles = []) => {
-        const next = url.searchParams.get("next");
+        const next = getSafePostLoginNext();
         if (next) {
             return next;
         }
@@ -83,7 +232,8 @@
 
         if (response.status === 401) {
             localStorage.removeItem("techblog.accessToken");
-            const next = encodeURIComponent(window.location.pathname);
+            emitAuthStateChange();
+            const next = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
             window.location.href = `/login?unauthorized=1&next=${next}`;
             throw new Error("UNAUTHORIZED");
         }
@@ -196,6 +346,7 @@
 
                     if (formType === "login" && data.data?.accessToken) {
                         localStorage.setItem("techblog.accessToken", data.data.accessToken);
+                        emitAuthStateChange();
                         setFormMessage(form, "success", "Đăng nhập thành công. Đang chuyển đến khu vực phù hợp...");
                         const roles = Array.isArray(data.data.roles) ? data.data.roles : Array.from(data.data.roles || []);
                         const target = getPostLoginRedirect(roles);
@@ -248,9 +399,28 @@
 
     const setupLogoutButtons = () => {
         document.querySelectorAll("[data-logout]").forEach((button) => {
+            if (button.dataset.logoutBound === "true") {
+                return;
+            }
+
+            button.dataset.logoutBound = "true";
             button.addEventListener("click", () => {
                 localStorage.removeItem("techblog.accessToken");
-                window.location.href = "/";
+                emitAuthStateChange();
+
+                if (button.dataset.logoutRedirect) {
+                    window.location.href = button.dataset.logoutRedirect;
+                    return;
+                }
+
+                if (window.location.pathname.startsWith("/admin")
+                        || window.location.pathname.startsWith("/author")
+                        || window.location.pathname === "/profile") {
+                    window.location.href = "/";
+                    return;
+                }
+
+                window.location.href = `${window.location.pathname}${window.location.search}`;
             });
         });
     };
@@ -874,10 +1044,39 @@
         await loadUsers();
     };
 
+    const loadProductCoreScript = () => {
+        const page = document.body?.dataset?.page;
+        if (!["listing", "detail", "compare", "admin-products"].includes(page || "")) {
+            return;
+        }
+
+        if (document.querySelector('script[data-product-core-script="true"]')) {
+            return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "/js/product-core.js";
+        script.defer = true;
+        script.dataset.productCoreScript = "true";
+        document.head.appendChild(script);
+    };
+
+    window.addEventListener(authStateEventName, () => {
+        loadCurrentUserState();
+    });
+
+    window.addEventListener("storage", (event) => {
+        if (event.key === "techblog.accessToken") {
+            loadCurrentUserState();
+        }
+    });
+
+    loadCurrentUserState();
     setupAuthForms();
     setupLogoutButtons();
     setupProfilePage();
     setupForgotPasswordPage();
     setupResetPasswordPage();
     setupAdminUsersPage();
+    loadProductCoreScript();
 })();

@@ -30,6 +30,8 @@ public class ProductResponse {
     private boolean allowComments;
     private LocalDateTime publishedAt;
     private String thumbnailUrl;
+    private BigDecimal reviewScore;
+    private ProductSentimentSummaryResponse sentiment;
     private List<ProductImageResponse> images;
     private List<ProductSpecResponse> specs;
 }

@@ -34,68 +34,67 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // ==========================================
-                        // 1. PUBLIC (ĐỘC GIẢ & TÀI NGUYÊN TĨNH)
+                        // 1. PUBLIC (GIAO DIỆN UI & TÀI NGUYÊN TĨNH)
                         // ==========================================
-                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**",
-                                "/images/**", "/uploads/**")
-                        .permitAll()
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers(
-                                "/login",
-                                "/register",
-                                "/signup",
-                                "/forgot-password",
-                                "/reset-password",
-                                "/profile",
-                                "/products",
-                                "/products/**",
-                                "/compare",
-                                "/post/**",
-                                "/author/**",
-                                "/admin/posts",
-                                "/admin/categories",
-                                "/admin/tags",
-                                "/admin/users",
-                                "/admin/products")
-                        .permitAll()
+                                "/login", "/register", "/signup", "/forgot-password", "/reset-password",
+                                "/profile", "/products", "/products/**", "/compare", "/post/**", "/review/**",
+                                "/author/**", "/admin/**"
+                        ).permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+
+                        // ==========================================
+                        // 2. PUBLIC API DATA (KHÔNG CẦN ĐĂNG NHẬP ĐỂ XEM)
+                        // ==========================================
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/latest", "/api/v1/reviews/slug/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/{id:[0-9]+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/interactions/status").permitAll()
 
                         // ==========================================
-                        // 2. AUTHOR (TÁC GIẢ - WORKFLOW VIẾT BÀI)
+                        // 3. ADMIN (API QUẢN TRỊ VIÊN - ƯU TIÊN KIỂM TRA TRƯỚC)
                         // ==========================================
-                        // Giao diện soạn thảo & danh sách bài cá nhân
-
-                        // API nghiệp vụ của Tác giả
-                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasRole("AUTHOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").hasRole("AUTHOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasRole("AUTHOR")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasRole("AUTHOR")
-
-                        // API Upload ảnh cho bài viết
-                        .requestMatchers("/api/v1/files/upload").authenticated()
-
-                        // ==========================================
-                        // 3. ADMIN (QUẢN TRỊ VIÊN - KIỂM DUYỆT & HỆ THỐNG)
-                        // ==========================================
-                        // Giao diện quản trị tổng thể
-
-                        // Quản lý Danh mục & Thẻ (Chỉ Admin mới có quyền CRUD)
                         .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/products/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/comments/**").hasRole("ADMIN")
 
-                        // Nghiệp vụ kiểm duyệt (Approve/Reject/Hide/Featured/Logs)
-                        .requestMatchers("/api/v1/posts/*/approve").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/reject").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/hide").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/posts/*/featured").hasRole("ADMIN")
+                        // Admin duyệt/ẩn Bài Viết
+                        .requestMatchers("/api/v1/posts/*/approve", "/api/v1/posts/*/reject", "/api/v1/posts/*/hide", "/api/v1/posts/*/featured").hasRole("ADMIN")
                         .requestMatchers("/api/v1/posts/moderation-logs").hasRole("ADMIN")
 
+                        // Admin duyệt/ẩn Reviews
+                        .requestMatchers("/api/v1/reviews/pending", "/api/v1/reviews/*/approve", "/api/v1/reviews/*/reject", "/api/v1/reviews/*/hide").hasRole("ADMIN")
+
                         // ==========================================
-                        // 4. CHỐT CHẶN CUỐI CÙNG
+                        // 4. AUTHOR / AUTHENTICATED (API NGHIỆP VỤ CHUNG)
+                        // ==========================================
+                        // Bài Viết (Posts)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/*/submit").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // Đánh giá (Reviews)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/reviews").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/reviews/**").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/reviews/*/submit").hasAnyRole("AUTHOR", "ADMIN")
+                        .requestMatchers("/api/v1/reviews/mine").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // Bình luận, Tương tác & Upload file
+                        .requestMatchers(HttpMethod.POST, "/api/v1/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/interactions/**").authenticated()
+                        .requestMatchers("/api/v1/files/upload").hasAnyRole("AUTHOR", "ADMIN")
+
+                        // ==========================================
+                        // 5. CHỐT CHẶN CUỐI CÙNG
                         // ==========================================
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

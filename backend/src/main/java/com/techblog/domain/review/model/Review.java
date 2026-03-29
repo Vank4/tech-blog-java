@@ -74,4 +74,7 @@ public class Review extends Auditable {
 
     @Column(name = "view_count", nullable = false)
     private long viewCount;
+
+    @Column(name = "allow_comments", nullable = false)
+    private boolean allowComments = true;
 }

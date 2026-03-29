@@ -588,6 +588,11 @@ input {
     object-fit: cover;
 }
 
+.avatar-ring--preview .avatar-photo {
+    object-fit: contain;
+    background: rgba(4, 17, 22, 0.78);
+}
+
 .profile-quick-stats {
     display: grid;
     grid-template-columns: 1fr;

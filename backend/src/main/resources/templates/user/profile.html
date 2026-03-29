@@ -356,10 +356,24 @@
             return isValid;
         };
 
+        const resolveAvatarUrl = (avatarUrl) => {
+            if (!avatarUrl) return "";
+            if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) return avatarUrl;
+            if (avatarUrl.startsWith("/")) return avatarUrl;
+            return `/${avatarUrl}`;
+        };
+
         const setAvatar = (imageEl, fallbackEl, avatarUrl, fallbackText) => {
             const safeFallback = (fallbackText || "U").trim().charAt(0).toUpperCase();
-            if (avatarUrl) {
-                imageEl.src = avatarUrl;
+            const resolvedAvatarUrl = resolveAvatarUrl(avatarUrl);
+            if (resolvedAvatarUrl) {
+                imageEl.onerror = () => {
+                    imageEl.removeAttribute("src");
+                    imageEl.style.display = "none";
+                    fallbackEl.style.display = "inline";
+                    fallbackEl.textContent = safeFallback;
+                };
+                imageEl.src = resolvedAvatarUrl;
                 imageEl.style.display = "block";
                 fallbackEl.style.display = "none";
                 fallbackEl.textContent = safeFallback;

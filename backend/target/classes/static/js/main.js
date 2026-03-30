@@ -108,6 +108,49 @@
         });
     };
 
+    const getCurrentPathWithQuery = () => `${window.location.pathname || "/"}${window.location.search || ""}`;
+
+    const redirectToLoginWithNext = () => {
+        const next = encodeURIComponent(getCurrentPathWithQuery());
+        window.location.href = `/login?next=${next}`;
+    };
+
+    const enforcePageAccess = (profile) => {
+        const pathname = window.location.pathname || "/";
+        const roles = getRoles(profile);
+        const isAuthenticated = Boolean(profile);
+        const isAdmin = roles.includes("ADMIN");
+        const isAuthor = roles.includes("AUTHOR");
+
+        if ((pathname === "/profile" || pathname === "/compare") && !isAuthenticated) {
+            redirectToLoginWithNext();
+            return;
+        }
+
+        if (pathname.startsWith("/author/")) {
+            if (!isAuthenticated) {
+                redirectToLoginWithNext();
+                return;
+            }
+
+            if (!isAuthor) {
+                window.location.href = "/profile";
+            }
+            return;
+        }
+
+        if (pathname.startsWith("/admin/")) {
+            if (!isAuthenticated) {
+                redirectToLoginWithNext();
+                return;
+            }
+
+            if (!isAdmin) {
+                window.location.href = "/profile";
+            }
+        }
+    };
+
     const applyPublicHeaderState = (profile) => {
         updateActiveNavigation();
 
@@ -122,12 +165,22 @@
         const profileLink = document.querySelector("[data-nav-profile]");
         const authorLink = document.querySelector("[data-nav-author]");
         const adminLink = document.querySelector("[data-nav-admin]");
+        const compareLink = document.querySelector("[data-nav-compare]");
+        const footerCompareLink = document.querySelector("[data-footer-compare]");
+        const footerProfileLink = document.querySelector("[data-footer-profile]");
+        const footerLoginLink = document.querySelector("[data-footer-login]");
+        const footerRegisterLink = document.querySelector("[data-footer-register]");
 
         setElementVisible(guestPanel, !isAuthenticated, "flex");
         setElementVisible(authPanel, isAuthenticated, "flex");
+        setElementVisible(compareLink, isAuthenticated, "inline-flex");
         setElementVisible(profileLink, isAuthenticated, "flex");
-        setElementVisible(authorLink, roles.includes("AUTHOR") || roles.includes("ADMIN"), "flex");
+        setElementVisible(authorLink, roles.includes("AUTHOR"), "flex");
         setElementVisible(adminLink, roles.includes("ADMIN"), "flex");
+        setElementVisible(footerCompareLink, isAuthenticated, "inline");
+        setElementVisible(footerProfileLink, isAuthenticated, "inline");
+        setElementVisible(footerLoginLink, !isAuthenticated, "inline");
+        setElementVisible(footerRegisterLink, !isAuthenticated, "inline");
 
         if (!isAuthenticated) {
             if (avatarLink) {
@@ -168,6 +221,7 @@
         const token = getToken();
         if (!token) {
             applyPublicHeaderState(null);
+            enforcePageAccess(null);
             return null;
         }
 
@@ -182,13 +236,16 @@
             if (!response.ok || data.success === false) {
                 localStorage.removeItem("techblog.accessToken");
                 applyPublicHeaderState(null);
+                enforcePageAccess(null);
                 return null;
             }
 
             applyPublicHeaderState(data.data || null);
+            enforcePageAccess(data.data || null);
             return data.data || null;
         } catch (error) {
             applyPublicHeaderState(null);
+            enforcePageAccess(null);
             return null;
         }
     };
@@ -208,16 +265,7 @@
         if (next) {
             return next;
         }
-
-        if (roles.includes("ADMIN")) {
-            return "/admin/posts";
-        }
-
-        if (roles.includes("AUTHOR")) {
-            return "/author/posts";
-        }
-
-        return "/profile";
+        return "/";
     };
 
     const authFetch = async (input, init = {}) => {
@@ -424,7 +472,8 @@
 
                 if (window.location.pathname.startsWith("/admin")
                         || window.location.pathname.startsWith("/author")
-                        || window.location.pathname === "/profile") {
+                        || window.location.pathname === "/profile"
+                        || window.location.pathname === "/compare") {
                     window.location.href = "/";
                     return;
                 }
@@ -509,7 +558,7 @@
                 const roles = profile.roles || [];
 
                 if (authorLink) {
-                    authorLink.style.display = roles.includes("AUTHOR") || roles.includes("ADMIN") ? "inline-flex" : "none";
+                    authorLink.style.display = roles.includes("AUTHOR") ? "inline-flex" : "none";
                 }
 
                 if (adminPostsLink) {

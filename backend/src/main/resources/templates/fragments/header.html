@@ -7,15 +7,14 @@
         <div class="site-header-brand">
             <a th:href="@{/}" class="site-logo">TechNexus</a>
             <nav class="site-nav">
-                <a th:href="@{/}" class="site-nav-link" data-nav-link="/" data-nav-exact="true">Reviews</a>
-                <a th:href="@{/news}" class="site-nav-link" data-nav-link="/news">News</a>
-                <a th:href="@{/products}" class="site-nav-link" data-nav-link="/products">Hardware</a>
-                <a th:href="@{/guides}" class="site-nav-link" data-nav-link="/guides">Guides</a>
+                <a th:href="@{/}" class="site-nav-link" data-nav-link="/" data-nav-exact="true">Home</a>
+                <a th:href="@{/products}" class="site-nav-link" data-nav-link="/products">Products</a>
+                <a th:href="@{/compare}" class="site-nav-link" data-nav-link="/compare" data-nav-compare style="display:none;">Compare</a>
             </nav>
         </div>
         <div class="site-header-actions">
             <div class="search-box">
-                <input class="input" type="text" placeholder="Search tech..."/>
+                <input id="search-input" class="input" type="text" placeholder="Search tech..."/>
                 <span class="material-symbols-outlined">search</span>
             </div>
             <div class="site-header-guest" data-guest-panel>

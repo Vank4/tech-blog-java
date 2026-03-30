@@ -14,9 +14,9 @@
     </div>
 
     <nav class="admin-sidebar-nav">
-        <a th:href="@{/admin/dashboard}" class="admin-nav-link" th:classappend="${activePage == 'dashboard'} ? 'active'">
-            <span class="material-symbols-outlined">dashboard</span>
-            <span class="admin-nav-text">Dashboard</span>
+        <a th:href="@{/admin/posts}" class="admin-nav-link" th:classappend="${activePage == 'posts'} ? 'active'">
+            <span class="material-symbols-outlined">article</span>
+            <span class="admin-nav-text">Posts</span>
         </a>
         <a th:href="@{/admin/products}" class="admin-nav-link" th:classappend="${activePage == 'products'} ? 'active'">
             <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
@@ -26,21 +26,21 @@
             <span class="material-symbols-outlined">category</span>
             <span class="admin-nav-text">Categories</span>
         </a>
-        <a th:href="@{/admin/brands}" class="admin-nav-link" th:classappend="${activePage == 'brands'} ? 'active'">
-            <span class="material-symbols-outlined">verified</span>
-            <span class="admin-nav-text">Brands</span>
+        <a th:href="@{/admin/tags}" class="admin-nav-link" th:classappend="${activePage == 'tags'} ? 'active'">
+            <span class="material-symbols-outlined">sell</span>
+            <span class="admin-nav-text">Tags</span>
         </a>
         <a th:href="@{/admin/reviews/moderation}" class="admin-nav-link" th:classappend="${activePage == 'reviews'} ? 'active'">
             <span class="material-symbols-outlined">rate_review</span>
             <span class="admin-nav-text">Review Moderation</span>
         </a>
+        <a th:href="@{/admin/comments}" class="admin-nav-link" th:classappend="${activePage == 'comments'} ? 'active'">
+            <span class="material-symbols-outlined">forum</span>
+            <span class="admin-nav-text">Comments</span>
+        </a>
         <a th:href="@{/admin/users}" class="admin-nav-link" th:classappend="${activePage == 'users'} ? 'active'">
             <span class="material-symbols-outlined">group</span>
             <span class="admin-nav-text">Users</span>
-        </a>
-        <a th:href="@{/admin/settings}" class="admin-nav-link" th:classappend="${activePage == 'settings'} ? 'active'">
-            <span class="material-symbols-outlined">settings</span>
-            <span class="admin-nav-text">Settings</span>
         </a>
     </nav>
 

@@ -1,0 +1,267 @@
+{
+  "info": {
+    "_postman_id": "3f0c9d4b-4f39-4a2c-9f4d-6ea48af5a912",
+    "name": "Tech Blog Java - Product CRUD",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Demo requests for Member 2 feat 1: Product CRUD with soft delete and restore."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": "1"
+    },
+    {
+      "key": "productId",
+      "value": "1"
+    },
+    {
+      "key": "productSlug",
+      "value": "macbook-pro-m4"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public - Get products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products?categorySlug=laptop&brand=Apple&sort=rating-desc",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products"
+          ],
+          "query": [
+            {
+              "key": "categorySlug",
+              "value": "laptop"
+            },
+            {
+              "key": "brand",
+              "value": "Apple"
+            },
+            {
+              "key": "sort",
+              "value": "rating-desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Public - Get product by slug",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products/{{productSlug}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "products",
+            "{{productSlug}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Create product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"MacBook Pro M4\",\n  \"slug\": \"macbook-pro-m4\",\n  \"brand\": \"Apple\",\n  \"model\": \"M4-14-2026\",\n  \"shortDescription\": \"Laptop cho developer va creator\",\n  \"description\": \"MacBook Pro M4 14 inch, 16GB RAM, 512GB SSD.\",\n  \"categoryId\": {{categoryId}},\n  \"price\": 45990000,\n  \"currency\": \"VND\",\n  \"allowComments\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "products"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Update product",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"MacBook Pro M4 Max\",\n  \"slug\": \"macbook-pro-m4\",\n  \"brand\": \"Apple\",\n  \"model\": \"M4-MAX-14-2026\",\n  \"shortDescription\": \"Ban nang cap cho creator va dev\",\n  \"description\": \"MacBook Pro M4 Max 14 inch, 32GB RAM, 1TB SSD.\",\n  \"categoryId\": {{categoryId}},\n  \"price\": 62990000,\n  \"currency\": \"VND\",\n  \"allowComments\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "products",
+            "{{productId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Publish product",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"PUBLISHED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "products",
+            "{{productId}}",
+            "status"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Hide product",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"HIDDEN\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "products",
+            "{{productId}}",
+            "status"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Soft delete product",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "products",
+            "{{productId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Restore product",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/restore",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "admin",
+            "products",
+            "{{productId}}",
+            "restore"
+          ]
+        }
+      }
+    }
+  ]
+}

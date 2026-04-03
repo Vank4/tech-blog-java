@@ -1,0 +1,192 @@
+﻿TỔNG HỢP THÔNG TIN TOÀN BỘ
+Website/Blog công nghệ & Review sản phẩm + AI phân tích bình luận
+1) Users & Roles
+Bảng: users — Tài khoản người dùng
+Lưu tài khoản: đăng ký/đăng nhập, thông tin hồ sơ (avatar, bio), trạng thái (ACTIVE/INACTIVE/BANNED).
+Dùng để xác định ai viết bài, ai bình luận, ai chấm sao, ai duyệt nội dung.
+Bảng: roles — Danh sách vai trò hệ thống
+Danh sách vai trò hệ thống: ADMIN / AUTHOR / USER.
+Dùng để phân quyền chức năng.
+Bảng: user_roles — Gán role cho user (many-to-many)
+Bảng trung gian để gán role cho user (vì 1 user có thể nhiều role).
+Ví dụ: một người vừa là USER vừa là AUTHOR.
+2) Danh mục
+Bảng: categories — Danh mục bài viết & sản phẩm (cha–con)
+Quản lý danh mục cho cả bài viết và sản phẩm.
+Có parent_id để tạo cây danh mục cha–con.
+Có type để phân biệt danh mục cho POST hay PRODUCT.
+3) Blog posts & kiểm duyệt
+Bảng: posts — Bài viết công nghệ
+Lưu bài viết công nghệ (news/tips/guide).
+Có trạng thái nội dung: DRAFT → PENDING → PUBLISHED / HIDDEN / DELETED.
+Có view_count để thống kê “bài nhiều view”.
+Bảng: post_moderation_logs — Log duyệt bài viết
+Lưu lịch sử duyệt bài: ai duyệt, duyệt lúc nào, từ trạng thái nào sang trạng thái nào, lý do reject/hide.
+Dùng cho audit + báo cáo + “quy trình duyệt” đúng đặc tả.
+4) Products (sản phẩm)
+Bảng: products — Thông tin sản phẩm để review
+Lưu thông tin sản phẩm để review: tên, hãng, model, mô tả, trạng thái hiển thị.
+Là “trung tâm” cho review, rating, comment, AI summary.
+Bảng: product_images — Ảnh sản phẩm
+Lưu nhiều ảnh của 1 sản phẩm.
+Có is_primary để chọn ảnh chính hiển thị ngoài danh sách.
+Bảng: product_specs — Thông số kỹ thuật key-value
+Lưu thông số kỹ thuật dạng key-value (CPU/RAM/Pin…).
+Vì specs mỗi loại sản phẩm khác nhau nên key-value giúp linh hoạt.
+5) Reviews (bài review chi tiết)
+Bảng: reviews — Bài review chi tiết (có duyệt)
+Lưu bài review chi tiết do Author/Admin viết.
+Có pros/cons, overall_score, và trạng thái duyệt giống bài viết.
+Bảng: review_scores — Điểm theo tiêu chí
+Lưu điểm theo từng tiêu chí (hiệu năng, pin, màn hình…).
+Dùng để hiển thị bảng điểm chi tiết và tính điểm tổng (nếu muốn).
+Bảng: review_moderation_logs — Log duyệt review (khuyến nghị)
+Lưu lịch sử duyệt review giống như posts: approve/reject/hide + lý do.
+Giúp đúng đặc tả “quy trình duyệt giống bài viết”.
+6) Comments (bình luận) + kiểm duyệt + report
+Bảng: comments — Bình luận (dùng chung cho Post/Product/Review)
+Lưu bình luận của người dùng cho: Post / Product / Review.
+Hỗ trợ reply bằng parent_id.
+Có trạng thái: PENDING/VISIBLE/HIDDEN/DELETED để duyệt bình luận.
+Gợi ý index: (target_type, target_id) và (parent_id).
+Bảng: comment_moderation_logs — Log duyệt bình luận
+Lưu log admin đã approve/hide/delete bình luận nào, lúc nào, lý do.
+Dùng để truy vết khi có khiếu nại/vi phạm.
+Bảng: comment_reports — User báo cáo comment xấu (tuỳ chọn)
+Khi user bấm “report bình luận xấu”, hệ thống tạo record ở đây.
+Admin xem danh sách report và xử lý (resolve/reject…).
+7) Rating sao
+Bảng: product_ratings — Chấm sao 1–5 cho sản phẩm
+Lưu đánh giá sao 1–5 cho sản phẩm.
+Ràng buộc “mỗi user chỉ 1 rating/1 product” (unique user_id + product_id).
+Dùng để tính rating trung bình hiển thị ở trang sản phẩm.
+Unique bắt buộc: (user_id, product_id).
+8) AI Sentiment (phân tích bình luận) + cấu hình
+Bảng: ml_models — Quản lý phiên bản model AI
+Lưu thông tin phiên bản model AI (tên, version, active).
+Dùng để biết comment được phân tích bởi model nào; phục vụ rollback/so sánh chất lượng.
+Bảng: comment_ai_analysis — Kết quả AI cho từng comment
+Lưu kết quả AI cho từng comment: label (POS/NEG/NEU), confidence, score, model_id.
+Tránh việc mỗi lần tải trang lại gọi AI phân tích lại.
+Dùng để debug khi AI sai.
+Bảng: comment_labels — Nhãn tay để train
+Lưu nhãn thủ công do admin gán để tạo dataset train lại.
+Dùng cho quy trình cải thiện model (active learning).
+Bảng: product_sentiment_summary — Tổng hợp sentiment theo sản phẩm
+Lưu tổng hợp nhanh theo sản phẩm: số lượng comment tích cực/tiêu cực/trung lập, tỷ lệ %, kết luận cuối.
+Trang sản phẩm chỉ đọc 1 bảng này là hiển thị được ngay (rất nhanh).
+Bảng: ai_settings — Cấu hình ngưỡng kết luận & auto-approve
+Lưu ngưỡng và cấu hình để admin thay đổi: N tối thiểu, điều kiện GOOD/BAD, bật/tắt auto approve comment.
+Đúng yêu cầu “Admin quản trị AI”.
+9) Favorite / Featured / Compare
+Bảng: user_favorites — Theo dõi/quan tâm
+Lưu “user quan tâm” (favorite) đến post/product/review.
+Dùng cho trang “Danh sách quan tâm” và thống kê “top sản phẩm được quan tâm”.
+Unique: (user_id, target_type, target_id).
+Bảng: featured_items — Nội dung nổi bật
+Lưu cấu hình nội dung nổi bật (featured): cái nào được ghim, ưu tiên, thời gian hiển thị.
+Admin dùng để đẩy bài/sản phẩm lên trang chủ.
+Bảng: compare_lists — Danh sách so sánh
+Mỗi user có thể tạo nhiều danh sách so sánh.
+Bảng: compare_list_items — Sản phẩm trong list so sánh
+Lưu các sản phẩm nằm trong một compare list (2–5 sp).
+Dùng để render trang so sánh.
+10) Analytics / báo cáo
+Bảng: page_views — Lượt xem để thống kê
+Lưu lượt xem cho post/product/review theo thời gian.
+Dùng cho báo cáo: view theo ngày/tuần/tháng, top nhiều view.
+11) Use-case (nếu bạn dùng tính năng “nhu cầu”)
+Bảng: use_cases — Danh sách nhu cầu
+Danh sách nhu cầu: học tập, làm việc, giải trí…
+Bảng: product_usecase_scores — Điểm phù hợp theo nhu cầu
+Điểm “phù hợp theo nhu cầu” của từng sản phẩm.
+Dùng khi so sánh: gợi ý sản phẩm phù hợp mục đích.
+Unique: (product_id, use_case_id).
+ClassDiagam
+Usecase Diagam (có 2 cái chọn 1 cái)
+Activity Diagam
+Kế hoạch 3 tuần (MongoDB + Spring Boot)
+Tuần 1: Nền tảng + Auth + Core data
+Setup Spring Boot + MongoDB
+Thiết kế collections (schema document)
+Auth JWT + roles trong users
+CRUD categories
+CRUD products (images/specs embed)
+✅ Deliverable: login + tạo sản phẩm/danh mục OK
+Tuần 2: Posts + Reviews + Comments
+Posts workflow + moderation logs
+Reviews workflow + scores embed + logs
+Comments + reply + moderation + report
+Ratings sao (lưu vào products.ratingSummary hoặc collection riêng)
+✅ Deliverable: content + tương tác user chạy end-to-end
+Tuần 3: AI + Summary + Analytics + UI demo
+AI sentiment:
+Khi comment mới → chạy sentiment (mock trước) → update product.sentimentSummary
+Favorite + featured + compare
+page_views + thống kê cơ bản
+UI demo (Thymeleaf hoặc React tối giản)
+✅ Deliverable: comment → AI → kết luận ngay dưới product
+Cấu trúc dự án Spring Boot + MongoDB 
+tech-review-platform/
+├─ backend/
+│  ├─ src/
+│  │  ├─ main/
+│  │  │  ├─ java/
+│  │  │  │  └─ com/
+│  │  │  │     └─ yourname/
+│  │  │  │        └─ techreview/
+│  │  │  │           ├─ config/
+│  │  │  │           ├─ security/
+│  │  │  │           ├─ common/
+│  │  │  │           │  ├─ exception/
+│  │  │  │           │  ├─ response/
+│  │  │  │           │  └─ util/
+│  │  │  │           ├─ domain/
+│  │  │  │           │  ├─ auth/
+│  │  │  │           │  ├─ user/
+│  │  │  │           │  ├─ category/
+│  │  │  │           │  ├─ post/
+│  │  │  │           │  ├─ product/
+│  │  │  │           │  ├─ review/
+│  │  │  │           │  ├─ comment/
+│  │  │  │           │  ├─ rating/
+│  │  │  │           │  ├─ favorite/
+│  │  │  │           │  ├─ featured/
+│  │  │  │           │  ├─ compare/
+│  │  │  │           │  ├─ ai/
+│  │  │  │           │  └─ analytics/
+│  │  │  │           ├─ integration/
+│  │  │  │           └─ scheduler/
+│  │  │  └─ resources/
+│  │  └─ test/
+│  └─ docs/
+│
+├─ frontend/
+│  ├─ src/
+│  │  ├─ app/
+│  │  │  ├─ routes/
+│  │  │  ├─ layouts/
+│  │  │  └─ guards/
+│  │  ├─ api/
+│  │  ├─ components/
+│  │  ├─ features/
+│  │  │  ├─ auth/
+│  │  │  ├─ posts/
+│  │  │  ├─ products/
+│  │  │  ├─ reviews/
+│  │  │  ├─ comments/
+│  │  │  └─ admin/
+│  │  ├─ store/
+│  │  ├─ styles/
+│  │  └─ utils/
+│  ├─ public/
+│  └─ docs/
+│
+├─ docs/
+│  ├─ uml/
+│  ├─ api/
+│  └─ database/
+│
+└─ deploy/
+   ├─ docker/
+   └─ scripts/

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Admin Sidebar Navigation -->
+<aside th:fragment="sidebar" class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar-header">
+        <div>
+            <h1>Admin Console</h1>
+            <p>System Overview</p>
+        </div>
+        <button class="admin-sidebar-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('collapsed'); document.getElementById('admin-main').classList.toggle('expanded');">
+            <span class="material-symbols-outlined">menu_open</span>
+        </button>
+    </div>
+
+    <nav class="admin-sidebar-nav">
+        <a th:href="@{/admin/posts}" class="admin-nav-link" th:classappend="${activePage == 'posts'} ? 'active'">
+            <span class="material-symbols-outlined">article</span>
+            <span class="admin-nav-text">Posts</span>
+        </a>
+        <a th:href="@{/admin/products}" class="admin-nav-link" th:classappend="${activePage == 'products'} ? 'active'">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+            <span class="admin-nav-text">Products</span>
+        </a>
+        <a th:href="@{/admin/categories}" class="admin-nav-link" th:classappend="${activePage == 'categories'} ? 'active'">
+            <span class="material-symbols-outlined">category</span>
+            <span class="admin-nav-text">Categories</span>
+        </a>
+        <a th:href="@{/admin/tags}" class="admin-nav-link" th:classappend="${activePage == 'tags'} ? 'active'">
+            <span class="material-symbols-outlined">sell</span>
+            <span class="admin-nav-text">Tags</span>
+        </a>
+        <a th:href="@{/admin/reviews/moderation}" class="admin-nav-link" th:classappend="${activePage == 'reviews'} ? 'active'">
+            <span class="material-symbols-outlined">rate_review</span>
+            <span class="admin-nav-text">Review Moderation</span>
+        </a>
+        <a th:href="@{/admin/comments}" class="admin-nav-link" th:classappend="${activePage == 'comments'} ? 'active'">
+            <span class="material-symbols-outlined">forum</span>
+            <span class="admin-nav-text">Comments</span>
+        </a>
+        <a th:href="@{/admin/users}" class="admin-nav-link" th:classappend="${activePage == 'users'} ? 'active'">
+            <span class="material-symbols-outlined">group</span>
+            <span class="admin-nav-text">Users</span>
+        </a>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+        <div class="admin-user-info">
+            <div class="admin-user-avatar"></div>
+            <div>
+                <p class="admin-user-name" th:text="${#authentication != null} ? ${#authentication.name} : 'Admin User'">Admin User</p>
+                <p class="admin-user-role">Super Admin</p>
+            </div>
+        </div>
+    </div>
+</aside>
+</body>
+</html>

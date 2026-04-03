@@ -1,0 +1,508 @@
+﻿TÓM TẮT CHỨC NĂNG
+1️⃣ XÁC THỰC & NGƯỜI DÙNG (AUTH + USER)
+1.1 Đăng ký / Đăng nhập
+Đăng ký tài khoản
+Đăng nhập nhận JWT
+Mã hóa mật khẩu (BCrypt)
+Phân quyền theo role (ADMIN / AUTHOR / USER)
+1.2 Quản lý hồ sơ cá nhân
+Xem thông tin cá nhân
+Cập nhật avatar
+Cập nhật bio
+Đổi mật khẩu
+ADMIN khóa / mở khóa tài khoản
+ADMIN gán role cho user
+2️⃣ DANH MỤC (CATEGORIES)
+Tạo danh mục (POST hoặc PRODUCT)
+Sửa danh mục
+Xóa danh mục (hoặc tắt hiển thị)
+Danh mục cha – con
+Hiển thị danh sách danh mục
+Lọc theo loại (POST / PRODUCT)
+3️⃣ BÀI VIẾT (POSTS)
+3.1 CRUD bài viết
+AUTHOR tạo bài (DRAFT)
+Sửa bài
+Submit bài → PENDING
+ADMIN duyệt bài → PUBLISHED
+ADMIN từ chối → REJECT
+ADMIN ẩn bài → HIDDEN
+ADMIN xóa bài → DELETED
+Upload thumbnail
+Tăng lượt xem (view_count)
+3.2 Lưu lịch sử duyệt
+Ghi lại ai duyệt
+Duyệt lúc nào
+Lý do reject/hide
+4️⃣ SẢN PHẨM (PRODUCTS)
+4.1 CRUD sản phẩm
+Tạo sản phẩm
+Sửa sản phẩm
+Publish sản phẩm
+Ẩn / Xóa sản phẩm
+Lọc theo danh mục
+Lọc theo brand
+4.2 Quản lý ảnh sản phẩm
+Thêm ảnh
+Xóa ảnh
+Chọn ảnh chính
+Sắp xếp thứ tự ảnh
+4.3 Quản lý thông số kỹ thuật
+Thêm thông số (CPU, RAM…)
+Sửa thông số
+Xóa thông số
+Sắp xếp thứ tự hiển thị
+5️⃣ REVIEW SẢN PHẨM
+5.1 Tạo review
+AUTHOR tạo review (DRAFT)
+Nhập nội dung chi tiết
+Nhập ưu điểm (Pros)
+Nhập nhược điểm (Cons)
+Nhập điểm tổng (overall_score)
+5.2 Điểm theo tiêu chí
+Thêm điểm theo từng tiêu chí (hiệu năng, pin…)
+Sửa điểm
+Xóa điểm
+5.3 Duyệt review
+Submit review → PENDING
+ADMIN duyệt
+ADMIN reject
+ADMIN hide
+Ghi log duyệt review
+6️⃣ BÌNH LUẬN (COMMENTS)
+6.1 Bình luận cơ bản
+User bình luận bài viết
+User bình luận sản phẩm
+User bình luận review
+Reply bình luận (parent_id)
+Hiển thị dạng cây
+6.2 Duyệt bình luận
+Trạng thái:
+PENDING
+VISIBLE
+HIDDEN
+DELETED
+ADMIN duyệt / ẩn / xóa
+Ghi log duyệt
+6.3 Report bình luận
+User bấm report
+ADMIN xem danh sách report
+Resolve / Reject report
+7️⃣ CHẤM SAO (RATING)
+User chấm 1–5 sao cho sản phẩm
+Mỗi user chỉ được chấm 1 lần / 1 sản phẩm
+Có thể cập nhật sao
+Tính rating trung bình
+Hiển thị số lượt rating
+8️⃣ AI PHÂN TÍCH BÌNH LUẬN (QUAN TRỌNG NHẤT)
+8.1 Phân tích từng comment
+Khi có comment mới:
+Gọi AI sentiment
+Trả label:
+POSITIVE
+NEGATIVE
+NEUTRAL
+Lưu score + confidence
+Lưu model_id
+8.2 Tổng hợp theo sản phẩm
+Đếm số comment tích cực
+Đếm số comment tiêu cực
+Tính tỷ lệ %
+So sánh với ngưỡng trong ai_settings
+Kết luận:
+GOOD
+BAD
+NEUTRAL
+NOT_ENOUGH_DATA
+8.3 Cấu hình AI (Admin)
+Số comment tối thiểu
+% tích cực để GOOD
+% tiêu cực để BAD
+Bật/tắt auto approve
+8.4 Gán nhãn tay (để train lại)
+Admin gán label thủ công cho comment
+Lưu làm dataset train
+9️⃣ YÊU THÍCH (FAVORITE)
+User thêm post/product/review vào danh sách yêu thích
+User bỏ yêu thích
+Xem danh sách yêu thích cá nhân
+🔟 NỘI DUNG NỔI BẬT (FEATURED)
+ADMIN ghim bài / sản phẩm
+Thiết lập thời gian hiển thị
+Sắp xếp theo priority
+1️⃣1️⃣ SO SÁNH SẢN PHẨM (COMPARE)
+User tạo compare list
+Thêm sản phẩm vào list
+Xóa sản phẩm khỏi list
+Trang so sánh hiển thị:
+Specs
+Rating
+Review score
+Sentiment summary
+Use-case score (nếu có)
+1️⃣2️⃣ THỐNG KÊ (ANALYTICS)
+Ghi nhận lượt xem
+Top sản phẩm nhiều view
+Top bài viết nhiều view
+Thống kê theo ngày / tháng
+Thống kê sentiment
+1. Tìm kiếm (Search)
+⚠️ Thiếu nghiêm trọng nhất. Một blog/review sản phẩm mà không có search thì user không thể tìm được nội dung.
+Full-text search bài viết, sản phẩm
+Search gợi ý (autocomplete)
+Lọc kết quả theo category, date, rating
+Gợi ý: Dùng MongoDB Atlas Search hoặc Elasticsearch
+2. Tags / Thẻ gắn
+Categories là phân loại cứng, nhưng tags cho phép phân loại linh hoạt hơn.
+Ví dụ: Bài viết thuộc category "Laptop" nhưng có tags: #gaming, #under-20m, #2025
+Giúp content discovery tốt hơn nhiều
+3. Quên mật khẩu / Reset password
+Chỉ có "Đổi mật khẩu" (cần biết mật khẩu cũ). Thiếu flow "Quên mật khẩu":
+User nhập email → gửi link reset → đặt mật khẩu mới
+Infrastructure đã có email/  → dùng ngay
+4. Xác thực email khi đăng ký
+Đăng ký nhưng không verify email → tài khoản rác, spam.
+Gửi email chứa link/OTP xác thực
+Chỉ kích hoạt tài khoản sau khi verify
+5. Hệ thống thông báo (Notification)
+Hiện tại không có cách nào để user biết:
+Bài viết được duyệt/từ chối
+Comment mới trên bài viết của mình
+Ai reply comment của mình
+Admin có report mới cần xử lý
+Gợi ý: Real-time notification (WebSocket) + notification history
+🎯 TỔNG KẾT NHÓM CHỨC NĂNG
+Phân Chia
+Chia cho 5 người
+🔹 Người 1 – Auth + User + Role (Core hệ thống)
+1️⃣ Đăng ký / Đăng nhập (JWT)
+Register
+Login
+Hash mật khẩu
+Middleware xác thực
+2️⃣ Quản lý hồ sơ cá nhân
+Xem profile
+Cập nhật avatar + bio
+Đổi mật khẩu
+3️⃣ Phân quyền & quản lý user
+Gán role
+Khóa / mở khóa tài khoản
+Check quyền endpoint
+👉 Đây là phần nền tảng, ai làm chắc phần này thì cả hệ thống mới chạy được.
+🔹 Người 2 – Products + Specs + Rating
+1️⃣ CRUD sản phẩm
+Tạo / sửa / xóa / publish
+Lọc theo danh mục
+2️⃣ Quản lý ảnh + thông số kỹ thuật
+Upload ảnh
+Set ảnh chính
+CRUD specs
+3️⃣ Rating sao
+User chấm sao
+Tính rating trung bình
+Hiển thị số lượt đánh giá
+👉 Đây là phần trung tâm của hệ thống (Product là lõi).
+🔹 Người 3 – Posts + Reviews + Workflow duyệt
+1️⃣ CRUD bài viết
+Tạo / sửa / submit
+Publish / hide / delete
+View count
+2️⃣ CRUD review sản phẩm
+Pros / Cons
+Điểm tổng
+Điểm theo tiêu chí
+3️⃣ Hệ thống duyệt nội dung
+Post moderation logs
+Review moderation logs
+Approve / Reject + lý do
+👉 Đây là phần CMS nội dung.
+🔹 Người 4 – Comments + Report + Favorite + Compare
+1️⃣ Bình luận + reply
+Comment cho post/product/review
+Reply
+Hiển thị cây comment
+2️⃣ Duyệt comment + report
+Approve / Hide / Delete
+Report comment
+Resolve report
+3️⃣ Favorite + Compare
+Add/remove favorite
+Tạo compare list
+Thêm sản phẩm vào compare
+Trang so sánh
+👉 Đây là phần tương tác người dùng.
+🔹 Người 5 – AI Sentiment + Summary + Analytics (phần nâng cao)
+1️⃣ Phân tích sentiment comment
+Gọi AI (mock trước)
+Lưu label + confidence
+Không phân tích lại nếu đã có
+2️⃣ Tổng hợp sentiment theo sản phẩm
+Đếm POS/NEG/NEU
+Tính %
+So sánh với ngưỡng
+Kết luận GOOD/BAD/NEUTRAL
+3️⃣ AI Settings + quản lý model
+CRUD ai_settings
+Cấu hình threshold
+Quản lý model version
+Gán nhãn tay
+(Bonus nếu còn thời gian)
+Page views
+Dashboard thống kê
+Giao Diện UI
+I. GIAO DIỆN PHẦN NGƯỜI DÙNG (PUBLIC WEBSITE)
+1️⃣ Trang chủ (Home Page)
+4
+Bao gồm:
+Header (logo + menu + search + login)
+Slider nội dung nổi bật
+Sản phẩm nổi bật
+Bài viết mới nhất
+Review mới
+Footer
+2️⃣ Trang đăng nhập
+4
+Form email
+Password
+Nút đăng nhập
+Link đăng ký
+3️⃣ Trang đăng ký
+Form đăng ký
+Xác thực dữ liệu
+Thông báo lỗi
+4️⃣ Trang hồ sơ cá nhân (Profile)
+Thông tin cá nhân
+Cập nhật avatar
+Cập nhật bio
+Đổi mật khẩu
+Danh sách yêu thích
+Danh sách so sánh
+5️⃣ Trang danh sách bài viết
+4
+Lọc theo danh mục
+Tìm kiếm
+Sắp xếp
+Phân trang
+6️⃣ Trang chi tiết bài viết
+4
+Nội dung bài
+View count
+Comment section
+Favorite button
+7️⃣ Trang danh sách sản phẩm
+4
+Lọc theo danh mục
+Lọc theo brand
+Sắp xếp theo rating
+Thêm vào so sánh
+8️⃣ Trang chi tiết sản phẩm (QUAN TRỌNG NHẤT)
+4
+Gồm:
+🔹 Thông tin sản phẩm
+Ảnh chính
+Gallery ảnh
+Giá
+Rating trung bình
+🔹 AI Sentiment Summary
+Số comment tích cực/tiêu cực
+Tỷ lệ %
+Kết luận: GOOD / BAD / NEUTRAL
+🔹 Review chi tiết
+Pros
+Cons
+Điểm tổng
+Điểm theo tiêu chí
+🔹 Comment
+Bình luận
+Reply
+Report
+9️⃣ Trang so sánh sản phẩm
+4
+So sánh specs
+So sánh rating
+So sánh sentiment
+So sánh điểm review
+🔟 Trang yêu thích (Favorite)
+Danh sách sản phẩm/bài viết đã lưu
+Xoá khỏi yêu thích
+🛠️ II. GIAO DIỆN ADMIN DASHBOARD
+1️⃣ Trang tổng quan (Dashboard)
+4
+Tổng user
+Tổng sản phẩm
+Tổng bài viết
+Top view
+Tỷ lệ sentiment
+2️⃣ Quản lý người dùng
+Danh sách user
+Tìm kiếm
+Gán role
+Ban / unban
+3️⃣ Quản lý bài viết
+Danh sách bài viết
+Lọc theo trạng thái
+Approve / Reject
+Xem log duyệt
+4️⃣ Quản lý review
+Danh sách review
+Approve / Reject
+Xem điểm tiêu chí
+5️⃣ Quản lý sản phẩm
+CRUD sản phẩm
+Quản lý ảnh
+Quản lý specs
+Publish / Hide
+6️⃣ Quản lý comment
+Danh sách comment
+Approve / Hide / Delete
+Danh sách report
+Resolve report
+7️⃣ Quản lý AI
+AI Settings
+Danh sách model
+Gán nhãn tay
+Xem confidence
+8️⃣ Quản lý Featured
+Ghim bài/sản phẩm
+Thiết lập thời gian hiển thị
+Sắp xếp ưu tiên
+Tech Review Platform
+│
+├── 🌍 PUBLIC WEBSITE
+│   │
+│   ├── 🏠 Trang chủ
+│   │   ├── Slider nổi bật
+│   │   ├── Sản phẩm nổi bật
+│   │   ├── Bài viết mới
+│   │   └── Review mới
+│   │
+│   ├── 📰 Bài viết
+│   │   ├── Danh sách bài viết
+│   │   │   ├── Lọc theo danh mục
+│   │   │   ├── Tìm kiếm
+│   │   │   └── Phân trang
+│   │   │
+│   │   └── Chi tiết bài viết
+│   │       ├── Nội dung
+│   │       ├── Bình luận
+│   │       │   ├── Trả lời
+│   │       │   └── Report
+│   │       └── Thêm yêu thích
+│   │
+│   ├── 📦 Sản phẩm
+│   │   ├── Danh sách sản phẩm
+│   │   │   ├── Lọc theo danh mục
+│   │   │   ├── Lọc theo brand
+│   │   │   ├── Sắp xếp rating
+│   │   │   └── Thêm vào so sánh
+│   │   │
+│   │   └── Chi tiết sản phẩm
+│   │       ├── Thông tin cơ bản
+│   │       │   ├── Ảnh gallery
+│   │       │   ├── Giá
+│   │       │   └── Rating trung bình
+│   │       │
+│   │       ├── Thông số kỹ thuật
+│   │       │
+│   │       ├── 🤖 AI Sentiment Summary
+│   │       │   ├── % Tích cực
+│   │       │   ├── % Tiêu cực
+│   │       │   └── Kết luận (GOOD/BAD/NEUTRAL)
+│   │       │
+│   │       ├── 📝 Review chi tiết
+│   │       │   ├── Pros
+│   │       │   ├── Cons
+│   │       │   └── Điểm tiêu chí
+│   │       │
+│   │       ├── 💬 Bình luận
+│   │       │   ├── Trả lời
+│   │       │   └── Report
+│   │       │
+│   │       ├── ⭐ Chấm sao
+│   │       └── ❤️ Thêm yêu thích
+│   │
+│   ├── 🔍 Tìm kiếm
+│   │   ├── Kết quả bài viết
+│   │   └── Kết quả sản phẩm
+│   │
+│   ├── ❤️ Yêu thích
+│   │   ├── Bài viết đã lưu
+│   │   └── Sản phẩm đã lưu
+│   │
+│   ├── ⚖️ So sánh sản phẩm
+│   │   ├── Danh sách compare
+│   │   └── Trang so sánh chi tiết
+│   │       ├── So sánh specs
+│   │       ├── So sánh rating
+│   │       ├── So sánh sentiment
+│   │       └── So sánh review
+│   │
+│   └── 👤 Tài khoản
+│       ├── Đăng nhập
+│       ├── Đăng ký
+│       ├── Hồ sơ cá nhân
+│       │   ├── Cập nhật thông tin
+│       │   ├── Đổi mật khẩu
+│       │   ├── Danh sách yêu thích
+│       │   └── Danh sách so sánh
+│       └── Đăng xuất
+│
+└── 🛠 ADMIN DASHBOARD
+    │
+    ├── 📊 Dashboard
+    │   ├── Tổng user
+    │   ├── Tổng sản phẩm
+    │   ├── Tổng bài viết
+    │   ├── Top view
+    │   └── Thống kê sentiment
+    │
+    ├── 👥 Quản lý người dùng
+    │   ├── Danh sách user
+    │   ├── Gán role
+    │   └── Ban / Unban
+    │
+    ├── 🗂 Quản lý danh mục
+    │   ├── Tạo
+    │   ├── Sửa
+    │   └── Tắt hiển thị
+    │
+    ├── 📰 Quản lý bài viết
+    │   ├── Danh sách bài
+    │   ├── Duyệt bài
+    │   │   ├── Approve
+    │   │   ├── Reject
+    │   │   └── Hide
+    │   └── Log duyệt
+    │
+    ├── 📝 Quản lý review
+    │   ├── Danh sách review
+    │   ├── Duyệt review
+    │   └── Log duyệt
+    │
+    ├── 📦 Quản lý sản phẩm
+    │   ├── CRUD sản phẩm
+    │   ├── Quản lý ảnh
+    │   ├── Quản lý specs
+    │   └── Publish / Hide
+    │
+    ├── 💬 Quản lý comment
+    │   ├── Danh sách comment
+    │   ├── Duyệt comment
+    │   ├── Danh sách report
+    │   └── Resolve report
+    │
+    ├── 🤖 Quản lý AI
+    │   ├── AI Settings
+    │   ├── Danh sách model
+    │   ├── Active model
+    │   └── Gán nhãn tay
+    │
+    ├── ⭐ Quản lý Featured
+    │   ├── Thêm nội dung nổi bật
+    │   └── Sắp xếp ưu tiên
+    │
+    └── 📈 Thống kê
+        ├── Page views
+        ├── Top sản phẩm
+        ├── Top bài viết
+        └── Thống kê rating

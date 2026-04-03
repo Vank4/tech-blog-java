@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Soạn thảo bài viết - TechNexus</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#06e8f9", "background-dark": "#0f2123", "surface-dark": "#162a2d" }
+                }
+            }
+        }
+    </script>
+    <style>
+        .ql-toolbar.ql-snow { background: #f8fafc; border-radius: 12px 12px 0 0; border: 1px solid #334155; }
+        .ql-container.ql-snow { background: white; color: #1e293b; border-radius: 0 0 12px 12px; border: 1px solid #334155; min-height: 500px; font-size: 16px; font-family: 'Inter', sans-serif; }
+        .ql-editor.ql-blank::before { color: #94a3b8; font-style: normal; }
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-200 font-display flex flex-col h-screen overflow-hidden">
+
+<header class="h-20 bg-surface-dark border-b border-slate-800 flex items-center justify-between px-8 shrink-0">
+    <div class="flex items-center gap-4">
+        <button onclick="location.href='/author/posts'" class="p-2 hover:bg-slate-800 rounded-full transition-colors">
+            <span class="material-icons text-slate-400">arrow_back</span>
+        </button>
+        <h1 id="editor-title" class="text-xl font-bold text-white tracking-tight">Soạn bài viết mới</h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <a href="/profile" class="px-5 py-2.5 border border-slate-700 hover:bg-slate-800 rounded-xl font-medium transition-all text-slate-300 flex items-center gap-2">
+            <span class="material-icons text-[18px]">person</span> Hồ sơ
+        </a>
+        <button onclick="savePost('DRAFT')" class="px-6 py-2.5 border border-slate-700 hover:bg-slate-800 rounded-xl font-medium transition-all text-slate-300">Lưu nháp</button>
+        <button onclick="savePost('PENDING')" class="px-8 py-2.5 bg-primary text-background-dark font-black rounded-xl shadow-[0_0_20px_rgba(6,232,249,0.3)] hover:scale-105 transition-all">GỬI DUYỆT</button>
+    </div>
+</header>
+
+<main class="flex-1 overflow-auto p-8 bg-[#0a1618]">
+    <div class="max-w-5xl mx-auto space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-2 space-y-5">
+                <input type="text" id="postTitle" placeholder="Nhập tiêu đề bài viết gây ấn tượng..."
+                       class="w-full bg-surface-dark border-slate-700 rounded-2xl p-5 text-2xl font-bold text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-inner"/>
+                <textarea id="postSummary" rows="3" placeholder="Viết mô tả ngắn để tóm tắt nội dung bài viết này cho người đọc..."
+                          class="w-full bg-surface-dark border-slate-700 rounded-2xl p-5 text-slate-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-inner"></textarea>
+            </div>
+            <div class="space-y-4">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Ảnh đại diện bài viết</label>
+                <div onclick="document.getElementById('fileInput').click()"
+                     class="aspect-video bg-surface-dark rounded-2xl border-2 border-dashed border-slate-700 flex flex-col items-center justify-center overflow-hidden relative group cursor-pointer hover:border-primary/50 transition-all shadow-inner">
+                    <img id="previewThumb" class="absolute inset-0 w-full h-full object-cover hidden" alt="Preview"/>
+                    <div id="uploadPlaceholder" class="flex flex-col items-center group-hover:scale-110 transition-transform">
+                        <span class="material-icons text-slate-600 group-hover:text-primary mb-2 text-4xl">add_a_photo</span>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase text-center">Chọn ảnh từ máy</p>
+                    </div>
+                    <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="handleFileUpload(this)"/>
+                </div>
+                <div class="relative">
+                    <input type="text" id="thumbnailUrl" oninput="updatePreview(this.value)"
+                           placeholder="Hoặc dán URL ảnh trực tiếp..."
+                           class="w-full bg-surface-dark border-slate-700 rounded-xl text-[10px] text-white focus:ring-1 focus:ring-primary pl-8"/>
+                    <span class="material-icons absolute left-2 top-2 text-slate-600 text-sm">link</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-2">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Danh mục bài viết</label>
+                <select id="categoryId" class="w-full bg-surface-dark border-slate-700 rounded-xl text-white focus:ring-primary py-3"></select>
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Thẻ bài viết (Tags)</label>
+                <div id="tag-container" class="flex items-center gap-3 p-3 bg-surface-dark border border-slate-700 rounded-xl overflow-x-auto custom-scrollbar min-h-[50px]">
+                    <span class="text-slate-500 text-xs italic">Đang tải thẻ...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nội dung chi tiết</label>
+            <div id="editor-container"></div>
+        </div>
+        <div class="h-10"></div> </div>
+</main>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script th:inline="none">
+    const API_BASE = "http://localhost:8081/api/v1";
+    const accessToken = localStorage.getItem("techblog.accessToken");
+
+    async function authFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (accessToken) {
+            headers.set("Authorization", `Bearer ${accessToken}`);
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            window.location.href = `/login?next=${encodeURIComponent("/author/posts/editor")}`;
+            throw new Error("UNAUTHORIZED");
+        }
+        return response;
+    }
+
+    async function ensureAuthorAccess() {
+        if (!accessToken) {
+            window.location.href = `/login?next=${encodeURIComponent("/author/posts/editor")}`;
+            return false;
+        }
+
+        try {
+            const response = await authFetch("/api/v1/users/me");
+            const payload = await response.json();
+            const roles = payload.data?.roles || [];
+
+            if (!response.ok || (!roles.includes("AUTHOR") && !roles.includes("ADMIN"))) {
+                window.location.href = "/profile";
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            if (error.message !== "UNAUTHORIZED") {
+                window.location.href = "/profile";
+            }
+            return false;
+        }
+    }
+
+    // 1. Khởi tạo Quill
+    let quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Bắt đầu viết nội dung tại đây...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'header': 1 }, { 'header': 2 }],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPostId = urlParams.get('id');
+
+    function updatePreview(url) {
+        const img = document.getElementById('previewThumb');
+        if(url) {
+            img.src = url;
+            img.classList.remove('hidden');
+        } else {
+            img.classList.add('hidden');
+        }
+    }
+
+    // 2. Xử lý Upload ảnh từ máy
+    async function handleFileUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const placeholder = document.getElementById('uploadPlaceholder');
+        placeholder.innerHTML = '<span class="material-icons animate-spin text-primary">sync</span><p class="text-[10px] mt-2">Đang tải...</p>';
+
+        try {
+            const res = await authFetch(`${API_BASE}/files/upload`, { method: 'POST', body: formData });
+            const json = await res.json();
+            if (res.ok) {
+                document.getElementById('thumbnailUrl').value = json.data;
+                updatePreview(json.data);
+            } else { alert("Upload thất bại!"); }
+        } catch (e) { alert("Lỗi kết nối upload!"); } finally {
+            placeholder.innerHTML = '<span class="material-icons text-slate-600 group-hover:text-primary mb-2 text-4xl">add_a_photo</span><p class="text-[10px] text-slate-500 font-bold uppercase">Chọn ảnh từ máy</p>';
+        }
+    }
+
+    // 3. Khởi tạo dữ liệu (Tags & Categories)
+    async function init() {
+        try {
+            const [catRes, tagRes] = await Promise.all([
+                authFetch(`${API_BASE}/categories`),
+                authFetch(`${API_BASE}/tags`)
+            ]);
+
+            const catJson = await catRes.json();
+            const tagJson = await tagRes.json();
+
+            // Xử lý linh hoạt mảng trực tiếp hoặc object chứa data
+            const categories = Array.isArray(catJson) ? catJson : (catJson.data || []);
+            const tags = Array.isArray(tagJson) ? tagJson : (tagJson.data || []);
+
+            document.getElementById('categoryId').innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            if (tags.length > 0) {
+                document.getElementById('tag-container').innerHTML = tags.map(t => `
+                    <label class="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-slate-700 border border-slate-700 shrink-0">
+                        <input type="checkbox" name="postTags" value="${t.id}" class="tag-checkbox rounded border-slate-600 text-primary bg-transparent w-4 h-4"/>
+                        <span class="text-xs text-slate-300 font-medium">${t.name}</span>
+                    </label>
+                `).join('');
+            } else {
+                document.getElementById('tag-container').innerHTML = '<span class="text-slate-500 text-xs italic">Không có thẻ nào được tìm thấy.</span>';
+            }
+
+            // 4. Chế độ Edit: Load bài cũ
+            if (currentPostId) {
+                document.getElementById('editor-title').innerText = "Chỉnh sửa bài viết #" + currentPostId;
+                const postRes = await authFetch(`${API_BASE}/posts/${currentPostId}/admin`);
+                const postJson = await postRes.json();
+                const post = postJson.data;
+
+                if (post) {
+                    document.getElementById('postTitle').value = post.title;
+                    document.getElementById('postSummary').value = post.summary;
+                    document.getElementById('thumbnailUrl').value = post.thumbnailUrl;
+                    document.getElementById('categoryId').value = post.categoryId;
+                    updatePreview(post.thumbnailUrl);
+                    quill.root.innerHTML = post.content || '';
+
+                    if(post.tags) {
+                        const postTagIds = post.tags.map(t => t.id);
+                        document.querySelectorAll('.tag-checkbox').forEach(cb => {
+                            if(postTagIds.includes(parseInt(cb.value))) cb.checked = true;
+                        });
+                    }
+                }
+            }
+        } catch (e) { console.error("Lỗi khởi tạo:", e); }
+    }
+
+    // 5. Lưu bài viết
+    async function savePost(targetStatus) {
+        const selectedTagIds = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => parseInt(cb.value));
+        const payload = {
+            title: document.getElementById('postTitle').value,
+            summary: document.getElementById('postSummary').value,
+            content: quill.root.innerHTML,
+            thumbnailUrl: document.getElementById('thumbnailUrl').value,
+            categoryId: parseInt(document.getElementById('categoryId').value),
+            allowComments: true,
+            tagIds: selectedTagIds
+        };
+
+        if(!payload.title) { alert("Vui lòng nhập tiêu đề!"); return; }
+
+        const url = currentPostId ? `${API_BASE}/posts/${currentPostId}` : `${API_BASE}/posts`;
+        const method = currentPostId ? 'PUT' : 'POST';
+
+        try {
+            const res = await authFetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+
+            if (res.ok) {
+                if (targetStatus === 'PENDING') {
+                    const id = currentPostId || json.data.id;
+                    await authFetch(`${API_BASE}/posts/${id}/submit`, { method: 'PATCH' });
+                }
+                alert("Thao tác thành công!");
+                location.href = "/author/posts";
+            } else { alert("Lỗi: " + (json.message || "Máy chủ từ chối")); }
+        } catch (error) { alert("Lỗi kết nối!"); }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (await ensureAuthorAccess()) {
+            init();
+        }
+    });
+</script>
+</body>
+</html>

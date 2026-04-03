@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Đăng ký | TechNexus', 'style.css')}"></head>
+<body>
+<div class="site-shell">
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <main class="auth-page">
+        <section class="auth-hero">
+            <div class="hero-copy">
+                <div class="eyebrow">Creator Access</div>
+                <h1>Tạo tài khoản để tham gia hệ thống đánh giá công nghệ thế hệ mới.</h1>
+                <p>
+                    Đăng ký để lưu compare list, theo dõi nội dung yêu thích, nhận thông báo và
+                    sẵn sàng mở rộng sang vai trò author hoặc admin khi hệ thống phân quyền.
+                </p>
+            </div>
+
+            <div class="hero-grid">
+                <article class="hero-panel">
+                    <h2>Thiết kế đồng bộ với giao diện chính</h2>
+                    <p>
+                        Cấu trúc card lớn, accent cyan, bo góc sâu và nhịp spacing rộng giúp trang auth
+                        hòa cùng ngôn ngữ visual của toàn bộ nền tảng thay vì tách rời như một form mặc định.
+                    </p>
+                </article>
+
+                <article class="hero-metric">
+                    <strong>Verify Email</strong>
+                    <span>Sau khi đăng ký, hệ thống sẽ yêu cầu xác thực email trước khi login.</span>
+                </article>
+
+                <article class="hero-metric">
+                    <strong>Profile Ready</strong>
+                    <span>Tài khoản mới sẽ sẵn sàng cho avatar, bio, favorites và compare history.</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="auth-card">
+            <div class="auth-card-header">
+                <div class="eyebrow">Create Account</div>
+                <h1>Tạo tài khoản mới</h1>
+                <p>Điền thông tin cơ bản để bắt đầu trải nghiệm TechNexus bằng tài khoản cá nhân.</p>
+            </div>
+
+            <form data-auth-form="register" data-endpoint="/api/v1/auth/register">
+                <div class="status-message" data-form-message></div>
+
+                <div class="form-grid">
+                    <div class="field field-full">
+                        <label for="register-fullName">Họ và tên</label>
+                        <input id="register-fullName" name="fullName" type="text" placeholder="Nguyễn Văn A" required>
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="register-email">Email</label>
+                        <input id="register-email" name="email" type="email" placeholder="you@technexus.dev" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="register-password">Mật khẩu</label>
+                        <input id="register-password" name="password" type="password" placeholder="Tối thiểu 6 ký tự" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="register-confirmPassword">Xác nhận mật khẩu</label>
+                        <input id="register-confirmPassword" name="confirmPassword" type="password" placeholder="Nhập lại mật khẩu" required>
+                    </div>
+                </div>
+
+                <p class="terms-copy">
+                    Khi tiếp tục, bạn đồng ý với điều khoản sử dụng và cho phép hệ thống gửi email xác thực tài khoản.
+                </p>
+
+                <div class="stack-actions">
+                    <button class="pill-button" type="submit" data-default-label="Tạo tài khoản" data-loading-label="Đang tạo tài khoản...">
+                        Tạo tài khoản
+                    </button>
+                    <a class="outline-button" href="/login">Quay lại đăng nhập</a>
+                </div>
+
+                <p class="switch-copy">
+                    Đã có tài khoản?
+                    <a href="/login">Đăng nhập ngay</a>
+                </p>
+            </form>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

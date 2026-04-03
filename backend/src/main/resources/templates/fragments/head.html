@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Public Pages Head Fragment -->
+<head th:fragment="head(title, pageCSS)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" th:content="${metaDescription != null} ? ${metaDescription} : 'TechNexus - Premium hardware discovery, analysis, and comparison platform.'"/>
+    <title th:text="${title} ?: 'TechNexus'">TechNexus</title>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
+    <!-- Page-specific CSS (passed as parameter) -->
+    <link rel="stylesheet" th:if="${pageCSS != null}" th:href="@{'/css/' + ${pageCSS}}"/>
+</head>
+</html>

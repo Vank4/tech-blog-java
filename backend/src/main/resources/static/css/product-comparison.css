@@ -1,0 +1,174 @@
+/* ============================================
+   TechNexus - Product Comparison Page
+   ============================================ */
+.comparison-layout { padding-top: 6rem; padding-bottom: 8rem; max-width: var(--max-width); margin: 0 auto; padding-left: var(--space-6); padding-right: var(--space-6); }
+.comparison-hero { margin-bottom: var(--space-12); }
+.comparison-hero-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-primary-dim); margin-bottom: var(--space-2); display: block; }
+.comparison-hero-title { font-size: clamp(2.5rem, 4vw, 3rem); font-weight: 900; letter-spacing: -0.05em; font-style: italic; line-height: 1.1; margin-bottom: var(--space-4); }
+.comparison-hero-desc { color: var(--color-on-surface-variant); font-size: 1.125rem; max-width: 42rem; }
+
+/* Sticky Header */
+.comparison-sticky-header { position: sticky; top: var(--header-height); z-index: 40; border-radius: var(--radius-xl); margin-bottom: var(--space-8); border: 1px solid rgba(143,245,255,0.1); box-shadow: var(--shadow-diffused); }
+.comparison-sticky-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: var(--space-4); padding: var(--space-4); align-items: center; }
+.comparison-sticky-label { padding: 0 var(--space-2); }
+.comparison-sticky-label .text-label-sm { color: var(--color-on-surface-variant); margin-bottom: var(--space-1); display: block; }
+.comparison-sticky-label h2 { font-weight: 700; font-size: 0.875rem; letter-spacing: -0.025em; }
+.comparison-product-header { position: relative; background: rgba(26,26,26,0.4); padding: var(--space-2); border-radius: var(--radius-lg); border: 1px solid rgba(72,72,71,0.1); transition: border-color var(--transition-base); }
+.comparison-product-header:hover { border-color: rgba(143,245,255,0.4); }
+.comparison-product-header.secondary:hover { border-color: rgba(172,137,255,0.4); }
+.comparison-product-header.tertiary:hover { border-color: rgba(101,175,255,0.4); }
+.comparison-product-header-inner { display: flex; align-items: center; gap: var(--space-3); }
+.comparison-product-thumb { width: 3rem; height: 3rem; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid rgba(72,72,71,0.2); }
+.comparison-product-name { font-weight: 700; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: -0.05em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.comparison-product-score { font-weight: 900; font-size: 1.125rem; }
+.comparison-product-score.primary { color: var(--color-primary); }
+.comparison-product-score.secondary { color: var(--color-secondary); }
+.comparison-product-score.tertiary { color: var(--color-tertiary); }
+.comparison-product-actions { display: flex; align-items: center; gap: var(--space-2); }
+.comparison-product-actions button { padding: var(--space-1); transition: color var(--transition-base); }
+
+/* Gauge Cards */
+.comparison-gauges { display: grid; grid-template-columns: 1fr; gap: var(--space-8); margin-bottom: var(--space-16); }
+.gauge-card { background: var(--color-surface-container-low); padding: var(--space-8); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
+.gauge-card.primary { border-left: 4px solid var(--color-primary); }
+.gauge-card.secondary { border-left: 4px solid var(--color-secondary); }
+.gauge-card.tertiary { border-left: 4px solid var(--color-tertiary); }
+.gauge-card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-10); }
+.gauge-card-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--color-on-surface-variant); margin-bottom: var(--space-1); }
+.gauge-card-name { font-size: 1.5rem; font-weight: 900; font-style: italic; letter-spacing: -0.05em; }
+.gauge-lg { position: relative; width: 5rem; height: 5rem; display: flex; align-items: center; justify-content: center; }
+.gauge-lg svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.gauge-lg-value { position: absolute; font-size: 1.25rem; font-weight: 900; letter-spacing: -0.05em; font-style: italic; }
+.gauge-bars { display: flex; flex-direction: column; gap: var(--space-6); }
+.gauge-bar { display: flex; flex-direction: column; gap: var(--space-2); }
+.gauge-bar-header { display: flex; justify-content: space-between; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-on-surface-variant); }
+
+/* Specs Table */
+.comparison-specs { margin-bottom: var(--space-16); }
+.comparison-section-title { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.05em; margin-bottom: var(--space-6); display: flex; align-items: center; gap: var(--space-2); font-style: italic; text-transform: uppercase; }
+.comparison-table { background: var(--color-surface-container); border-radius: var(--radius-2xl); overflow: hidden; border: 1px solid rgba(72,72,71,0.1); }
+.comparison-table-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: var(--space-4); padding: var(--space-6); align-items: center; border-bottom: 1px solid rgba(72,72,71,0.1); }
+.comparison-table-row:last-child { border-bottom: none; }
+.comparison-table-row.highlight { background: rgba(251,191,36,0.05); }
+.comparison-table-label { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-on-surface-variant); }
+.comparison-table-value { font-size: 0.875rem; font-weight: 500; }
+.comparison-table-value.winner { font-weight: 700; }
+.comparison-table-value.winner.primary { color: var(--color-primary); }
+.comparison-table-value.winner.secondary { color: var(--color-secondary); }
+.comparison-table-value.winner.tertiary { color: var(--color-tertiary); }
+.comparison-table-value.price { font-size: 1.125rem; font-weight: 900; letter-spacing: -0.05em; }
+
+/* Sentiment */
+.comparison-sentiment { margin-bottom: var(--space-16); }
+.sentiment-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-8); }
+.sentiment-analysis-card { background: var(--color-surface-container); padding: var(--space-8); border-radius: var(--radius-2xl); border: 1px solid rgba(72,72,71,0.1); transition: border-color var(--transition-base); }
+.sentiment-analysis-card:hover { border-color: rgba(143,245,255,0.2); }
+.sentiment-analysis-card.secondary:hover { border-color: rgba(172,137,255,0.2); }
+.sentiment-analysis-card.tertiary:hover { border-color: rgba(101,175,255,0.2); }
+.sentiment-analysis-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
+.sentiment-analysis-icon { padding: var(--space-2); border-radius: var(--radius-lg); }
+.sentiment-analysis-icon.primary { color: var(--color-primary); background: rgba(143,245,255,0.1); }
+.sentiment-analysis-icon.secondary { color: var(--color-secondary); background: rgba(172,137,255,0.1); }
+.sentiment-analysis-icon.tertiary { color: var(--color-tertiary); background: rgba(101,175,255,0.1); }
+.sentiment-analysis-bar { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-8); }
+.sentiment-analysis-bar-track { flex: 1; height: 0.625rem; background: var(--color-surface-container-highest); border-radius: var(--radius-full); overflow: hidden; }
+.sentiment-analysis-bar-fill { height: 100%; border-radius: var(--radius-full); }
+.sentiment-analysis-percent { font-size: 0.875rem; font-weight: 900; font-style: italic; }
+.sentiment-analysis-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* Verdict */
+.verdict-section { margin-top: 6rem; }
+.verdict-card { background: linear-gradient(to bottom right, var(--color-surface-container-high), var(--color-surface-container-low)); padding: var(--space-12); border-radius: 2rem; position: relative; overflow: hidden; border: 1px solid rgba(143,245,255,0.2); box-shadow: var(--shadow-2xl); }
+.verdict-glow-1 { position: absolute; top: 0; right: 0; width: 24rem; height: 24rem; background: rgba(143,245,255,0.1); filter: blur(120px); transform: translate(50%,-50%); pointer-events: none; }
+.verdict-glow-2 { position: absolute; bottom: 0; left: 0; width: 16rem; height: 16rem; background: rgba(172,137,255,0.05); filter: blur(100px); transform: translate(-50%,50%); pointer-events: none; }
+.verdict-inner { position: relative; z-index: 10; display: flex; flex-direction: column; gap: var(--space-12); }
+.verdict-icon { width: 3.5rem; height: 3.5rem; border-radius: var(--radius-2xl); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container)); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-neon-strong); }
+.verdict-icon .material-symbols-outlined { font-size: 1.875rem; color: var(--color-on-primary); }
+.verdict-title { font-size: 2.5rem; font-weight: 900; font-style: italic; letter-spacing: -0.05em; }
+.verdict-text { color: var(--color-on-surface-variant); font-size: 1.125rem; line-height: 1.6; margin-bottom: var(--space-6); }
+.verdict-badges { display: flex; gap: var(--space-4); flex-wrap: wrap; }
+.verdict-badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: var(--space-2) var(--space-4); border-radius: var(--radius-xl); display: flex; align-items: center; gap: var(--space-2); }
+.verdict-recommendations { display: grid; grid-template-columns: 1fr; gap: var(--space-6); }
+.verdict-rec-card { background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); padding: var(--space-8); border-radius: var(--radius-2xl); border: 1px solid rgba(143,245,255,0.2); transition: border-color var(--transition-base); }
+.verdict-rec-card:hover { border-color: rgba(143,245,255,0.4); }
+.verdict-rec-card.tertiary { border-color: rgba(101,175,255,0.2); }
+.verdict-rec-card.tertiary:hover { border-color: rgba(101,175,255,0.4); }
+.verdict-rec-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-4); }
+.verdict-rec-header h4 { font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; }
+.verdict-rec-name { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: var(--space-3); }
+.verdict-rec-desc { font-size: 0.875rem; color: var(--color-on-surface-variant); line-height: 1.6; margin-bottom: var(--space-4); }
+.verdict-rec-link { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+.verdict-rec-link:hover { text-decoration: underline; }
+
+@media (min-width: 768px) {
+    .comparison-gauges { grid-template-columns: repeat(3, 1fr); }
+    .sentiment-grid { grid-template-columns: repeat(3, 1fr); }
+    .verdict-inner { flex-direction: row; align-items: start; }
+    .verdict-left { width: 42%; }
+    .verdict-recommendations { width: 58%; grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 767px) {
+    .comparison-sticky-grid { grid-template-columns: 1fr; gap: var(--space-3); }
+    .comparison-table-row { grid-template-columns: 1fr; gap: var(--space-2); }
+}
+
+.comparison-product-thumb-wrap {
+    flex-shrink: 0;
+}
+
+.comparison-thumb-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top, rgba(143,245,255,0.12), transparent 40%), var(--color-surface-container-high);
+    color: var(--color-on-surface-variant);
+}
+
+.comparison-product-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.comparison-product-rating-count {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+}
+
+.gauge-card-price {
+    font-size: 1rem;
+    font-weight: 800;
+    margin-top: 1rem;
+}
+
+.comparison-empty-state {
+    text-align: center;
+    padding: 6rem 0;
+    color: var(--color-on-surface-variant);
+}
+
+.comparison-empty-state .material-symbols-outlined {
+    font-size: 4rem;
+    color: var(--color-primary);
+}
+
+.comparison-empty-state h3 {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-on-surface);
+}
+
+.comparison-empty-state p {
+    margin-top: 0.75rem;
+}
+
+.comparison-empty-state a {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.comparison-empty-hint {
+    font-size: 0.875rem;
+}

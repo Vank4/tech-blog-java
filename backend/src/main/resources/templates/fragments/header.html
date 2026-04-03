@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Public Header / Top Navigation Bar -->
+<header th:fragment="header" class="site-header">
+    <div class="site-header-inner">
+        <div class="site-header-brand">
+            <a th:href="@{/}" class="site-logo">TechNexus</a>
+            <nav class="site-nav">
+                <a th:href="@{/}" class="site-nav-link" data-nav-link="/" data-nav-exact="true">Home</a>
+                <a th:href="@{/products}" class="site-nav-link" data-nav-link="/products">Products</a>
+                <a th:href="@{/compare}" class="site-nav-link" data-nav-link="/compare" data-nav-compare style="display:none;">Compare</a>
+            </nav>
+        </div>
+        <div class="site-header-actions">
+            <div class="search-box">
+                <input id="search-input" class="input" type="text" placeholder="Search tech..."/>
+                <span class="material-symbols-outlined">search</span>
+            </div>
+            <div class="site-header-guest" data-guest-panel>
+                <a th:href="@{/login}" class="btn btn-ghost">Login</a>
+                <a th:href="@{/register}" class="btn btn-primary btn-md">Sign Up</a>
+            </div>
+            <div class="site-user-shell" data-auth-panel style="display:none;">
+                <a th:href="@{/profile}" class="site-user-chip" data-avatar-link>
+                    <span class="site-user-avatar-wrap">
+                        <img class="site-user-avatar" data-user-avatar alt="User avatar"/>
+                    </span>
+                    <span class="site-user-meta">
+                        <span class="site-user-name" data-user-name>My Account</span>
+                        <span class="site-user-caption" data-user-caption>Signed in</span>
+                    </span>
+                </a>
+                <div class="site-user-menu">
+                    <a th:href="@{/profile}" class="site-user-menu-link" data-nav-profile>Profile</a>
+                    <a th:href="@{/author/posts}" class="site-user-menu-link" data-nav-author style="display:none;">Author Desk</a>
+                    <a th:href="@{/admin/posts}" class="site-user-menu-link" data-nav-admin style="display:none;">Admin Hub</a>
+                    <button type="button" class="site-user-menu-link site-user-menu-button" data-logout>Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>
